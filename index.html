@@ -270,8 +270,8 @@
                 receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>Rs. ' + finalRowNetTotal.toFixed(0) + '</span></div>';
             })(i);
         }
-        document.getElementById('receipt-subtotal').innerText = 'Rs. ' + totalBillSubtotal.toFixed(0);
-        document.getElementById('receipt-net-total').innerText = 'Rs. ' + totalBillNetTotal.toFixed(0);
+        document.getElementById('receipt-subtotal').innerText = "Rs. " + totalBillSubtotal.toFixed(0);
+        document.getElementById('receipt-net-total').innerText = "Rs. " + totalBillNetTotal.toFixed(0);
     }
 
     function processCheckout() {
@@ -289,17 +289,43 @@
 
         salesLog.push({ time: timeStr, method: paymentMethod, amount: finalAmount });
         
-        // PASTE YOUR LONG GOOGLE DRIVE WEB APP URL LINK BETWEEN THE QUOTES BELOW:
-        var googleDriveWebhookUrl = AKfycbwGUSChjgX0LcBZupnBSlBYfvGuDpp7DmpGO3HpqeH8wlR_2oKdqSPy2Z4STbGDPla3qw;
+        // REPLACED: Changed URL parameter layout to send data via clean background forms
+        var googleDriveWebhookUrl = "PASTE_YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE";
         
-        fetch(googleDriveWebhookUrl, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ time: timeStr, method: paymentMethod, items: itemsSummaryText, amount: finalAmount })
-        }).catch(function(err) { console.log("Cloud backup failed."); });
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = googleDriveWebhookUrl;
+        form.target = 'hidden_frame';
+        
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'contents';
+        input.value = JSON.stringify({ time: timeStr, method: paymentMethod, items: itemsSummaryText, amount: finalAmount });
+        
+        var iframe = document.getElementById('hidden_frame');
+        if(!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'hidden_frame';
+            iframe.id = 'hidden_frame';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        
+        // Triggers the internet backup dispatch loop
+        form.submit();
+        
+        // Clean up the browser layout tree structures
+        setTimeout(function() {
+            document.body.removeChild(form);
+        }, 500);
 
-        window.print(); clearBill(); updateSalesDashboard();
+        // Launches your print ticket view
+        window.print();
+        clearBill(); 
+        updateSalesDashboard();
     }
 
     function updateSalesDashboard() {
