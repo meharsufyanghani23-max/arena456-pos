@@ -21,17 +21,20 @@
         button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
         .catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
         .catalog-item { background: #fff; border: 2px solid #dcdde1; padding: 10px; text-align: center; border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+        .catalog-item small { display: block; color: #7f8c8d; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
         .catalog-item strong { display: block; font-size: 0.95rem; color: #2c3e50; }
         .catalog-item span { display: block; font-size: 0.85rem; color: #27ae60; font-weight: bold; margin: 4px 0 8px 0; }
         .select-btn { background: #27ae60; color: white; padding: 8px; font-size: 0.85rem; border-radius: 6px; border: none; width: 100%; cursor: pointer; margin-bottom: 5px;}
         .delete-tag { color: var(--danger); font-size: 0.75rem; text-decoration: underline; cursor: pointer; display: block; padding-top: 2px;}
-        .bill-table-container { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #eee; }
+        .bill-table-container { max-height: 220px; overflow-y: auto; overflow-x: auto; margin-top: 10px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { padding: 8px 4px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+        th, td { padding: 8px 4px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; white-space: nowrap; }
         th { background: #f1f2f6; }
         .item-disc-input { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 45px; text-align: center; display: inline-block; }
         .item-disc-type { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 40px; display: inline-block; background: #fff; }
         .remove-idx { color: var(--danger); cursor: pointer; font-weight: bold; font-size: 1.3rem; text-align: center; padding: 0 5px; }
+        .qty-control { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .qty-btn { width: 24px; height: 24px; padding: 0; font-size: 1rem; line-height: 1; border-radius: 6px; background: var(--primary); }
         .receipt-preview { background: #fff; border: 1px dashed #bbb; padding: 15px; width: 100%; max-width: 260px; margin: 10px auto; box-sizing: border-box; font-family: monospace; }
         .receipt-header { text-align: center; margin-bottom: 10px; }
         .receipt-line { border-top: 1px dashed #000; margin: 8px 0; }
@@ -51,7 +54,7 @@
 
     <div id="billing-tab" class="tab-content active">
         <div class="panel" style="margin-bottom:15px;">
-            <h2>📂 Save Menu Item</h2>
+            <h2>📂 Menu Management</h2>
             <div class="flex-row">
                 <div style="flex: 2;">
                     <label>Item Name</label>
@@ -62,7 +65,27 @@
                     <input type="number" id="new-item-price" placeholder="350">
                 </div>
             </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <input type="text" id="new-item-category" placeholder="e.g., Burgers" value="General">
+                </div>
+            </div>
             <button type="button" onclick="saveToCatalog()">＋ Add to Menu Grid</button>
+
+            <div class="flex-row" style="margin-top:15px;">
+                <div style="flex: 2;">
+                    <label>Search Menu</label>
+                    <input type="text" id="menu-search" placeholder="Search items..." oninput="renderCatalog()">
+                </div>
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <select id="menu-category-filter" onchange="renderCatalog()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="catalog-grid" id="catalog-list"></div>
         </div>
 
@@ -72,7 +95,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Item (Qty)</th>
+                            <th>Item</th>
+                            <th style="width: 80px;">Qty</th>
                             <th>Price</th>
                             <th style="width: 100px;">Discount</th>
                             <th>Total</th>
@@ -82,7 +106,7 @@
                     <tbody id="bill-items-table"></tbody>
                 </table>
             </div>
-            
+
             <div style="margin-top: 15px;">
                 <label>Payment Method</label>
                 <select id="payment-method">
@@ -92,7 +116,12 @@
                     <option value="Card">Card</option>
                 </select>
             </div>
-            
+
+            <div style="margin-top: 15px;">
+                <label>Order Discount (%)</label>
+                <input type="number" id="order-discount" placeholder="0" min="0" max="100" value="0" oninput="updateBillDisplay()">
+            </div>
+
             <button class="danger-btn" onclick="clearBill()" style="margin-top: 15px; background:var(--danger)">🗑️ Clear Current Order</button>
         </div>
         <div class="panel" style="text-align:center;">
@@ -100,12 +129,14 @@
             <div class="receipt-preview" id="receipt">
                 <div class="receipt-header">
                     <h3>ARENA 456</h3>
+                    <div id="receipt-invoice" style="font-size:0.75rem; color:#555;"></div>
                     <small id="receipt-date"></small>
                 </div>
                 <div class="receipt-line"></div>
                 <div id="receipt-items"></div>
                 <div class="receipt-line"></div>
                 <div class="receipt-row"><span>Subtotal:</span><span id="receipt-subtotal">Rs. 0</span></div>
+                <div class="receipt-row" id="receipt-order-discount-row" style="display:none;"><span>Order Discount:</span><span id="receipt-order-discount">Rs. 0</span></div>
                 <div class="receipt-row total-row"><span>Total Amount:</span><span id="receipt-net-total">Rs. 0</span></div>
                 <div class="receipt-line"></div>
                 <div style="font-size:0.75rem;">Thank You For Dining With Us!</div>
@@ -132,6 +163,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Invoice #</th>
                             <th>Time</th>
                             <th>Method</th>
                             <th>Amount</th>
@@ -141,22 +173,60 @@
                     <tbody id="sales-log-table"></tbody>
                 </table>
             </div>
-            <button onclick="resetDailySales()" style="background: var(--danger); margin-top: 15px;">⚠️ Wipe Sales Log Counter</button>
+            <button onclick="exportSalesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Sales CSV</button>
+            <button onclick="resetDailySales()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Sales Log Counter</button>
         </div>
     </div>
 </div>
 <script>
+    var STORAGE_KEYS = {
+        menu: 'arena456_menu',
+        sales: 'arena456_salesLog',
+        invoice: 'arena456_invoiceCounter',
+        bill: 'arena456_currentBill'
+    };
+
+    // ==== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup guide) ====
+    var GOOGLE_SHEET_WEBHOOK_URL = https://script.google.com/macros/s/AKfycbwGUSChjgX0LcBZupnBSlBYfvGuDpp7DmpGO3HpqeH8wlR_2oKdqSPy2Z4STbGDPla3qw/exec;
+    // =============================================================================
+
     var currentBill = [];
+    var invoiceCounter = 1;
     var menuCatalog = [
-        { name: "Zinger Burger", price: 450 },
-        { name: "Fries", price: 200 },
-        { name: "Soft Drink", price: 80 }
+        { name: "Zinger Burger", price: 450, category: "Burgers" },
+        { name: "Fries", price: 200, category: "Sides" },
+        { name: "Soft Drink", price: 80, category: "Drinks" }
     ];
     var salesLog = [];
+
+    function formatCurrency(num) {
+        return 'Rs. ' + Number(num || 0).toLocaleString('en-PK', { maximumFractionDigits: 0 });
+    }
+
+    function loadState() {
+        try {
+            var savedMenu = localStorage.getItem(STORAGE_KEYS.menu);
+            if (savedMenu !== null) menuCatalog = JSON.parse(savedMenu);
+            var savedSales = localStorage.getItem(STORAGE_KEYS.sales);
+            if (savedSales !== null) salesLog = JSON.parse(savedSales);
+            var savedInvoice = localStorage.getItem(STORAGE_KEYS.invoice);
+            if (savedInvoice !== null) invoiceCounter = parseInt(savedInvoice, 10) || 1;
+            var savedBill = localStorage.getItem(STORAGE_KEYS.bill);
+            if (savedBill !== null) currentBill = JSON.parse(savedBill);
+        } catch (e) {
+            console.warn('Could not load saved POS data:', e);
+        }
+    }
+
+    function saveMenu() { localStorage.setItem(STORAGE_KEYS.menu, JSON.stringify(menuCatalog)); }
+    function saveSales() { localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(salesLog)); }
+    function saveInvoiceCounter() { localStorage.setItem(STORAGE_KEYS.invoice, invoiceCounter); }
+    function saveBill() { localStorage.setItem(STORAGE_KEYS.bill, JSON.stringify(currentBill)); }
 
     window.onload = function() {
         var options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         document.getElementById('receipt-date').innerText = new Date().toLocaleDateString("en-PK", options);
+        loadState();
         renderCatalog();
         updateBillDisplay();
         updateSalesDashboard();
@@ -180,35 +250,64 @@
     function saveToCatalog() {
         var nameInput = document.getElementById('new-item-name');
         var priceInput = document.getElementById('new-item-price');
+        var categoryInput = document.getElementById('new-item-category');
         var name = nameInput.value.trim();
         var price = parseFloat(priceInput.value);
+        var category = (categoryInput.value || 'General').trim() || 'General';
         if (!name || isNaN(price)) return alert("Enter valid name and price!");
-        menuCatalog.push({ name: name, price: price });
-        nameInput.value = ''; priceInput.value = '';
+        menuCatalog.push({ name: name, price: price, category: category });
+        nameInput.value = ''; priceInput.value = ''; categoryInput.value = 'General';
+        saveMenu();
         renderCatalog();
     }
 
     function deleteFromCatalog(index) {
         menuCatalog.splice(index, 1);
+        saveMenu();
         renderCatalog();
     }
 
     function renderCatalog() {
         var grid = document.getElementById('catalog-list');
+        var searchInput = document.getElementById('menu-search');
+        var categorySelect = document.getElementById('menu-category-filter');
+        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+        if (categorySelect) {
+            var currentSelection = categorySelect.value;
+            var categories = [];
+            for (var c = 0; c < menuCatalog.length; c++) {
+                var cat = menuCatalog[c].category || 'General';
+                if (categories.indexOf(cat) === -1) categories.push(cat);
+            }
+            categorySelect.innerHTML = '<option value="">All</option>';
+            for (var c2 = 0; c2 < categories.length; c2++) {
+                var opt = document.createElement('option');
+                opt.value = categories[c2]; opt.innerText = categories[c2];
+                if (categories[c2] === currentSelection) opt.selected = true;
+                categorySelect.appendChild(opt);
+            }
+        }
+        var categoryFilter = categorySelect ? categorySelect.value : '';
+
         grid.innerHTML = '';
         for (var i = 0; i < menuCatalog.length; i++) {
             (function(index) {
                 var item = menuCatalog[index];
+                var itemCategory = item.category || 'General';
+                if (searchTerm && item.name.toLowerCase().indexOf(searchTerm) === -1) return;
+                if (categoryFilter && itemCategory !== categoryFilter) return;
+
                 var itemBtn = document.createElement('div');
                 itemBtn.className = 'catalog-item';
                 var infoDiv = document.createElement('div');
-                infoDiv.innerHTML = '<strong>' + item.name + '</strong><span>Rs. ' + item.price + '</span>';
+                infoDiv.innerHTML = '<small>' + itemCategory + '</small><strong>' + item.name + '</strong><span>' + formatCurrency(item.price) + '</span>';
                 var btn = document.createElement('button');
                 btn.className = 'select-btn'; btn.innerText = '🛒 Add to Bill';
                 btn.onclick = function() { addItemToBill(item.name, item.price); };
                 var delSpan = document.createElement('span');
                 delSpan.className = 'delete-tag'; delSpan.innerText = 'Remove';
-                delSpan.onclick = function() { deleteFromCatalog(index); };
+                delSpan.onclick = function() { if (confirm('Remove "' + item.name + '" from the menu?')) { deleteFromCatalog(index); } };
                 itemBtn.appendChild(infoDiv); itemBtn.appendChild(btn); itemBtn.appendChild(delSpan);
                 grid.appendChild(itemBtn);
             })(i);
@@ -220,18 +319,23 @@
         for (var i = 0; i < currentBill.length; i++) {
             if (currentBill[i].name == name) { existingItem = currentBill[i]; break; }
         }
-        if (existingItem) { existingItem.qty += 1; } 
+        if (existingItem) { existingItem.qty += 1; }
         else { currentBill.push({ name: name, price: price, qty: 1, discVal: 0, discType: 'pct' }); }
         updateBillDisplay();
     }
 
     function changeItemDiscount(index, field, value) {
-        if (field == 'val') { currentBill[index].discVal = parseFloat(value) || 0; } 
+        if (field == 'val') { currentBill[index].discVal = parseFloat(value) || 0; }
         else { currentBill[index].discType = value; }
         updateBillDisplay();
     }
-</script>
-<script>
+
+    function changeItemQty(index, delta) {
+        currentBill[index].qty += delta;
+        if (currentBill[index].qty <= 0) { currentBill.splice(index, 1); }
+        updateBillDisplay();
+    }
+
     function removeBillItem(index) { currentBill.splice(index, 1); updateBillDisplay(); }
     function clearBill() { currentBill = []; updateBillDisplay(); }
 
@@ -239,7 +343,7 @@
         var tableBody = document.getElementById('bill-items-table');
         var receiptItems = document.getElementById('receipt-items');
         tableBody.innerHTML = ''; receiptItems.innerHTML = '';
-        var totalBillSubtotal = 0; var totalBillNetTotal = 0;
+        var totalBillSubtotal = 0; var totalAfterItemDiscounts = 0;
 
         for (var i = 0; i < currentBill.length; i++) {
             (function(index) {
@@ -247,14 +351,25 @@
                 var rawRowTotal = item.price * item.qty;
                 totalBillSubtotal += rawRowTotal;
                 var rowDiscountAmount = 0;
-                if (item.discType == 'pct') { rowDiscountAmount = rawRowTotal * (item.discVal / 100); } 
+                if (item.discType == 'pct') { rowDiscountAmount = rawRowTotal * (item.discVal / 100); }
                 else { rowDiscountAmount = item.discVal; }
                 var finalRowNetTotal = rawRowTotal - rowDiscountAmount;
                 if (finalRowNetTotal < 0) finalRowNetTotal = 0;
-                totalBillNetTotal += finalRowNetTotal;
+                totalAfterItemDiscounts += finalRowNetTotal;
 
                 var tr = document.createElement('tr');
-                var tdName = document.createElement('td'); tdName.innerHTML = '<b>' + item.qty + 'x</b> ' + item.name;
+                var tdName = document.createElement('td'); tdName.innerText = item.name;
+
+                var tdQty = document.createElement('td');
+                var qtyWrap = document.createElement('div'); qtyWrap.className = 'qty-control';
+                var minusBtn = document.createElement('button'); minusBtn.type = 'button'; minusBtn.className = 'qty-btn'; minusBtn.innerText = '−';
+                minusBtn.onclick = function() { changeItemQty(index, -1); };
+                var qtySpan = document.createElement('span'); qtySpan.innerText = item.qty;
+                var plusBtn = document.createElement('button'); plusBtn.type = 'button'; plusBtn.className = 'qty-btn'; plusBtn.innerText = '+';
+                plusBtn.onclick = function() { changeItemQty(index, 1); };
+                qtyWrap.appendChild(minusBtn); qtyWrap.appendChild(qtySpan); qtyWrap.appendChild(plusBtn);
+                tdQty.appendChild(qtyWrap);
+
                 var tdPrice = document.createElement('td'); tdPrice.innerText = item.price;
                 var tdDisc = document.createElement('td');
                 var discInput = document.createElement('input'); discInput.type = 'number'; discInput.className = 'item-disc-input'; discInput.value = item.discVal; discInput.oninput = function() { changeItemDiscount(index, 'val', this.value); };
@@ -265,67 +380,86 @@
                 tdDisc.appendChild(discInput); tdDisc.appendChild(discSelect);
                 var tdTotal = document.createElement('td'); tdTotal.innerHTML = '<b>' + finalRowNetTotal.toFixed(0) + '</b>';
                 var tdRem = document.createElement('td'); tdRem.className = 'remove-idx'; tdRem.innerText = '×'; tdRem.onclick = function() { removeBillItem(index); };
-                tr.appendChild(tdName); tr.appendChild(tdPrice); tr.appendChild(tdDisc); tr.appendChild(tdTotal); tr.appendChild(tdRem); tableBody.appendChild(tr);
+                tr.appendChild(tdName); tr.appendChild(tdQty); tr.appendChild(tdPrice); tr.appendChild(tdDisc); tr.appendChild(tdTotal); tr.appendChild(tdRem); tableBody.appendChild(tr);
 
-                receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>Rs. ' + finalRowNetTotal.toFixed(0) + '</span></div>';
+                receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>' + formatCurrency(finalRowNetTotal) + '</span></div>';
             })(i);
         }
-        document.getElementById('receipt-subtotal').innerText = "Rs. " + totalBillSubtotal.toFixed(0);
-        document.getElementById('receipt-net-total').innerText = "Rs. " + totalBillNetTotal.toFixed(0);
+
+        var orderDiscountInput = document.getElementById('order-discount');
+        var orderDiscountPct = orderDiscountInput ? (parseFloat(orderDiscountInput.value) || 0) : 0;
+        var orderDiscountAmount = totalAfterItemDiscounts * (orderDiscountPct / 100);
+        var grandTotal = totalAfterItemDiscounts - orderDiscountAmount;
+        if (grandTotal < 0) grandTotal = 0;
+
+        document.getElementById('receipt-subtotal').innerText = formatCurrency(totalBillSubtotal);
+        var discRow = document.getElementById('receipt-order-discount-row');
+        if (orderDiscountAmount > 0) {
+            discRow.style.display = 'flex';
+            document.getElementById('receipt-order-discount').innerText = '- ' + formatCurrency(orderDiscountAmount);
+        } else {
+            discRow.style.display = 'none';
+        }
+        document.getElementById('receipt-net-total').innerText = formatCurrency(grandTotal);
+        document.getElementById('receipt-invoice').innerText = 'Order #' + String(invoiceCounter).padStart(4, '0');
+
+        saveBill();
     }
 
     function processCheckout() {
         if(currentBill.length == 0) return alert("Your current active bill table is empty!");
         var netTotalStr = document.getElementById('receipt-net-total').innerText;
-        var finalAmount = parseFloat(netTotalStr.replace('Rs. ', '')) || 0;
+        var finalAmount = parseFloat(netTotalStr.replace(/[^0-9.]/g, '')) || 0;
         var paymentMethod = document.getElementById('payment-method').value;
         var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
-        
+        var thisInvoiceNo = invoiceCounter;
+
         var orderedItemsList = [];
         for (var i = 0; i < currentBill.length; i++) {
             orderedItemsList.push(currentBill[i].qty + "x " + currentBill[i].name);
         }
         var itemsSummaryText = orderedItemsList.join(", ");
 
-        salesLog.push({ time: timeStr, method: paymentMethod, amount: finalAmount });
-        
-        // REPLACED: Changed URL parameter layout to send data via clean background forms
-        var googleDriveWebhookUrl = "PASTE_YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE";
-        
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = googleDriveWebhookUrl;
-        form.target = 'hidden_frame';
-        
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'contents';
-        input.value = JSON.stringify({ time: timeStr, method: paymentMethod, items: itemsSummaryText, amount: finalAmount });
-        
-        var iframe = document.getElementById('hidden_frame');
-        if(!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.name = 'hidden_frame';
-            iframe.id = 'hidden_frame';
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-        }
-        
-        form.appendChild(input);
-        document.body.appendChild(form);
-        
-        // Triggers the internet backup dispatch loop
-        form.submit();
-        
-        // Clean up the browser layout tree structures
-        setTimeout(function() {
-            document.body.removeChild(form);
-        }, 500);
+        salesLog.push({ invoiceNo: thisInvoiceNo, time: timeStr, method: paymentMethod, amount: finalAmount });
+        saveSales();
 
-        // Launches your print ticket view
+        invoiceCounter += 1;
+        saveInvoiceCounter();
+
+        // Send a background copy to your Google Sheet, only if the webhook URL has been configured
+        if (GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR') === -1) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SHEET_WEBHOOK_URL;
+            form.target = 'hidden_frame';
+
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'contents';
+            input.value = JSON.stringify({ invoiceNo: thisInvoiceNo, time: timeStr, method: paymentMethod, items: itemsSummaryText, amount: finalAmount });
+
+            var iframe = document.getElementById('hidden_frame');
+            if(!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.name = 'hidden_frame';
+                iframe.id = 'hidden_frame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+
+            setTimeout(function() {
+                document.body.removeChild(form);
+            }, 500);
+        }
+
         window.print();
-        clearBill(); 
+        clearBill();
         updateSalesDashboard();
+        updateBillDisplay();
     }
 
     function updateSalesDashboard() {
@@ -343,22 +477,52 @@
                 else if(record.method == 'Card') card += record.amount;
 
                 var tr = document.createElement('tr');
+                var tdInv = document.createElement('td'); tdInv.innerText = '#' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
                 var tdTime = document.createElement('td'); tdTime.innerText = record.time;
                 var tdMethod = document.createElement('td'); tdMethod.innerText = record.method;
-                var tdAmt = document.createElement('td'); tdAmt.innerText = 'Rs. ' + record.amount.toFixed(0);
+                var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
                 var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×'; tdDel.onclick = function() { deleteSalesRecord(index); };
-                tr.appendChild(tdTime); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdDel); logTable.appendChild(tr);
+                tr.appendChild(tdInv); tr.appendChild(tdTime); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdDel); logTable.appendChild(tr);
             })(i);
         }
-        document.getElementById('total-sales').innerText = 'Rs. ' + total.toFixed(0);
-        document.getElementById('sales-cash').innerText = 'Rs. ' + cash.toFixed(0);
-        document.getElementById('sales-easypaisa').innerText = 'Rs. ' + easypaisa.toFixed(0);
-        document.getElementById('sales-jazzcash').innerText = 'Rs. ' + jazzcash.toFixed(0);
-        document.getElementById('sales-card').innerText = 'Rs. ' + card.toFixed(0);
+        document.getElementById('total-sales').innerText = formatCurrency(total);
+        document.getElementById('sales-cash').innerText = formatCurrency(cash);
+        document.getElementById('sales-easypaisa').innerText = formatCurrency(easypaisa);
+        document.getElementById('sales-jazzcash').innerText = formatCurrency(jazzcash);
+        document.getElementById('sales-card').innerText = formatCurrency(card);
     }
 
-    function deleteSalesRecord(index) { if(confirm("Delete record?")) { salesLog.splice(index, 1); updateSalesDashboard(); } }
-    function resetDailySales() { if(confirm("Wipe data?")) { salesLog = []; updateSalesDashboard(); } }
+    function deleteSalesRecord(index) { if(confirm("Delete record?")) { salesLog.splice(index, 1); saveSales(); updateSalesDashboard(); } }
+
+    function resetDailySales() {
+        if(confirm("This will permanently erase today's sales log. Make sure you've exported a CSV backup first. Continue?")) {
+            salesLog = [];
+            saveSales();
+            updateSalesDashboard();
+        }
+    }
+
+    function exportSalesCSV() {
+        if (salesLog.length == 0) return alert("No sales records to export yet!");
+        var rows = [["Invoice #", "Time", "Method", "Amount"]];
+        for (var i = 0; i < salesLog.length; i++) {
+            var r = salesLog[i];
+            rows.push([r.invoiceNo != null ? r.invoiceNo : (i + 1), r.time, r.method, r.amount]);
+        }
+        var csvContent = rows.map(function(row) {
+            return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'arena456-sales-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
 </script>
 </body>
 </html>
