@@ -111,6 +111,7 @@
     <div class="tabs">
         <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')">🛒 Billing Terminal</button>
         <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')">🍳 Kitchen Orders</button>
+        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')">✅ Ready Orders</button>
         <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')">📈 Daily Sales Report</button>
     </div>
 
@@ -172,7 +173,7 @@
         </div>
 
         <div class="panel" style="margin-bottom:15px;">
-            <h2>🛒 Current Active Bill Table</h2>
+            <h2 id="active-bill-heading">🛒 Current Active Bill Table</h2>
             <div class="bill-table-container">
                 <table>
                     <thead>
@@ -255,9 +256,18 @@
     <div id="kitchen-tab" class="tab-content">
         <div class="panel">
             <h2>🍳 Kitchen Orders Queue</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here automatically when you tap "🧾 Print Kitchen Ticket" on the Billing tab. Move each one through its status as the kitchen works on it.</p>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here automatically when you tap "🧾 Print Kitchen Ticket" on the Billing tab. Move each one through its status as the kitchen works on it. When an order is marked "Ready" it moves to the ✅ Ready Orders tab. You can also tap "🧾 Load to Billing" any time to pull an order's items back into the bill (e.g. if the customer wants to pay early or add more items).</p>
             <div id="kitchen-orders-list"></div>
             <div id="kitchen-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No active kitchen orders right now.</div>
+        </div>
+    </div>
+
+    <div id="ready-tab" class="tab-content">
+        <div class="panel">
+            <h2>✅ Ready Orders — Awaiting Billing</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders show up here once the kitchen marks them "Ready". Prep Time shows how long it took from order taken to ready, so you know your chef's speed. Tap "Load to Billing" to pull the order straight into the bill — no retyping.</p>
+            <div id="ready-orders-list"></div>
+            <div id="ready-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No orders ready for billing right now.</div>
         </div>
     </div>
 
@@ -310,7 +320,8 @@
         invoice: 'arena456_invoiceCounter',
         bill: 'arena456_currentBill',
         orderType: 'arena456_orderType',
-        kitchenOrders: 'arena456_kitchenOrders'
+        kitchenOrders: 'arena456_kitchenOrders',
+        currentKitchenOrderId: 'arena456_currentKitchenOrderId'
     };
 
     // ==== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup guide). Must stay in quotes! ====
@@ -329,6 +340,8 @@
     var salesLog = [];
     var currentOrderType = 'Dine-in';
     var kitchenOrders = [];
+    var currentKitchenOrderId = null; // if set, the active bill is linked to this kitchen order
+    var lastComputedGrandTotal = 0; // raw number (not "Rs. X" text) - always kept in sync by updateBillDisplay()
 
     // Full starter menu built from the Arena 456 menu board.
     // Items with "sizes" show Small / Medium / Large buttons instead of a single price.
@@ -435,6 +448,8 @@
             if (savedOrderType !== null) currentOrderType = savedOrderType;
             var savedKitchenOrders = localStorage.getItem(STORAGE_KEYS.kitchenOrders);
             if (savedKitchenOrders !== null) kitchenOrders = JSON.parse(savedKitchenOrders);
+            var savedLinkedOrder = localStorage.getItem(STORAGE_KEYS.currentKitchenOrderId);
+            if (savedLinkedOrder !== null && savedLinkedOrder !== 'null') currentKitchenOrderId = JSON.parse(savedLinkedOrder);
         } catch (e) {
             console.warn('Could not load saved POS data:', e);
         }
@@ -446,6 +461,7 @@
     function saveBill() { localStorage.setItem(STORAGE_KEYS.bill, JSON.stringify(currentBill)); }
     function saveOrderType() { localStorage.setItem(STORAGE_KEYS.orderType, currentOrderType); }
     function saveKitchenOrders() { localStorage.setItem(STORAGE_KEYS.kitchenOrders, JSON.stringify(kitchenOrders)); }
+    function saveLinkedOrderId() { localStorage.setItem(STORAGE_KEYS.currentKitchenOrderId, JSON.stringify(currentKitchenOrderId)); }
 
     function setOrderType(type) {
         currentOrderType = type;
@@ -469,11 +485,13 @@
         updateBillDisplay();
         updateSalesDashboard();
         renderKitchenOrders();
+        renderReadyOrders();
+        renderKitchenLinkBanner();
     };
 
     function switchTab(tabName) {
-        var tabButtons = { billing: 'btn-billing', kitchen: 'btn-kitchen', sales: 'btn-sales' };
-        var tabPanels = { billing: 'billing-tab', kitchen: 'kitchen-tab', sales: 'sales-tab' };
+        var tabButtons = { billing: 'btn-billing', kitchen: 'btn-kitchen', ready: 'btn-ready', sales: 'btn-sales' };
+        var tabPanels = { billing: 'billing-tab', kitchen: 'kitchen-tab', ready: 'ready-tab', sales: 'sales-tab' };
         for (var key in tabButtons) {
             document.getElementById(tabButtons[key]).classList.remove('active');
             document.getElementById(tabPanels[key]).classList.remove('active');
@@ -483,6 +501,7 @@
 
         if (tabName == 'sales') { updateSalesDashboard(); }
         else if (tabName == 'kitchen') { renderKitchenOrders(); }
+        else if (tabName == 'ready') { renderReadyOrders(); }
     }
 
     function toggleSizeInputs() {
@@ -733,7 +752,43 @@
     }
 
     function removeBillItem(index) { currentBill.splice(index, 1); updateBillDisplay(); }
-    function clearBill() { currentBill = []; updateBillDisplay(); }
+    function clearBill() {
+        currentBill = [];
+        currentKitchenOrderId = null;
+        saveLinkedOrderId();
+        updateBillDisplay();
+        renderKitchenLinkBanner();
+    }
+
+    // Small helper: format milliseconds as "Xh Ym" or "Ym" for prep time display.
+    function formatDuration(ms) {
+        if (ms == null || ms < 0) return '—';
+        var totalMinutes = Math.round(ms / 60000);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        if (hours > 0) return hours + 'h ' + minutes + 'm';
+        return minutes + ' min';
+    }
+
+    // Shows a small banner on the Billing tab when the current bill is linked to an existing kitchen order,
+    // so the cashier knows they're adding to an order instead of starting a fresh one.
+    function renderKitchenLinkBanner() {
+        var existing = document.getElementById('kitchen-link-banner');
+        if (currentKitchenOrderId) {
+            var order = kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0];
+            var label = order ? order.invoiceLabel : ('Order #' + String(invoiceCounter).padStart(4, '0'));
+            var html = '<div id="kitchen-link-banner" style="background:#eafaf1; border:1px solid #27ae60; color:#1e8449; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; gap:8px;">' +
+                '<span>🔗 Adding to <b>' + label + '</b> from the kitchen queue.</span>' +
+                '<span style="text-decoration:underline; cursor:pointer; white-space:nowrap;" onclick="clearBill()">Unlink</span></div>';
+            if (existing) { existing.outerHTML = html; }
+            else {
+                var billingPanelHeading = document.getElementById('active-bill-heading');
+                if (billingPanelHeading) billingPanelHeading.insertAdjacentHTML('afterend', html);
+            }
+        } else if (existing) {
+            existing.remove();
+        }
+    }
 
     function updateBillDisplay() {
         var tableBody = document.getElementById('bill-items-table');
@@ -797,7 +852,9 @@
             discRow.style.display = 'none';
         }
         document.getElementById('receipt-net-total').innerText = formatCurrency(grandTotal);
-        document.getElementById('receipt-invoice').innerText = 'Order #' + String(invoiceCounter).padStart(4, '0');
+        lastComputedGrandTotal = grandTotal;
+        var linkedOrder = currentKitchenOrderId ? kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0] : null;
+        document.getElementById('receipt-invoice').innerText = linkedOrder ? linkedOrder.invoiceLabel : ('Order #' + String(invoiceCounter).padStart(4, '0'));
         document.getElementById('receipt-order-type').innerText = currentOrderType;
 
         saveBill();
@@ -817,23 +874,62 @@
 
     function printKitchenTicket() {
         if (currentBill.length == 0) return alert("The current order is empty - add items before printing a kitchen ticket!");
-        var items = currentBill.map(function(it) { return { name: it.name, qty: it.qty }; });
-        var invoiceLabel = 'Order #' + String(invoiceCounter).padStart(4, '0');
+        // Store a full copy of the bill (with prices/discounts) on the order so it can be
+        // loaded straight back into billing later - not just name/qty.
+        var billSnapshot = JSON.parse(JSON.stringify(currentBill));
+        var ticketItems = currentBill.map(function(it) { return { name: it.name, qty: it.qty }; });
         var options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         var timeStr = new Date().toLocaleDateString("en-PK", options);
 
-        fillKitchenTicketDOM(items, invoiceLabel, currentOrderType, timeStr);
+        // If this bill is already linked to a kitchen order (e.g. the customer ordered more,
+        // or we're reprinting), update that same order instead of creating a duplicate ticket.
+        if (currentKitchenOrderId) {
+            var existingOrder = kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0];
+            if (existingOrder) {
+                existingOrder.items = billSnapshot;
+                existingOrder.orderType = currentOrderType;
+                existingOrder.lastUpdated = timeStr;
+                // New items were just sent to the kitchen, so if it was already "Ready" it needs
+                // to go back to "Preparing" until the kitchen confirms the extra items too.
+                if (existingOrder.status === 'Ready') {
+                    existingOrder.status = 'Preparing';
+                    existingOrder.readyAt = null;
+                }
+                fillKitchenTicketDOM(ticketItems, existingOrder.invoiceLabel, existingOrder.orderType, timeStr);
+                saveKitchenOrders();
+                renderKitchenOrders();
+                renderReadyOrders();
+                document.body.classList.add('print-kitchen');
+                window.print();
+                return;
+            }
+        }
 
-        kitchenOrders.push({
+        var thisOrderNo = invoiceCounter;
+        var invoiceLabel = 'Order #' + String(thisOrderNo).padStart(4, '0');
+        fillKitchenTicketDOM(ticketItems, invoiceLabel, currentOrderType, timeStr);
+
+        var newOrder = {
             id: Date.now(),
+            invoiceNo: thisOrderNo,
             invoiceLabel: invoiceLabel,
             orderType: currentOrderType,
             time: timeStr,
-            items: items,
+            createdAt: Date.now(),
+            readyAt: null,
+            items: billSnapshot,
             status: 'Pending'
-        });
+        };
+        kitchenOrders.push(newOrder);
+        currentKitchenOrderId = newOrder.id;
+        // Reserve this order number right away so a second table opened at the same time
+        // (before this one is paid) gets its own, different number.
+        invoiceCounter += 1;
+        saveInvoiceCounter();
+        saveLinkedOrderId();
         saveKitchenOrders();
         renderKitchenOrders();
+        renderKitchenLinkBanner();
 
         document.body.classList.add('print-kitchen');
         window.print();
@@ -852,23 +948,77 @@
         for (var i = 0; i < kitchenOrders.length; i++) {
             if (kitchenOrders[i].id === id) {
                 if (kitchenOrders[i].status === 'Pending') kitchenOrders[i].status = 'Preparing';
-                else if (kitchenOrders[i].status === 'Preparing') kitchenOrders[i].status = 'Ready';
+                else if (kitchenOrders[i].status === 'Preparing') {
+                    kitchenOrders[i].status = 'Ready';
+                    kitchenOrders[i].readyAt = Date.now();
+                }
                 break;
             }
         }
         saveKitchenOrders();
         renderKitchenOrders();
+        renderReadyOrders();
     }
 
     function completeKitchenOrder(id) {
         kitchenOrders = kitchenOrders.filter(function(o) { return o.id !== id; });
+        if (currentKitchenOrderId === id) {
+            currentKitchenOrderId = null;
+            saveLinkedOrderId();
+            renderKitchenLinkBanner();
+        }
         saveKitchenOrders();
         renderKitchenOrders();
+        renderReadyOrders();
     }
 
     function cancelKitchenOrder(id) {
         if (!confirm("Cancel this kitchen order? This can't be undone.")) return;
         completeKitchenOrder(id);
+    }
+
+    // Pulls a kitchen order's items straight into the active bill, so the cashier never has to
+    // re-type an order from scratch. Works for orders at any status (Pending/Preparing/Ready).
+    function loadOrderToBilling(id) {
+        var order = kitchenOrders.filter(function(o) { return o.id === id; })[0];
+        if (!order) return;
+
+        if (currentKitchenOrderId !== id && currentBill.length > 0) {
+            if (!confirm('This will replace your current active bill with the items from ' + order.invoiceLabel + '. Continue?')) return;
+        }
+
+        // Older orders (created before this update) only stored {name, qty} with no price -
+        // fall back to looking the price up from the menu so nothing breaks.
+        currentBill = order.items.map(function(it) {
+            if (it.price != null) return JSON.parse(JSON.stringify(it));
+            return { name: it.name, price: lookupMenuPrice(it.name), qty: it.qty, discVal: 0, discType: 'pct' };
+        });
+
+        currentKitchenOrderId = order.id;
+        saveLinkedOrderId();
+        setOrderType(order.orderType || 'Dine-in');
+        switchTab('billing');
+        updateBillDisplay();
+        renderKitchenLinkBanner();
+    }
+
+    // Best-effort price lookup for older kitchen-order records that didn't store a price,
+    // handling "Item Name (Small/Medium/Large)" size variants.
+    function lookupMenuPrice(itemName) {
+        var sizeMatch = itemName.match(/^(.*) \((Small|Medium|Large)\)$/);
+        if (sizeMatch) {
+            var baseName = sizeMatch[1];
+            var sizeLabel = sizeMatch[2];
+            for (var i = 0; i < menuCatalog.length; i++) {
+                if (menuCatalog[i].name === baseName && menuCatalog[i].sizes && menuCatalog[i].sizes[sizeLabel] != null) {
+                    return menuCatalog[i].sizes[sizeLabel];
+                }
+            }
+        }
+        for (var j = 0; j < menuCatalog.length; j++) {
+            if (menuCatalog[j].name === itemName && menuCatalog[j].price != null) return menuCatalog[j].price;
+        }
+        return 0;
     }
 
     function renderKitchenOrders() {
@@ -877,14 +1027,17 @@
         if (!list || !emptyMsg) return;
         list.innerHTML = '';
 
-        if (kitchenOrders.length === 0) {
+        // Ready orders have their own "Ready Orders" tab, so only show active ones here.
+        var activeOrders = kitchenOrders.filter(function(o) { return o.status !== 'Ready'; });
+
+        if (activeOrders.length === 0) {
             emptyMsg.style.display = 'block';
             return;
         }
         emptyMsg.style.display = 'none';
 
-        for (var i = 0; i < kitchenOrders.length; i++) {
-            var order = kitchenOrders[i];
+        for (var i = 0; i < activeOrders.length; i++) {
+            var order = activeOrders[i];
             var card = document.createElement('div');
             card.className = 'ko-card';
 
@@ -898,15 +1051,56 @@
                 actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#2980b9;">▶ Start Preparing</button>';
             } else if (order.status === 'Preparing') {
                 actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#27ae60;">✅ Mark Ready</button>';
-            } else if (order.status === 'Ready') {
-                actionHtml = '<button type="button" onclick="completeKitchenOrder(' + order.id + ')" style="background:#7f8c8d;">🍽️ Served / Clear</button>';
             }
 
             card.innerHTML =
                 '<div class="ko-header"><strong>' + order.invoiceLabel + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ' + statusClass + '">' + order.status + '</span></div>' +
                 '<div class="ko-time">' + order.time + '</div>' +
                 '<div class="ko-items">' + itemsHtml + '</div>' +
-                '<div class="ko-actions">' + actionHtml + '<button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<div class="ko-actions">' + actionHtml + '<button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button></div>' +
+                '<div class="ko-actions"><button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
+
+            list.appendChild(card);
+        }
+    }
+
+    // Renders the "Ready Orders" tab: orders the kitchen has finished, waiting to be billed.
+    // Shows Prep Time = time from the order being sent to the kitchen, to it being marked Ready.
+    function renderReadyOrders() {
+        var list = document.getElementById('ready-orders-list');
+        var emptyMsg = document.getElementById('ready-orders-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        var readyOrders = kitchenOrders.filter(function(o) { return o.status === 'Ready'; });
+
+        if (readyOrders.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < readyOrders.length; i++) {
+            var order = readyOrders[i];
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+
+            var itemsHtml = order.items.map(function(it) {
+                return '<div class="ko-item-row">' + it.qty + 'x ' + it.name + '</div>';
+            }).join('');
+
+            // createdAt may be missing on orders made before this update - the order's id
+            // was Date.now() at creation time, so it doubles as a reliable fallback.
+            var createdAt = order.createdAt || order.id;
+            var prepTimeText = order.readyAt ? formatDuration(order.readyAt - createdAt) : '—';
+
+            card.innerHTML =
+                '<div class="ko-header"><strong>' + order.invoiceLabel + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ready">Ready</span></div>' +
+                '<div class="ko-time">Ordered: ' + order.time + ' &nbsp;|&nbsp; ⏱️ Prep Time: <b>' + prepTimeText + '</b></div>' +
+                '<div class="ko-items">' + itemsHtml + '</div>' +
+                '<div class="ko-actions"><button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button>' +
+                '<button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
                 '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
 
             list.appendChild(card);
@@ -915,11 +1109,24 @@
 
     function processCheckout() {
         if(currentBill.length == 0) return alert("Your current active bill table is empty!");
-        var netTotalStr = document.getElementById('receipt-net-total').innerText;
-        var finalAmount = parseFloat(netTotalStr.replace(/[^0-9.]/g, '')) || 0;
+        // IMPORTANT: read the raw number kept in sync by updateBillDisplay(), not the
+        // formatted "Rs. 650" text - parsing that text used to turn 650 into 0.65 because
+        // the period after "Rs" was mistaken for a decimal point.
+        var finalAmount = lastComputedGrandTotal || 0;
         var paymentMethod = document.getElementById('payment-method').value;
         var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
-        var thisInvoiceNo = invoiceCounter;
+
+        // If this bill came from a kitchen order, it already reserved its own invoice number
+        // when the kitchen ticket was first printed - reuse it instead of taking a new one.
+        var linkedOrderForCheckout = currentKitchenOrderId ? kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0] : null;
+        var thisInvoiceNo;
+        if (linkedOrderForCheckout && linkedOrderForCheckout.invoiceNo) {
+            thisInvoiceNo = linkedOrderForCheckout.invoiceNo;
+        } else {
+            thisInvoiceNo = invoiceCounter;
+            invoiceCounter += 1;
+            saveInvoiceCounter();
+        }
 
         var orderedItemsList = [];
         for (var i = 0; i < currentBill.length; i++) {
@@ -929,9 +1136,6 @@
 
         salesLog.push({ invoiceNo: thisInvoiceNo, time: timeStr, method: paymentMethod, amount: finalAmount, orderType: currentOrderType });
         saveSales();
-
-        invoiceCounter += 1;
-        saveInvoiceCounter();
 
         // Send a background copy to your Google Sheet, only if the webhook URL has been configured
         if (GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR') === -1) {
@@ -964,6 +1168,12 @@
         }
 
         window.print();
+        if (currentKitchenOrderId) {
+            kitchenOrders = kitchenOrders.filter(function(o) { return o.id !== currentKitchenOrderId; });
+            saveKitchenOrders();
+            renderKitchenOrders();
+            renderReadyOrders();
+        }
         clearBill();
         updateSalesDashboard();
         updateBillDisplay();
