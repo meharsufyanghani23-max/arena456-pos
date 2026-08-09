@@ -12,8 +12,8 @@
         .brand-header img { height: 54px; width: 54px; border-radius: 50%; object-fit: cover; }
         .brand-header h1 { color: #27ae60; font-size: 1.3rem; margin: 0; letter-spacing: 1px; }
         .brand-header span { color: #ecf0f1; font-size: 0.7rem; display: block; }
-        .tabs { display: flex; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 6px; font-size: 0.9rem; }
+        .tabs { display: flex; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-btn { flex: 0 0 auto; padding: 12px 14px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 6px; font-size: 0.85rem; white-space: nowrap; }
         .tab-btn.active { background: var(--primary); color: white; }
         .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .tab-content { display: none; }
@@ -86,8 +86,15 @@
         .order-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .backup-btn { background: var(--primary); margin-top: 10px; }
         .restore-btn { background: #8e44ad; margin-top: 10px; }
+        .log-actions { display: flex; gap: 10px; align-items: center; }
+        .log-action { cursor: pointer; font-size: 1.05rem; user-select: none; }
+        .log-action.log-delete { color: var(--danger); font-weight: bold; }
+        .sales-edit-input { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        .sales-edit-actions { display: flex; gap: 4px; }
+        .sales-edit-actions button { padding: 6px 8px; font-size: 0.75rem; width: auto; }
         @media print {
             body * { visibility: hidden; }
+            #billing-tab { display: block !important; }
             #receipt, #receipt * { visibility: visible; }
             #receipt { position: absolute; left: 0; top: 0; width: 100%; }
             body.print-kitchen #receipt { display: none !important; }
@@ -112,7 +119,10 @@
         <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')">🛒 Billing Terminal</button>
         <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')">🍳 Kitchen Orders</button>
         <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')">✅ Ready Orders</button>
+        <button id="btn-received" class="tab-btn" onclick="switchTab('received')">💰 Receive Payment</button>
         <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')">📈 Daily Sales Report</button>
+        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')">💸 Daily Expenses</button>
+        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')">👥 Staff & Salary</button>
     </div>
 
     <div id="billing-tab" class="tab-content active">
@@ -230,6 +240,7 @@
                 <div id="receipt-items"></div>
                 <div class="receipt-line"></div>
                 <div class="receipt-row"><span>Subtotal:</span><span id="receipt-subtotal">Rs. 0</span></div>
+                <div class="receipt-row" id="receipt-item-discount-row" style="display:none;"><span>Item Discount:</span><span id="receipt-item-discount">Rs. 0</span></div>
                 <div class="receipt-row" id="receipt-order-discount-row" style="display:none;"><span>Order Discount:</span><span id="receipt-order-discount">Rs. 0</span></div>
                 <div class="receipt-row total-row"><span>Total Amount:</span><span id="receipt-net-total">Rs. 0</span></div>
                 <div class="receipt-line"></div>
@@ -271,6 +282,15 @@
         </div>
     </div>
 
+    <div id="received-tab" class="tab-content">
+        <div class="panel">
+            <h2>💰 Receive Payment</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here after you tap "🖨️ Print & Save Order" on the Billing tab. Nothing counts toward Daily Sales until you tap "✅ Receive Payment" below to confirm the money actually came in. Use "🗑️ Void" if a customer didn't end up paying.</p>
+            <div id="pending-payments-list"></div>
+            <div id="pending-payments-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No payments waiting to be received right now.</div>
+        </div>
+    </div>
+
     <div id="sales-tab" class="tab-content">
         <div class="panel">
             <h2>📈 Today's Financial Overview</h2>
@@ -285,6 +305,7 @@
             </div>
 
             <h2>📋 Transaction Log History</h2>
+            <p style="font-size:0.8rem; color:#555; margin-top:-4px;">✏️ edit a row's type/method/amount, 🖨️ reprint that receipt, × delete.</p>
             <div class="bill-table-container" style="max-height:300px;">
                 <table>
                     <thead>
@@ -312,6 +333,84 @@
             <button onclick="document.getElementById('restore-file-input').click()" class="restore-btn">📥 Restore From Backup</button>
         </div>
     </div>
+
+    <div id="expenses-tab" class="tab-content">
+        <div class="panel">
+            <h2>💸 Add Expense</h2>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Description</label>
+                    <input type="text" id="new-expense-desc" placeholder="e.g., Gas cylinder refill">
+                </div>
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <input type="text" id="new-expense-category" placeholder="e.g., Utilities" value="General">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Amount (Rs.)</label>
+                    <input type="number" id="new-expense-amount" placeholder="500">
+                </div>
+            </div>
+            <button type="button" onclick="addExpense()">➕ Add Expense</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <div class="summary-box">
+                <div class="summary-row" style="font-weight:bold;">
+                    <span>Total Expenses:</span><span id="total-expenses">Rs. 0</span>
+                </div>
+            </div>
+            <h2>📋 Expense Log</h2>
+            <div class="bill-table-container" style="max-height:300px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-log-table"></tbody>
+                </table>
+            </div>
+            <button onclick="exportExpensesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Expenses CSV</button>
+            <button onclick="resetExpenses()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Expense Log</button>
+        </div>
+    </div>
+
+    <div id="salary-tab" class="tab-content">
+        <div class="panel">
+            <h2>👥 Add Staff Member</h2>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Name</label>
+                    <input type="text" id="new-staff-name" placeholder="e.g., Ahmed">
+                </div>
+                <div style="flex: 1;">
+                    <label>Role</label>
+                    <input type="text" id="new-staff-role" placeholder="e.g., Cook">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Daily Salary (Rs.)</label>
+                    <input type="number" id="new-staff-salary" placeholder="800">
+                </div>
+            </div>
+            <button type="button" onclick="addStaff()">➕ Add Staff</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>🧾 Staff & Daily Salary Log</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Log each staff member's salary day by day, so you can always check who's been paid and who's still pending.</p>
+            <div id="staff-list"></div>
+            <div id="staff-list-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No staff added yet.</div>
+        </div>
+    </div>
 </div>
 <script>
     var STORAGE_KEYS = {
@@ -321,7 +420,11 @@
         bill: 'arena456_currentBill',
         orderType: 'arena456_orderType',
         kitchenOrders: 'arena456_kitchenOrders',
-        currentKitchenOrderId: 'arena456_currentKitchenOrderId'
+        currentKitchenOrderId: 'arena456_currentKitchenOrderId',
+        pendingPayments: 'arena456_pendingPayments',
+        expenses: 'arena456_expenseLog',
+        staff: 'arena456_staffList',
+        salaryLog: 'arena456_salaryLog'
     };
 
     // ==== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup guide). Must stay in quotes! ====
@@ -342,6 +445,10 @@
     var kitchenOrders = [];
     var currentKitchenOrderId = null; // if set, the active bill is linked to this kitchen order
     var lastComputedGrandTotal = 0; // raw number (not "Rs. X" text) - always kept in sync by updateBillDisplay()
+    var pendingPayments = []; // checked-out orders awaiting "Receive Payment" confirmation before they count as sales
+    var expenseLog = [];
+    var staffList = [];
+    var salaryLog = []; // { id, staffId, date, amount, status: 'Paid' | 'Pending' }
 
     // Full starter menu built from the Arena 456 menu board.
     // Items with "sizes" show Small / Medium / Large buttons instead of a single price.
@@ -429,6 +536,7 @@
     ];
 
     var editingIndex = -1;
+    var editingSalesIndex = -1; // index in salesLog currently being edited on the Sales tab, or -1
 
     function formatCurrency(num) {
         return 'Rs. ' + Number(num || 0).toLocaleString('en-PK', { maximumFractionDigits: 0 });
@@ -450,6 +558,14 @@
             if (savedKitchenOrders !== null) kitchenOrders = JSON.parse(savedKitchenOrders);
             var savedLinkedOrder = localStorage.getItem(STORAGE_KEYS.currentKitchenOrderId);
             if (savedLinkedOrder !== null && savedLinkedOrder !== 'null') currentKitchenOrderId = JSON.parse(savedLinkedOrder);
+            var savedPending = localStorage.getItem(STORAGE_KEYS.pendingPayments);
+            if (savedPending !== null) pendingPayments = JSON.parse(savedPending);
+            var savedExpenses = localStorage.getItem(STORAGE_KEYS.expenses);
+            if (savedExpenses !== null) expenseLog = JSON.parse(savedExpenses);
+            var savedStaff = localStorage.getItem(STORAGE_KEYS.staff);
+            if (savedStaff !== null) staffList = JSON.parse(savedStaff);
+            var savedSalaryLog = localStorage.getItem(STORAGE_KEYS.salaryLog);
+            if (savedSalaryLog !== null) salaryLog = JSON.parse(savedSalaryLog);
         } catch (e) {
             console.warn('Could not load saved POS data:', e);
         }
@@ -462,6 +578,10 @@
     function saveOrderType() { localStorage.setItem(STORAGE_KEYS.orderType, currentOrderType); }
     function saveKitchenOrders() { localStorage.setItem(STORAGE_KEYS.kitchenOrders, JSON.stringify(kitchenOrders)); }
     function saveLinkedOrderId() { localStorage.setItem(STORAGE_KEYS.currentKitchenOrderId, JSON.stringify(currentKitchenOrderId)); }
+    function savePendingPayments() { localStorage.setItem(STORAGE_KEYS.pendingPayments, JSON.stringify(pendingPayments)); }
+    function saveExpenses() { localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenseLog)); }
+    function saveStaffList() { localStorage.setItem(STORAGE_KEYS.staff, JSON.stringify(staffList)); }
+    function saveSalaryLog() { localStorage.setItem(STORAGE_KEYS.salaryLog, JSON.stringify(salaryLog)); }
 
     function setOrderType(type) {
         currentOrderType = type;
@@ -487,11 +607,14 @@
         renderKitchenOrders();
         renderReadyOrders();
         renderKitchenLinkBanner();
+        renderPendingPayments();
+        renderExpenses();
+        renderStaffList();
     };
 
     function switchTab(tabName) {
-        var tabButtons = { billing: 'btn-billing', kitchen: 'btn-kitchen', ready: 'btn-ready', sales: 'btn-sales' };
-        var tabPanels = { billing: 'billing-tab', kitchen: 'kitchen-tab', ready: 'ready-tab', sales: 'sales-tab' };
+        var tabButtons = { billing: 'btn-billing', kitchen: 'btn-kitchen', ready: 'btn-ready', received: 'btn-received', sales: 'btn-sales', expenses: 'btn-expenses', salary: 'btn-salary' };
+        var tabPanels = { billing: 'billing-tab', kitchen: 'kitchen-tab', ready: 'ready-tab', received: 'received-tab', sales: 'sales-tab', expenses: 'expenses-tab', salary: 'salary-tab' };
         for (var key in tabButtons) {
             document.getElementById(tabButtons[key]).classList.remove('active');
             document.getElementById(tabPanels[key]).classList.remove('active');
@@ -502,6 +625,9 @@
         if (tabName == 'sales') { updateSalesDashboard(); }
         else if (tabName == 'kitchen') { renderKitchenOrders(); }
         else if (tabName == 'ready') { renderReadyOrders(); }
+        else if (tabName == 'received') { renderPendingPayments(); }
+        else if (tabName == 'expenses') { renderExpenses(); }
+        else if (tabName == 'salary') { renderStaffList(); }
     }
 
     function toggleSizeInputs() {
@@ -790,11 +916,23 @@
         }
     }
 
+    // Jumps straight to the active bill table after loading an order from the Kitchen/Ready
+    // tabs, instead of leaving the page scrolled wherever it happened to be (which could land
+    // you down near the Live Receipt at the very bottom of the Billing tab).
+    function scrollToBillingTerminal() {
+        var target = document.getElementById('active-bill-heading');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
     function updateBillDisplay() {
         var tableBody = document.getElementById('bill-items-table');
         var receiptItems = document.getElementById('receipt-items');
         tableBody.innerHTML = ''; receiptItems.innerHTML = '';
-        var totalBillSubtotal = 0; var totalAfterItemDiscounts = 0;
+        var totalBillSubtotal = 0; var totalAfterItemDiscounts = 0; var totalItemDiscounts = 0;
 
         for (var i = 0; i < currentBill.length; i++) {
             (function(index) {
@@ -807,6 +945,7 @@
                 var finalRowNetTotal = rawRowTotal - rowDiscountAmount;
                 if (finalRowNetTotal < 0) finalRowNetTotal = 0;
                 totalAfterItemDiscounts += finalRowNetTotal;
+                totalItemDiscounts += rowDiscountAmount;
 
                 var tr = document.createElement('tr');
                 var tdName = document.createElement('td'); tdName.innerText = item.name;
@@ -833,7 +972,7 @@
                 var tdRem = document.createElement('td'); tdRem.className = 'remove-idx'; tdRem.innerText = '×'; tdRem.onclick = function() { removeBillItem(index); };
                 tr.appendChild(tdName); tr.appendChild(tdQty); tr.appendChild(tdPrice); tr.appendChild(tdDisc); tr.appendChild(tdTotal); tr.appendChild(tdRem); tableBody.appendChild(tr);
 
-                receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>' + formatCurrency(finalRowNetTotal) + '</span></div>';
+                receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>' + formatCurrency(rawRowTotal) + '</span></div>';
             })(i);
         }
 
@@ -844,6 +983,13 @@
         if (grandTotal < 0) grandTotal = 0;
 
         document.getElementById('receipt-subtotal').innerText = formatCurrency(totalBillSubtotal);
+        var itemDiscRow = document.getElementById('receipt-item-discount-row');
+        if (totalItemDiscounts > 0) {
+            itemDiscRow.style.display = 'flex';
+            document.getElementById('receipt-item-discount').innerText = '- ' + formatCurrency(totalItemDiscounts);
+        } else {
+            itemDiscRow.style.display = 'none';
+        }
         var discRow = document.getElementById('receipt-order-discount-row');
         if (orderDiscountAmount > 0) {
             discRow.style.display = 'flex';
@@ -1000,6 +1146,7 @@
         switchTab('billing');
         updateBillDisplay();
         renderKitchenLinkBanner();
+        scrollToBillingTerminal();
     }
 
     // Best-effort price lookup for older kitchen-order records that didn't store a price,
@@ -1128,44 +1275,41 @@
             saveInvoiceCounter();
         }
 
-        var orderedItemsList = [];
+        // Full item snapshot (name/price/qty/line total) saved on the record itself, so this
+        // exact receipt can be reprinted later. itemDiscountTotal is the sum of all per-item
+        // discounts, shown as its own line on the receipt (see updateBillDisplay).
+        var itemsSnapshot = [];
+        var billSubtotal = 0, billAfterItemDiscounts = 0, billItemDiscountTotal = 0;
         for (var i = 0; i < currentBill.length; i++) {
-            orderedItemsList.push(currentBill[i].qty + "x " + currentBill[i].name);
+            var billItem = currentBill[i];
+            var rawRowTotal = billItem.price * billItem.qty;
+            var rowDiscountAmount = (billItem.discType == 'pct') ? rawRowTotal * (billItem.discVal / 100) : billItem.discVal;
+            var rowNetTotal = rawRowTotal - rowDiscountAmount;
+            if (rowNetTotal < 0) rowNetTotal = 0;
+            billSubtotal += rawRowTotal;
+            billAfterItemDiscounts += rowNetTotal;
+            billItemDiscountTotal += rowDiscountAmount;
+            itemsSnapshot.push({ name: billItem.name, price: billItem.price, qty: billItem.qty, lineTotal: rowNetTotal });
         }
-        var itemsSummaryText = orderedItemsList.join(", ");
+        var orderDiscountPctAtCheckout = parseFloat(document.getElementById('order-discount').value) || 0;
+        var orderDiscountAmountAtCheckout = billAfterItemDiscounts * (orderDiscountPctAtCheckout / 100);
 
-        salesLog.push({ invoiceNo: thisInvoiceNo, time: timeStr, method: paymentMethod, amount: finalAmount, orderType: currentOrderType });
-        saveSales();
-
-        // Send a background copy to your Google Sheet, only if the webhook URL has been configured
-        if (GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR') === -1) {
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = GOOGLE_SHEET_WEBHOOK_URL;
-            form.target = 'hidden_frame';
-
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'contents';
-            input.value = JSON.stringify({ invoiceNo: thisInvoiceNo, time: timeStr, method: paymentMethod, items: itemsSummaryText, amount: finalAmount, orderType: currentOrderType });
-
-            var iframe = document.getElementById('hidden_frame');
-            if(!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.name = 'hidden_frame';
-                iframe.id = 'hidden_frame';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
-            }
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-
-            setTimeout(function() {
-                document.body.removeChild(form);
-            }, 500);
-        }
+        // Checked-out orders wait here for "Receive Payment" to confirm the money actually came
+        // in before they count toward Daily Sales or sync to your Google Sheet - see the
+        // Receive Payment tab.
+        pendingPayments.push({
+            id: Date.now(),
+            invoiceNo: thisInvoiceNo,
+            time: timeStr,
+            method: paymentMethod,
+            amount: finalAmount,
+            orderType: currentOrderType,
+            items: itemsSnapshot,
+            subtotal: billSubtotal,
+            itemDiscountTotal: billItemDiscountTotal,
+            orderDiscountAmount: orderDiscountAmountAtCheckout
+        });
+        savePendingPayments();
 
         window.print();
         if (currentKitchenOrderId) {
@@ -1175,8 +1319,112 @@
             renderReadyOrders();
         }
         clearBill();
-        updateSalesDashboard();
+        renderPendingPayments();
         updateBillDisplay();
+    }
+
+    // Sends a background copy of a received sale to your Google Sheet, only if the webhook URL
+    // has been configured. Fires from receivePayment() so unreceived/voided orders never reach
+    // your sheet.
+    function syncSaleToGoogleSheet(record) {
+        if (!(GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR') === -1)) return;
+        var itemsSummaryText = record.items.map(function(it) { return it.qty + "x " + it.name; }).join(", ");
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = GOOGLE_SHEET_WEBHOOK_URL;
+        form.target = 'hidden_frame';
+
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'contents';
+        input.value = JSON.stringify({ invoiceNo: record.invoiceNo, time: record.time, method: record.method, items: itemsSummaryText, amount: record.amount, orderType: record.orderType });
+
+        var iframe = document.getElementById('hidden_frame');
+        if(!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'hidden_frame';
+            iframe.id = 'hidden_frame';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+
+        setTimeout(function() {
+            document.body.removeChild(form);
+        }, 500);
+    }
+
+    // ---- Receive Payment: confirms a checked-out order's money actually came in before it
+    // counts toward Daily Sales. ----
+    function renderPendingPayments() {
+        var list = document.getElementById('pending-payments-list');
+        var emptyMsg = document.getElementById('pending-payments-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        if (pendingPayments.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < pendingPayments.length; i++) {
+            var payment = pendingPayments[i];
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+
+            var itemsHtml = payment.items.map(function(it) {
+                return '<div class="ko-item-row">' + it.qty + 'x ' + it.name + '</div>';
+            }).join('');
+
+            card.innerHTML =
+                '<div class="ko-header"><strong>Order #' + String(payment.invoiceNo).padStart(4, '0') + ' &middot; ' + payment.orderType + '</strong><span class="ko-badge pending">' + payment.method + '</span></div>' +
+                '<div class="ko-time">' + payment.time + ' &nbsp;|&nbsp; Amount: <b>' + formatCurrency(payment.amount) + '</b></div>' +
+                '<div class="ko-items">' + itemsHtml + '</div>' +
+                '<div class="ko-actions">' +
+                    '<button type="button" onclick="receivePayment(' + payment.id + ')" style="background:var(--accent);">✅ Receive Payment</button>' +
+                    '<button type="button" onclick="voidPendingPayment(' + payment.id + ')" style="background:var(--danger);">🗑️ Void</button>' +
+                '</div>';
+
+            list.appendChild(card);
+        }
+    }
+
+    function receivePayment(id) {
+        var idx = -1;
+        for (var i = 0; i < pendingPayments.length; i++) { if (pendingPayments[i].id === id) { idx = i; break; } }
+        if (idx === -1) return;
+        var payment = pendingPayments[idx];
+
+        syncSaleToGoogleSheet(payment);
+
+        pendingPayments.splice(idx, 1);
+        salesLog.push({
+            invoiceNo: payment.invoiceNo,
+            time: payment.time,
+            method: payment.method,
+            amount: payment.amount,
+            orderType: payment.orderType,
+            items: payment.items,
+            subtotal: payment.subtotal,
+            itemDiscountTotal: payment.itemDiscountTotal,
+            orderDiscountAmount: payment.orderDiscountAmount
+        });
+        savePendingPayments();
+        saveSales();
+        renderPendingPayments();
+        updateSalesDashboard();
+    }
+
+    function voidPendingPayment(id) {
+        if (!confirm("Void this order? It will NOT be recorded in Daily Sales.")) return;
+        pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
+        savePendingPayments();
+        renderPendingPayments();
     }
 
     function updateSalesDashboard() {
@@ -1196,11 +1444,61 @@
                 var tr = document.createElement('tr');
                 var tdInv = document.createElement('td'); tdInv.innerText = '#' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
                 var tdTime = document.createElement('td'); tdTime.innerText = record.time;
-                var tdType = document.createElement('td'); tdType.innerText = record.orderType || '-';
-                var tdMethod = document.createElement('td'); tdMethod.innerText = record.method;
-                var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
-                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×'; tdDel.onclick = function() { deleteSalesRecord(index); };
-                tr.appendChild(tdInv); tr.appendChild(tdTime); tr.appendChild(tdType); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdDel); logTable.appendChild(tr);
+                tr.appendChild(tdInv); tr.appendChild(tdTime);
+
+                if (editingSalesIndex === index) {
+                    var tdTypeEdit = document.createElement('td');
+                    var typeSelect = document.createElement('select'); typeSelect.id = 'sales-edit-type-' + index; typeSelect.className = 'sales-edit-input';
+                    ['Dine-in', 'Takeaway', 'Delivery'].forEach(function(opt) {
+                        var o = document.createElement('option'); o.value = opt; o.innerText = opt;
+                        if ((record.orderType || 'Dine-in') === opt) o.selected = true;
+                        typeSelect.appendChild(o);
+                    });
+                    tdTypeEdit.appendChild(typeSelect);
+
+                    var tdMethodEdit = document.createElement('td');
+                    var methodSelect = document.createElement('select'); methodSelect.id = 'sales-edit-method-' + index; methodSelect.className = 'sales-edit-input';
+                    ['Cash', 'JazzCash', 'EasyPaisa', 'Card'].forEach(function(opt) {
+                        var o = document.createElement('option'); o.value = opt; o.innerText = opt;
+                        if (record.method === opt) o.selected = true;
+                        methodSelect.appendChild(o);
+                    });
+                    tdMethodEdit.appendChild(methodSelect);
+
+                    var tdAmtEdit = document.createElement('td');
+                    var amtInput = document.createElement('input'); amtInput.type = 'number'; amtInput.id = 'sales-edit-amount-' + index; amtInput.value = record.amount; amtInput.className = 'sales-edit-input';
+                    tdAmtEdit.appendChild(amtInput);
+
+                    var tdActionsEdit = document.createElement('td');
+                    var editActionsWrap = document.createElement('div'); editActionsWrap.className = 'sales-edit-actions';
+                    var saveBtn = document.createElement('button'); saveBtn.type = 'button'; saveBtn.innerText = '💾'; saveBtn.style.background = 'var(--accent)';
+                    saveBtn.onclick = function() { saveEditSalesRecord(index); };
+                    var cancelBtn = document.createElement('button'); cancelBtn.type = 'button'; cancelBtn.innerText = '✖'; cancelBtn.style.background = '#95a5a6';
+                    cancelBtn.onclick = function() { cancelEditSalesRecord(); };
+                    editActionsWrap.appendChild(saveBtn); editActionsWrap.appendChild(cancelBtn);
+                    tdActionsEdit.appendChild(editActionsWrap);
+
+                    tr.appendChild(tdTypeEdit); tr.appendChild(tdMethodEdit); tr.appendChild(tdAmtEdit); tr.appendChild(tdActionsEdit);
+                } else {
+                    var tdType = document.createElement('td'); tdType.innerText = record.orderType || '-';
+                    var tdMethod = document.createElement('td'); tdMethod.innerText = record.method;
+                    var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
+
+                    var tdActions = document.createElement('td');
+                    var actionsWrap = document.createElement('div'); actionsWrap.className = 'log-actions';
+                    var editSpan = document.createElement('span'); editSpan.className = 'log-action'; editSpan.innerText = '✏️'; editSpan.title = 'Edit';
+                    editSpan.onclick = function() { startEditSalesRecord(index); };
+                    var reprintSpan = document.createElement('span'); reprintSpan.className = 'log-action'; reprintSpan.innerText = '🖨️'; reprintSpan.title = 'Reprint receipt';
+                    reprintSpan.onclick = function() { reprintSaleReceipt(index); };
+                    var delSpan = document.createElement('span'); delSpan.className = 'log-action log-delete'; delSpan.innerText = '×'; delSpan.title = 'Delete';
+                    delSpan.onclick = function() { deleteSalesRecord(index); };
+                    actionsWrap.appendChild(editSpan); actionsWrap.appendChild(reprintSpan); actionsWrap.appendChild(delSpan);
+                    tdActions.appendChild(actionsWrap);
+
+                    tr.appendChild(tdType); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdActions);
+                }
+
+                logTable.appendChild(tr);
             })(i);
         }
         document.getElementById('total-sales').innerText = formatCurrency(total);
@@ -1211,6 +1509,74 @@
     }
 
     function deleteSalesRecord(index) { if(confirm("Delete record?")) { salesLog.splice(index, 1); saveSales(); updateSalesDashboard(); } }
+
+    // ---- Transaction Log editing (order type / method / amount) ----
+    function startEditSalesRecord(index) { editingSalesIndex = index; updateSalesDashboard(); }
+    function cancelEditSalesRecord() { editingSalesIndex = -1; updateSalesDashboard(); }
+
+    function saveEditSalesRecord(index) {
+        var record = salesLog[index];
+        if (!record) return;
+        var newAmount = parseFloat(document.getElementById('sales-edit-amount-' + index).value);
+        if (isNaN(newAmount) || newAmount < 0) return alert("Enter a valid amount!");
+        record.amount = newAmount;
+        record.method = document.getElementById('sales-edit-method-' + index).value;
+        record.orderType = document.getElementById('sales-edit-type-' + index).value;
+
+        editingSalesIndex = -1;
+        saveSales();
+        updateSalesDashboard();
+    }
+
+    // Repopulates the Live Receipt view from a past sale's saved item snapshot, then opens the
+    // print dialog - so the same receipt can be reprinted for a customer without re-ringing up
+    // the order. Only works for sales made after this feature was added (older records didn't
+    // save item-level detail) - #billing-tab is force-shown for print via CSS so this works
+    // even while you're sitting on the Sales tab.
+    function reprintSaleReceipt(index) {
+        var record = salesLog[index];
+        if (!record) return;
+        if (!record.items || record.items.length === 0) {
+            alert("This sale doesn't have saved receipt details (it was made before reprinting was added), so it can't be reprinted.");
+            return;
+        }
+
+        document.getElementById('receipt-invoice').innerText = 'Order #' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
+        document.getElementById('receipt-order-type').innerText = record.orderType || '';
+        document.getElementById('receipt-date').innerText = record.time;
+
+        var itemsHtml = '';
+        for (var i = 0; i < record.items.length; i++) {
+            var it = record.items[i];
+            var rawLineTotal = it.price * it.qty;
+            itemsHtml += '<div class="receipt-row"><span>' + it.qty + 'x ' + it.name + '</span><span>' + formatCurrency(rawLineTotal) + '</span></div>';
+        }
+        document.getElementById('receipt-items').innerHTML = itemsHtml;
+        document.getElementById('receipt-subtotal').innerText = formatCurrency(record.subtotal != null ? record.subtotal : record.amount);
+
+        var itemDiscRow = document.getElementById('receipt-item-discount-row');
+        if (record.itemDiscountTotal > 0) {
+            itemDiscRow.style.display = 'flex';
+            document.getElementById('receipt-item-discount').innerText = '- ' + formatCurrency(record.itemDiscountTotal);
+        } else {
+            itemDiscRow.style.display = 'none';
+        }
+
+        var discRow = document.getElementById('receipt-order-discount-row');
+        if (record.orderDiscountAmount > 0) {
+            discRow.style.display = 'flex';
+            document.getElementById('receipt-order-discount').innerText = '- ' + formatCurrency(record.orderDiscountAmount);
+        } else {
+            discRow.style.display = 'none';
+        }
+        document.getElementById('receipt-net-total').innerText = formatCurrency(record.amount);
+
+        window.print();
+
+        // Restore the live receipt to reflect whatever's actually in the active bill, so
+        // switching to the Billing tab afterwards doesn't still show this old reprinted receipt.
+        updateBillDisplay();
+    }
 
     function resetDailySales() {
         if(confirm("This will permanently erase today's sales log. Make sure you've exported a CSV backup first. Continue?")) {
@@ -1242,17 +1608,210 @@
         URL.revokeObjectURL(url);
     }
 
+    // ---- Daily Expenses ----
+    function addExpense() {
+        var descInput = document.getElementById('new-expense-desc');
+        var categoryInput = document.getElementById('new-expense-category');
+        var amountInput = document.getElementById('new-expense-amount');
+        var desc = descInput.value.trim();
+        var category = (categoryInput.value || 'General').trim() || 'General';
+        var amount = parseFloat(amountInput.value);
+        if (!desc) return alert("Enter a description!");
+        if (isNaN(amount) || amount < 0) return alert("Enter a valid amount!");
+
+        var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
+        expenseLog.push({ time: timeStr, desc: desc, category: category, amount: amount });
+        descInput.value = ''; categoryInput.value = 'General'; amountInput.value = '';
+        saveExpenses();
+        renderExpenses();
+    }
+
+    function deleteExpenseRecord(index) {
+        if (!confirm("Delete this expense?")) return;
+        expenseLog.splice(index, 1);
+        saveExpenses();
+        renderExpenses();
+    }
+
+    function resetExpenses() {
+        if (confirm("This will permanently erase the expense log. Make sure you've exported a CSV backup first. Continue?")) {
+            expenseLog = [];
+            saveExpenses();
+            renderExpenses();
+        }
+    }
+
+    function renderExpenses() {
+        var logTable = document.getElementById('expense-log-table');
+        if (!logTable) return;
+        logTable.innerHTML = '';
+        var total = 0;
+
+        for (var i = expenseLog.length - 1; i >= 0; i--) {
+            (function(index) {
+                var record = expenseLog[index];
+                total += record.amount;
+                var tr = document.createElement('tr');
+                var tdTime = document.createElement('td'); tdTime.innerText = record.time;
+                var tdDesc = document.createElement('td'); tdDesc.innerText = record.desc;
+                var tdCat = document.createElement('td'); tdCat.innerText = record.category || '-';
+                var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
+                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×'; tdDel.onclick = function() { deleteExpenseRecord(index); };
+                tr.appendChild(tdTime); tr.appendChild(tdDesc); tr.appendChild(tdCat); tr.appendChild(tdAmt); tr.appendChild(tdDel);
+                logTable.appendChild(tr);
+            })(i);
+        }
+        document.getElementById('total-expenses').innerText = formatCurrency(total);
+    }
+
+    function exportExpensesCSV() {
+        if (expenseLog.length == 0) return alert("No expenses to export yet!");
+        var rows = [["Time", "Description", "Category", "Amount"]];
+        for (var i = 0; i < expenseLog.length; i++) {
+            var r = expenseLog[i];
+            rows.push([r.time, r.desc, r.category || '-', r.amount]);
+        }
+        var csvContent = rows.map(function(row) {
+            return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'arena456-expenses-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- Staff & Salary ----
+    function addStaff() {
+        var nameInput = document.getElementById('new-staff-name');
+        var roleInput = document.getElementById('new-staff-role');
+        var salaryInput = document.getElementById('new-staff-salary');
+        var name = nameInput.value.trim();
+        var role = roleInput.value.trim();
+        var dailySalary = parseFloat(salaryInput.value);
+        if (!name) return alert("Enter a staff name!");
+        if (isNaN(dailySalary) || dailySalary < 0) return alert("Enter a valid daily salary!");
+
+        staffList.push({ id: Date.now(), name: name, role: role || 'Staff', dailySalary: dailySalary });
+        nameInput.value = ''; roleInput.value = ''; salaryInput.value = '';
+        saveStaffList();
+        renderStaffList();
+    }
+
+    function removeStaff(id) {
+        if (!confirm("Remove this staff member? Their logged salary history will also be removed.")) return;
+        staffList = staffList.filter(function(s) { return s.id !== id; });
+        salaryLog = salaryLog.filter(function(e) { return e.staffId !== id; });
+        saveStaffList();
+        saveSalaryLog();
+        renderStaffList();
+    }
+
+    function logSalaryEntry(staffId) {
+        var dateInput = document.getElementById('salary-date-' + staffId);
+        var amountInput = document.getElementById('salary-amount-' + staffId);
+        var statusSelect = document.getElementById('salary-status-' + staffId);
+        var date = dateInput.value;
+        var amount = parseFloat(amountInput.value);
+        if (!date) return alert("Pick a date!");
+        if (isNaN(amount) || amount < 0) return alert("Enter a valid amount!");
+
+        salaryLog.push({ id: Date.now(), staffId: staffId, date: date, amount: amount, status: statusSelect.value });
+        saveSalaryLog();
+        renderStaffList();
+    }
+
+    function deleteSalaryEntry(id) {
+        if (!confirm("Delete this salary entry?")) return;
+        salaryLog = salaryLog.filter(function(e) { return e.id !== id; });
+        saveSalaryLog();
+        renderStaffList();
+    }
+
+    // Renders every staff member as a card: daily rate, running Paid/Pending totals, a quick
+    // form to log today's (or any date's) entry, and the dated history so you can verify what
+    // was actually given.
+    function renderStaffList() {
+        var list = document.getElementById('staff-list');
+        var emptyMsg = document.getElementById('staff-list-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        if (staffList.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        var todayStr = new Date().toISOString().slice(0, 10);
+
+        for (var i = 0; i < staffList.length; i++) {
+            var staff = staffList[i];
+            var entries = salaryLog.filter(function(e) { return e.staffId === staff.id; });
+            entries.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+
+            var totalPaid = 0, totalPending = 0;
+            for (var e = 0; e < entries.length; e++) {
+                if (entries[e].status === 'Paid') totalPaid += entries[e].amount;
+                else totalPending += entries[e].amount;
+            }
+
+            var entriesHtml = '';
+            if (entries.length === 0) {
+                entriesHtml = '<div style="font-size:0.78rem; color:#95a5a6; padding:4px 0;">No entries logged yet.</div>';
+            } else {
+                entriesHtml = '<table style="width:100%; font-size:0.78rem; margin-top:4px;"><tbody>';
+                for (var e2 = 0; e2 < entries.length; e2++) {
+                    var entry = entries[e2];
+                    var statusColor = entry.status === 'Paid' ? 'var(--accent)' : 'var(--danger)';
+                    entriesHtml += '<tr>' +
+                        '<td style="padding:4px 2px;">' + entry.date + '</td>' +
+                        '<td style="padding:4px 2px;">' + formatCurrency(entry.amount) + '</td>' +
+                        '<td style="padding:4px 2px;"><span style="color:' + statusColor + '; font-weight:bold;">' + entry.status + '</span></td>' +
+                        '<td style="padding:4px 2px; text-align:right;"><span class="log-action log-delete" style="font-size:0.9rem;" onclick="deleteSalaryEntry(' + entry.id + ')">×</span></td>' +
+                        '</tr>';
+                }
+                entriesHtml += '</tbody></table>';
+            }
+
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+            card.innerHTML =
+                '<div class="ko-header"><strong>' + staff.name + ' &middot; ' + staff.role + '</strong><span class="ko-badge preparing">' + formatCurrency(staff.dailySalary) + '/day</span></div>' +
+                '<div class="ko-time">Paid: <b style="color:var(--accent);">' + formatCurrency(totalPaid) + '</b> &nbsp;|&nbsp; Pending: <b style="color:var(--danger);">' + formatCurrency(totalPending) + '</b></div>' +
+                '<div class="flex-row" style="margin-top:8px; margin-bottom:0;">' +
+                    '<div style="flex:1;"><label style="font-size:0.7rem;">Date</label><input type="date" id="salary-date-' + staff.id + '" value="' + todayStr + '" style="padding:6px; font-size:0.8rem;"></div>' +
+                    '<div style="flex:1;"><label style="font-size:0.7rem;">Amount</label><input type="number" id="salary-amount-' + staff.id + '" value="' + staff.dailySalary + '" style="padding:6px; font-size:0.8rem;"></div>' +
+                    '<div style="flex:1;"><label style="font-size:0.7rem;">Status</label><select id="salary-status-' + staff.id + '" style="padding:6px; font-size:0.8rem;"><option value="Paid">Paid</option><option value="Pending">Pending</option></select></div>' +
+                '</div>' +
+                '<button type="button" onclick="logSalaryEntry(' + staff.id + ')" style="margin-top:6px;">💾 Log Entry</button>' +
+                '<div class="ko-items" style="margin-top:8px;">' + entriesHtml + '</div>' +
+                '<div class="item-actions" style="margin-top:6px;"><span></span><span class="delete-tag" onclick="removeStaff(' + staff.id + ')">Remove Staff</span></div>';
+
+            list.appendChild(card);
+        }
+    }
+
     // ---- Backup & Restore ----
     // Exports everything (menu, sales log, invoice counter) into one JSON file.
     function exportBackup() {
         var backup = {
             backupType: 'arena456-pos-backup',
-            version: 3,
+            version: 4,
             exportedAt: new Date().toISOString(),
             menuCatalog: menuCatalog,
             salesLog: salesLog,
             invoiceCounter: invoiceCounter,
-            kitchenOrders: kitchenOrders
+            kitchenOrders: kitchenOrders,
+            pendingPayments: pendingPayments,
+            expenseLog: expenseLog,
+            staffList: staffList,
+            salaryLog: salaryLog
         };
         var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8;' });
         var url = URL.createObjectURL(blob);
@@ -1288,13 +1847,25 @@
             salesLog = Array.isArray(data.salesLog) ? data.salesLog : [];
             invoiceCounter = typeof data.invoiceCounter === 'number' ? data.invoiceCounter : 1;
             kitchenOrders = Array.isArray(data.kitchenOrders) ? data.kitchenOrders : [];
+            pendingPayments = Array.isArray(data.pendingPayments) ? data.pendingPayments : [];
+            expenseLog = Array.isArray(data.expenseLog) ? data.expenseLog : [];
+            staffList = Array.isArray(data.staffList) ? data.staffList : [];
+            salaryLog = Array.isArray(data.salaryLog) ? data.salaryLog : [];
             saveMenu();
             saveSales();
             saveInvoiceCounter();
             saveKitchenOrders();
+            savePendingPayments();
+            saveExpenses();
+            saveStaffList();
+            saveSalaryLog();
             renderCatalog();
             updateSalesDashboard();
             renderKitchenOrders();
+            renderReadyOrders();
+            renderPendingPayments();
+            renderExpenses();
+            renderStaffList();
             alert("Backup restored successfully!");
         };
         reader.onerror = function() { alert("Could not read that file."); };
