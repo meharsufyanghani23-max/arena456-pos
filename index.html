@@ -12,8 +12,8 @@
         .brand-header img { height: 54px; width: 54px; border-radius: 50%; object-fit: cover; }
         .brand-header h1 { color: #27ae60; font-size: 1.3rem; margin: 0; letter-spacing: 1px; }
         .brand-header span { color: #ecf0f1; font-size: 0.7rem; display: block; }
-        .tabs { display: flex; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .tab-btn { flex: 0 0 auto; padding: 12px 14px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 6px; font-size: 0.85rem; white-space: nowrap; }
+        .tabs { display: flex; flex-wrap: wrap; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn { flex: 1 1 22%; padding: 9px 2px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 6px; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .tab-btn.active { background: var(--primary); color: white; }
         .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .tab-content { display: none; }
@@ -116,13 +116,13 @@
     </div>
 
     <div class="tabs">
-        <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')">🛒 Billing Terminal</button>
-        <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')">🍳 Kitchen Orders</button>
-        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')">✅ Ready Orders</button>
-        <button id="btn-received" class="tab-btn" onclick="switchTab('received')">💰 Receive Payment</button>
-        <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')">📈 Daily Sales Report</button>
-        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')">💸 Daily Expenses</button>
-        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')">👥 Staff & Salary</button>
+        <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')">🛒 Billing</button>
+        <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')">🍳 Kitchen</button>
+        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')">✅ Ready</button>
+        <button id="btn-received" class="tab-btn" onclick="switchTab('received')">💰 Receive</button>
+        <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')">📈 Sales</button>
+        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')">💸 Expenses</button>
+        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')">👥 Salary</button>
     </div>
 
     <div id="billing-tab" class="tab-content active">
