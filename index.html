@@ -83,7 +83,8 @@
         .ko-actions button { font-size: 0.75rem; padding: 9px 4px; }
         .ko-cancel { color: var(--danger); font-size: 0.72rem; text-decoration: underline; cursor: pointer; display: block; text-align: right; margin-top: 6px; }
         .order-type-btns { display: flex; gap: 6px; margin-top: 6px; }
-        .order-type-btn { flex: 1; padding: 10px 4px; font-size: 0.8rem; background: #ecf0f1; color: #2c3e50; border: 2px solid #dcdde1; }
+        .order-type-btn { flex: 1; padding: 6px 2px; font-size: 0.6rem; font-weight: bold; background: #ecf0f1; color: #2c3e50; border: 2px solid #dcdde1; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .order-type-btn .ot-icon { font-size: 1rem; }
         .order-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .backup-btn { background: var(--primary); margin-top: 10px; }
         .restore-btn { background: #8e44ad; margin-top: 10px; }
@@ -119,6 +120,18 @@
         .pos-zone-bill table { font-size: 0.66rem; }
         .pos-zone-bill td, .pos-zone-bill th { padding: 4px 2px; }
         .pos-bill-total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; padding: 4px 0; }
+        .calendar-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+        .calendar-day { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
+        .calendar-dow { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #7f8c8d; }
+        .calendar-blank { flex: 0 0 calc(14.28% - 4px); height: 40px; }
+        .calendar-day .day-num { font-size: 0.62rem; color: #95a5a6; }
+        .calendar-day .day-status { font-weight: bold; font-size: 0.9rem; line-height: 1; }
+        .calendar-day.status-p { background: #eafaf1; border-color: var(--accent); }
+        .calendar-day.status-p .day-status { color: var(--accent); }
+        .calendar-day.status-l { background: #fef5e7; border-color: #e67e22; }
+        .calendar-day.status-l .day-status { color: #e67e22; }
+        .calendar-day.status-a { background: #fdecea; border-color: var(--danger); }
+        .calendar-day.status-a .day-status { color: var(--danger); }
         @media print {
             body { overflow: visible !important; }
             body * { visibility: hidden; }
@@ -175,12 +188,20 @@
         <div class="pos-zone pos-zone-bill">
             <div class="pos-zone-title" id="active-bill-heading">🧾 Order</div>
             <div class="table-btn-grid" id="table-btn-grid"></div>
+            <div class="pos-zone-title" style="margin-bottom:2px; font-size:0.68rem;">
+                🪑 Table
+                <span>
+                    <span class="manage-link" onclick="adjustTableCount(-1)" title="Remove a table">➖</span>
+                    <span class="manage-link" onclick="adjustTableCount(1)" title="Add a table">➕</span>
+                </span>
+            </div>
+            <div class="table-btn-grid" id="table-btn-grid"></div>
             <input type="text" id="table-name-extra" placeholder="Optional name" style="padding:7px; font-size:0.72rem; margin-bottom:5px;" oninput="updateTableInfo()">
             <input type="hidden" id="table-info">
             <div class="order-type-btns" id="order-type-btns" style="margin-top:0; margin-bottom:5px;">
-                <button type="button" class="order-type-btn active" data-type="Dine-in" onclick="setOrderType('Dine-in')" title="Dine-in">🍽️</button>
-                <button type="button" class="order-type-btn" data-type="Takeaway" onclick="setOrderType('Takeaway')" title="Takeaway">🥡</button>
-                <button type="button" class="order-type-btn" data-type="Delivery" onclick="setOrderType('Delivery')" title="Delivery">🛵</button>
+                <button type="button" class="order-type-btn active" data-type="Dine-in" onclick="setOrderType('Dine-in')"><span class="ot-icon">🍽️</span>Dine-in</button>
+                <button type="button" class="order-type-btn" data-type="Takeaway" onclick="setOrderType('Takeaway')"><span class="ot-icon">🥡</span>Takeaway</button>
+                <button type="button" class="order-type-btn" data-type="Delivery" onclick="setOrderType('Delivery')"><span class="ot-icon">🛵</span>Delivery</button>
             </div>
 
             <div class="pos-zone-scroll" style="border-top:1px solid #eee; border-bottom:1px solid #eee;">
@@ -237,7 +258,7 @@
         </div>
     </div>
 
-    <div id="menu-manager-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; padding:10px; box-sizing:border-box; overflow-y:auto;">
+    <div id="menu-manager-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1000; padding:10px; box-sizing:border-box; overflow-y:auto;">
         <div class="panel" style="max-width:520px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <h2 style="margin:0; border:none; padding:0;">📂 Menu Management</h2>
@@ -445,10 +466,36 @@
         </div>
 
         <div class="panel" style="margin-top:15px;">
-            <h2>🧾 Staff & Daily Salary Log</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">Log each staff member's salary day by day, so you can always check who's been paid and who's still pending.</p>
+            <h2>🧾 Staff</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Tap a staff member's calendar to mark each day Paid, on Leave, or Absent.</p>
             <div id="staff-list"></div>
             <div id="staff-list-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No staff added yet.</div>
+        </div>
+    </div>
+
+    <div id="staff-calendar-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1001; padding:10px; box-sizing:border-box; overflow-y:auto;">
+        <div class="panel" style="max-width:420px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 id="staff-calendar-title" style="margin:0; border:none; padding:0; font-size:1rem;"></h2>
+                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeStaffCalendar()">✖</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <button type="button" onclick="shiftCalendarMonth(-1)" style="width:auto; padding:8px 16px;">◀</button>
+                <strong id="calendar-month-label"></strong>
+                <button type="button" onclick="shiftCalendarMonth(1)" style="width:auto; padding:8px 16px;">▶</button>
+            </div>
+            <div class="calendar-grid" id="staff-calendar-grid"></div>
+            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank</p>
+            <div style="display:flex; gap:12px; justify-content:center; margin-top:8px; font-size:0.75rem;">
+                <span><b style="color:var(--accent);">P</b> Paid</span>
+                <span><b style="color:#e67e22;">L</b> Leave</span>
+                <span><b style="color:var(--danger);">A</b> Absent</span>
+            </div>
+            <div class="summary-box" style="margin-top:12px;">
+                <div class="summary-row"><span>Paid days:</span><span id="calendar-paid-count">0 (Rs. 0)</span></div>
+                <div class="summary-row"><span>Leave days:</span><span id="calendar-leave-count">0</span></div>
+                <div class="summary-row"><span>Absent days:</span><span id="calendar-absent-count">0</span></div>
+            </div>
         </div>
     </div>
 
@@ -727,6 +774,16 @@
         tableCount = n;
         saveTableCount();
         renderTableButtons();
+    }
+
+    // Quick +/- next to the table grid itself, so tables can be added/removed without opening
+    // Manage Menu. Keeps the number-input setting there in sync too.
+    function adjustTableCount(delta) {
+        tableCount = Math.max(1, Math.min(60, tableCount + delta));
+        saveTableCount();
+        renderTableButtons();
+        var settingInput = document.getElementById('table-count-setting');
+        if (settingInput) settingInput.value = tableCount;
     }
     function savePendingPayments() { localStorage.setItem(STORAGE_KEYS.pendingPayments, JSON.stringify(pendingPayments)); }
     function saveExpenses() { localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenseLog)); }
@@ -1291,6 +1348,18 @@
     function updateBillDisplay() {
         var tableBody = document.getElementById('bill-items-table');
         var receiptItems = document.getElementById('receipt-items');
+
+        // This function rebuilds the bill rows from scratch, which would normally steal focus
+        // away from whatever input the user is actively typing in (e.g. a per-item discount box)
+        // every single keystroke. Remember what had focus (and cursor position) so we can restore
+        // it to the freshly-rebuilt element afterwards.
+        var activeEl = document.activeElement;
+        var activeId = (activeEl && activeEl.id) ? activeEl.id : null;
+        var activeSelStart = null, activeSelEnd = null;
+        if (activeId && typeof activeEl.selectionStart === 'number') {
+            try { activeSelStart = activeEl.selectionStart; activeSelEnd = activeEl.selectionEnd; } catch (e) {}
+        }
+
         tableBody.innerHTML = ''; receiptItems.innerHTML = '';
         var totalBillSubtotal = 0; var totalAfterItemDiscounts = 0; var totalItemDiscounts = 0;
 
@@ -1322,8 +1391,8 @@
 
                 var tdPrice = document.createElement('td'); tdPrice.innerText = item.price;
                 var tdDisc = document.createElement('td');
-                var discInput = document.createElement('input'); discInput.type = 'number'; discInput.className = 'item-disc-input'; discInput.value = item.discVal; discInput.oninput = function() { changeItemDiscount(index, 'val', this.value); };
-                var discSelect = document.createElement('select'); discSelect.className = 'item-disc-type';
+                var discInput = document.createElement('input'); discInput.type = 'number'; discInput.id = 'item-disc-input-' + index; discInput.className = 'item-disc-input'; discInput.value = item.discVal; discInput.oninput = function() { changeItemDiscount(index, 'val', this.value); };
+                var discSelect = document.createElement('select'); discSelect.id = 'item-disc-type-' + index; discSelect.className = 'item-disc-type';
                 var optPct = document.createElement('option'); optPct.value = 'pct'; optPct.innerText = '%'; if(item.discType == 'pct') optPct.selected = true;
                 var optFlat = document.createElement('option'); optFlat.value = 'flat'; optFlat.innerText = 'Rs'; if(item.discType == 'flat') optFlat.selected = true;
                 discSelect.appendChild(optPct); discSelect.appendChild(optFlat); discSelect.onchange = function() { changeItemDiscount(index, 'type', this.value); };
@@ -1334,6 +1403,18 @@
 
                 receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>' + formatCurrency(rawRowTotal) + '</span></div>';
             })(i);
+        }
+
+        // Restore focus (and cursor position, for text/number inputs) to whatever was active
+        // before the rebuild, so the user can keep typing without needing to click back in.
+        if (activeId) {
+            var restoredEl = document.getElementById(activeId);
+            if (restoredEl && restoredEl !== document.activeElement) {
+                restoredEl.focus();
+                if (activeSelStart !== null && typeof restoredEl.setSelectionRange === 'function') {
+                    try { restoredEl.setSelectionRange(activeSelStart, activeSelEnd); } catch (e) {}
+                }
+            }
         }
 
         var orderDiscountInput = document.getElementById('order-discount');
@@ -2084,30 +2165,8 @@
         renderStaffList();
     }
 
-    function logSalaryEntry(staffId) {
-        var dateInput = document.getElementById('salary-date-' + staffId);
-        var amountInput = document.getElementById('salary-amount-' + staffId);
-        var statusSelect = document.getElementById('salary-status-' + staffId);
-        var date = dateInput.value;
-        var amount = parseFloat(amountInput.value);
-        if (!date) return alert("Pick a date!");
-        if (isNaN(amount) || amount < 0) return alert("Enter a valid amount!");
-
-        salaryLog.push({ id: Date.now(), staffId: staffId, date: date, amount: amount, status: statusSelect.value });
-        saveSalaryLog();
-        renderStaffList();
-    }
-
-    function deleteSalaryEntry(id) {
-        if (!confirm("Delete this salary entry?")) return;
-        salaryLog = salaryLog.filter(function(e) { return e.id !== id; });
-        saveSalaryLog();
-        renderStaffList();
-    }
-
-    // Renders every staff member as a card: daily rate, running Paid/Pending totals, a quick
-    // form to log today's (or any date's) entry, and the dated history so you can verify what
-    // was actually given.
+    // Renders every staff member as a compact card: daily rate, running total paid, and a
+    // button that opens their attendance/pay calendar (see openStaffCalendar below).
     function renderStaffList() {
         var list = document.getElementById('staff-list');
         var emptyMsg = document.getElementById('staff-list-empty');
@@ -2120,53 +2179,133 @@
         }
         emptyMsg.style.display = 'none';
 
-        var todayStr = new Date().toISOString().slice(0, 10);
-
         for (var i = 0; i < staffList.length; i++) {
             var staff = staffList[i];
             var entries = salaryLog.filter(function(e) { return e.staffId === staff.id; });
-            entries.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
-
-            var totalPaid = 0, totalPending = 0;
+            var totalPaid = 0;
             for (var e = 0; e < entries.length; e++) {
                 if (entries[e].status === 'Paid') totalPaid += entries[e].amount;
-                else totalPending += entries[e].amount;
-            }
-
-            var entriesHtml = '';
-            if (entries.length === 0) {
-                entriesHtml = '<div style="font-size:0.78rem; color:#95a5a6; padding:4px 0;">No entries logged yet.</div>';
-            } else {
-                entriesHtml = '<table style="width:100%; font-size:0.78rem; margin-top:4px;"><tbody>';
-                for (var e2 = 0; e2 < entries.length; e2++) {
-                    var entry = entries[e2];
-                    var statusColor = entry.status === 'Paid' ? 'var(--accent)' : 'var(--danger)';
-                    entriesHtml += '<tr>' +
-                        '<td style="padding:4px 2px;">' + entry.date + '</td>' +
-                        '<td style="padding:4px 2px;">' + formatCurrency(entry.amount) + '</td>' +
-                        '<td style="padding:4px 2px;"><span style="color:' + statusColor + '; font-weight:bold;">' + entry.status + '</span></td>' +
-                        '<td style="padding:4px 2px; text-align:right;"><span class="log-action log-delete" style="font-size:0.9rem;" onclick="deleteSalaryEntry(' + entry.id + ')">×</span></td>' +
-                        '</tr>';
-                }
-                entriesHtml += '</tbody></table>';
             }
 
             var card = document.createElement('div');
             card.className = 'ko-card';
             card.innerHTML =
                 '<div class="ko-header"><strong>' + staff.name + ' &middot; ' + staff.role + '</strong><span class="ko-badge preparing">' + formatCurrency(staff.dailySalary) + '/day</span></div>' +
-                '<div class="ko-time">Paid: <b style="color:var(--accent);">' + formatCurrency(totalPaid) + '</b> &nbsp;|&nbsp; Pending: <b style="color:var(--danger);">' + formatCurrency(totalPending) + '</b></div>' +
-                '<div class="flex-row" style="margin-top:8px; margin-bottom:0;">' +
-                    '<div style="flex:1;"><label style="font-size:0.7rem;">Date</label><input type="date" id="salary-date-' + staff.id + '" value="' + todayStr + '" style="padding:6px; font-size:0.8rem;"></div>' +
-                    '<div style="flex:1;"><label style="font-size:0.7rem;">Amount</label><input type="number" id="salary-amount-' + staff.id + '" value="' + staff.dailySalary + '" style="padding:6px; font-size:0.8rem;"></div>' +
-                    '<div style="flex:1;"><label style="font-size:0.7rem;">Status</label><select id="salary-status-' + staff.id + '" style="padding:6px; font-size:0.8rem;"><option value="Paid">Paid</option><option value="Pending">Pending</option></select></div>' +
-                '</div>' +
-                '<button type="button" onclick="logSalaryEntry(' + staff.id + ')" style="margin-top:6px;">💾 Log Entry</button>' +
-                '<div class="ko-items" style="margin-top:8px;">' + entriesHtml + '</div>' +
+                '<div class="ko-time">Total paid: <b style="color:var(--accent);">' + formatCurrency(totalPaid) + '</b></div>' +
+                '<div class="ko-actions"><button type="button" onclick="openStaffCalendar(' + staff.id + ')" style="background:#8e44ad;">📅 View Calendar</button></div>' +
                 '<div class="item-actions" style="margin-top:6px;"><span></span><span class="delete-tag" onclick="removeStaff(' + staff.id + ')">Remove Staff</span></div>';
 
             list.appendChild(card);
         }
+    }
+
+    // ---- Staff calendar: tap a day to cycle it through Paid -> Leave -> Absent -> blank ----
+    var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var calendarStaffId = null;
+    var calendarYear = new Date().getFullYear();
+    var calendarMonth = new Date().getMonth();
+
+    function openStaffCalendar(staffId) {
+        var staff = staffList.filter(function(s) { return s.id === staffId; })[0];
+        if (!staff) return;
+        calendarStaffId = staffId;
+        var now = new Date();
+        calendarYear = now.getFullYear();
+        calendarMonth = now.getMonth();
+        document.getElementById('staff-calendar-title').innerText = staff.name + ' (' + staff.role + ')';
+        document.getElementById('staff-calendar-overlay').style.display = 'block';
+        renderStaffCalendar();
+    }
+
+    function closeStaffCalendar() {
+        document.getElementById('staff-calendar-overlay').style.display = 'none';
+        calendarStaffId = null;
+        renderStaffList();
+    }
+
+    function shiftCalendarMonth(delta) {
+        calendarMonth += delta;
+        if (calendarMonth < 0) { calendarMonth = 11; calendarYear -= 1; }
+        else if (calendarMonth > 11) { calendarMonth = 0; calendarYear += 1; }
+        renderStaffCalendar();
+    }
+
+    function renderStaffCalendar() {
+        var staff = staffList.filter(function(s) { return s.id === calendarStaffId; })[0];
+        if (!staff) return;
+        document.getElementById('calendar-month-label').innerText = MONTH_NAMES[calendarMonth] + ' ' + calendarYear;
+
+        var grid = document.getElementById('staff-calendar-grid');
+        grid.innerHTML = '';
+
+        var dowLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        for (var d = 0; d < 7; d++) {
+            var dowEl = document.createElement('div');
+            dowEl.className = 'calendar-dow';
+            dowEl.innerText = dowLabels[d];
+            grid.appendChild(dowEl);
+        }
+
+        var firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+        for (var b = 0; b < firstDay; b++) {
+            var blank = document.createElement('div');
+            blank.className = 'calendar-blank';
+            grid.appendChild(blank);
+        }
+
+        var entries = salaryLog.filter(function(e) { return e.staffId === calendarStaffId; });
+        var entryByDate = {};
+        for (var i = 0; i < entries.length; i++) { entryByDate[entries[i].date] = entries[i]; }
+
+        var paidCount = 0, paidAmount = 0, leaveCount = 0, absentCount = 0;
+
+        for (var day = 1; day <= daysInMonth; day++) {
+            var dateStr = calendarYear + '-' + String(calendarMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+            var entry = entryByDate[dateStr];
+
+            var cell = document.createElement('div');
+            cell.className = 'calendar-day' + (entry ? ' status-' + entry.status.charAt(0).toLowerCase() : '');
+            var numDiv = document.createElement('div'); numDiv.className = 'day-num'; numDiv.innerText = day;
+            var statusDiv = document.createElement('div'); statusDiv.className = 'day-status';
+            statusDiv.innerText = entry ? entry.status.charAt(0).toUpperCase() : '';
+            cell.appendChild(numDiv); cell.appendChild(statusDiv);
+            cell.onclick = (function(ds) { return function() { cycleCalendarDay(ds); }; })(dateStr);
+            grid.appendChild(cell);
+
+            if (entry) {
+                if (entry.status === 'Paid') { paidCount += 1; paidAmount += entry.amount; }
+                else if (entry.status === 'Leave') { leaveCount += 1; }
+                else if (entry.status === 'Absent') { absentCount += 1; }
+            }
+        }
+
+        document.getElementById('calendar-paid-count').innerText = paidCount + ' (' + formatCurrency(paidAmount) + ')';
+        document.getElementById('calendar-leave-count').innerText = leaveCount;
+        document.getElementById('calendar-absent-count').innerText = absentCount;
+    }
+
+    function cycleCalendarDay(dateStr) {
+        var entry = null, entryIndex = -1;
+        for (var i = 0; i < salaryLog.length; i++) {
+            if (salaryLog[i].staffId === calendarStaffId && salaryLog[i].date === dateStr) { entry = salaryLog[i]; entryIndex = i; break; }
+        }
+        var staff = staffList.filter(function(s) { return s.id === calendarStaffId; })[0];
+
+        if (!entry) {
+            salaryLog.push({ id: Date.now(), staffId: calendarStaffId, date: dateStr, amount: staff ? staff.dailySalary : 0, status: 'Paid' });
+        } else if (entry.status === 'Paid') {
+            entry.status = 'Leave';
+            entry.amount = 0;
+        } else if (entry.status === 'Leave') {
+            entry.status = 'Absent';
+        } else {
+            salaryLog.splice(entryIndex, 1);
+        }
+
+        saveSalaryLog();
+        renderStaffCalendar();
     }
 
     // ---- Backup & Restore ----
