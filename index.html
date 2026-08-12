@@ -13,8 +13,9 @@
         .brand-header img { height: 54px; width: 54px; border-radius: 50%; object-fit: cover; }
         .brand-header h1 { color: #27ae60; font-size: 1.3rem; margin: 0; letter-spacing: 1px; }
         .brand-header span { color: #ecf0f1; font-size: 0.7rem; display: block; }
-        .tabs { display: flex; flex-wrap: wrap; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .tab-btn { flex: 1 1 22%; padding: 9px 2px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 6px; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tabs { display: flex; flex-wrap: nowrap; gap: 3px; background: #fff; padding: 4px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn { flex: 1; min-width: 0; padding: 5px 1px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 5px; font-size: 0.5rem; display: flex; flex-direction: column; align-items: center; gap: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tab-btn .tab-icon { font-size: 0.9rem; line-height: 1.3; }
         .tab-btn.active { background: var(--primary); color: white; }
         .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .tab-content { display: none; }
@@ -158,14 +159,14 @@
     </div>
 
     <div class="tabs">
-        <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')">🛒 Billing</button>
-        <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')">🍳 Kitchen</button>
-        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')">✅ Ready</button>
-        <button id="btn-received" class="tab-btn" onclick="switchTab('received')">💰 Receive</button>
-        <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')">📈 Sales</button>
-        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')">💸 Expenses</button>
-        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')">👥 Salary</button>
-        <button id="btn-inventory" class="tab-btn" onclick="switchTab('inventory')">📦 Inventory</button>
+        <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')"><span class="tab-icon">🛒</span>Billing</button>
+        <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')"><span class="tab-icon">🍳</span>Kitchen</button>
+        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')"><span class="tab-icon">✅</span>Ready</button>
+        <button id="btn-received" class="tab-btn" onclick="switchTab('received')"><span class="tab-icon">💰</span>Receive</button>
+        <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')"><span class="tab-icon">📈</span>Sales</button>
+        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')"><span class="tab-icon">💸</span>Expenses</button>
+        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')"><span class="tab-icon">👥</span>Salary</button>
+        <button id="btn-inventory" class="tab-btn" onclick="switchTab('inventory')"><span class="tab-icon">📦</span>Inventory</button>
     </div>
 
     <div id="billing-tab" class="tab-content active">
@@ -502,6 +503,8 @@
     <div id="inventory-tab" class="tab-content">
         <div class="panel">
             <h2>📦 Add / Restock Inventory</h2>
+            <button type="button" onclick="importMenuItemsToInventory()" style="background:#8e44ad; margin-bottom:12px;">📋 Import All Menu Items</button>
+            <p style="font-size:0.78rem; color:#888; margin:-6px 0 12px 0;">Adds every item from your menu that isn't already tracked here, starting at 0 stock — set each one's quantity yourself below.</p>
             <div class="flex-row">
                 <div style="flex: 2;">
                     <label>Item Name</label>
@@ -764,6 +767,8 @@
         saveSelectedTableNumber();
         renderTableButtons();
         updateTableInfo();
+        // Picking a table only makes sense for Dine-in, so set it automatically - one less tap.
+        if (selectedTableNumber && currentOrderType !== 'Dine-in') setOrderType('Dine-in');
     }
 
     function updateTableCount() {
@@ -773,6 +778,7 @@
         if (n > 60) n = 60;
         tableCount = n;
         saveTableCount();
+        clearOrphanedTableSelection();
         renderTableButtons();
     }
 
@@ -781,9 +787,19 @@
     function adjustTableCount(delta) {
         tableCount = Math.max(1, Math.min(60, tableCount + delta));
         saveTableCount();
+        clearOrphanedTableSelection();
         renderTableButtons();
         var settingInput = document.getElementById('table-count-setting');
         if (settingInput) settingInput.value = tableCount;
+    }
+    // If the currently-selected table number no longer has a button (count was reduced below
+    // it), clear the selection instead of leaving a "Table 12" reference with no visible button.
+    function clearOrphanedTableSelection() {
+        if (selectedTableNumber && parseInt(selectedTableNumber, 10) > tableCount) {
+            selectedTableNumber = null;
+            saveSelectedTableNumber();
+            updateTableInfo();
+        }
     }
     function savePendingPayments() { localStorage.setItem(STORAGE_KEYS.pendingPayments, JSON.stringify(pendingPayments)); }
     function saveExpenses() { localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenseLog)); }
@@ -821,6 +837,28 @@
         nameInput.value = ''; unitInput.value = ''; qtyInput.value = '';
         saveInventory();
         renderInventory();
+    }
+
+    // Pulls every current menu item into the inventory list (0 stock, no unit) so you don't
+    // have to retype names - skips anything already tracked. You fill in real quantities after.
+    function importMenuItemsToInventory() {
+        var existingNames = {};
+        for (var i = 0; i < inventoryList.length; i++) {
+            existingNames[inventoryList[i].itemName.toLowerCase()] = true;
+        }
+        var added = 0;
+        for (var j = 0; j < menuCatalog.length; j++) {
+            var menuItemName = menuCatalog[j].name;
+            if (!existingNames[menuItemName.toLowerCase()]) {
+                inventoryList.push({ id: Date.now() + j, itemName: menuItemName, unit: '', stockQty: 0 });
+                existingNames[menuItemName.toLowerCase()] = true;
+                added += 1;
+            }
+        }
+        saveInventory();
+        renderInventory();
+        if (added === 0) alert("Every menu item is already in your inventory list.");
+        else alert("Added " + added + " menu item" + (added === 1 ? "" : "s") + " to inventory - set each one's stock quantity below.");
     }
 
     function deleteInventoryItem(id) {
@@ -863,7 +901,7 @@
                 var tdStock = document.createElement('td'); tdStock.innerText = item.stockQty;
                 var tdSold = document.createElement('td'); tdSold.innerText = sold;
                 var tdRemaining = document.createElement('td');
-                tdRemaining.innerHTML = '<b style="color:' + (remaining <= 0 ? 'var(--danger)' : 'var(--accent)') + ';">' + remaining + '</b>';
+                tdRemaining.innerHTML = '<b style="color:' + (remaining < 0 ? 'var(--danger)' : 'var(--accent)') + ';">' + remaining + '</b>';
                 var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×';
                 tdDel.onclick = function() { deleteInventoryItem(item.id); };
                 tr.appendChild(tdName); tr.appendChild(tdUnit); tr.appendChild(tdStock); tr.appendChild(tdSold); tr.appendChild(tdRemaining); tr.appendChild(tdDel);
@@ -953,6 +991,7 @@
             var medium = parseFloat(document.getElementById('new-item-size-medium').value);
             var large = parseFloat(document.getElementById('new-item-size-large').value);
             if (isNaN(small) && isNaN(medium) && isNaN(large)) return alert("Enter at least one size price!");
+            if ((!isNaN(small) && small < 0) || (!isNaN(medium) && medium < 0) || (!isNaN(large) && large < 0)) return alert("Prices can't be negative!");
             newItem.sizes = {};
             if (!isNaN(small)) newItem.sizes.Small = small;
             if (!isNaN(medium)) newItem.sizes.Medium = medium;
@@ -960,6 +999,7 @@
         } else {
             var price = parseFloat(document.getElementById('new-item-price').value);
             if (isNaN(price)) return alert("Enter a valid price!");
+            if (price < 0) return alert("Price can't be negative!");
             newItem.price = price;
         }
 
@@ -1006,6 +1046,7 @@
             var s = parseFloat(document.getElementById('edit-size-small-' + index).value);
             var m = parseFloat(document.getElementById('edit-size-medium-' + index).value);
             var l = parseFloat(document.getElementById('edit-size-large-' + index).value);
+            if ((!isNaN(s) && s < 0) || (!isNaN(m) && m < 0) || (!isNaN(l) && l < 0)) return alert("Prices can't be negative!");
             item.sizes = {};
             if (!isNaN(s)) item.sizes.Small = s;
             if (!isNaN(m)) item.sizes.Medium = m;
@@ -1013,6 +1054,7 @@
         } else {
             var p = parseFloat(document.getElementById('edit-price-' + index).value);
             if (isNaN(p)) return alert("Enter a valid price!");
+            if (p < 0) return alert("Price can't be negative!");
             item.price = p;
         }
 
@@ -1187,6 +1229,8 @@
         selectedCategory = cat;
         renderCategoryTiles();
         renderItemsForCategory();
+        var itemsScroll = document.querySelector('.pos-zone-items .pos-zone-scroll');
+        if (itemsScroll) itemsScroll.scrollTop = 0;
     }
 
     // Renders the items belonging to the selected category (with names, unlike the icon-only
@@ -1271,10 +1315,17 @@
         if (existingItem) { existingItem.qty += 1; }
         else { currentBill.push({ name: name, price: price, qty: 1, discVal: 0, discType: 'pct' }); }
         updateBillDisplay();
+        var billScroll = document.querySelector('.pos-zone-bill .pos-zone-scroll');
+        if (billScroll) billScroll.scrollTop = billScroll.scrollHeight;
     }
 
     function changeItemDiscount(index, field, value) {
-        if (field == 'val') { currentBill[index].discVal = parseFloat(value) || 0; }
+        if (field == 'val') {
+            var v = parseFloat(value) || 0;
+            if (v < 0) v = 0;
+            if (currentBill[index].discType === 'pct' && v > 100) v = 100;
+            currentBill[index].discVal = v;
+        }
         else { currentBill[index].discType = value; }
         updateBillDisplay();
     }
@@ -2323,7 +2374,8 @@
             expenseLog: expenseLog,
             staffList: staffList,
             salaryLog: salaryLog,
-            inventoryList: inventoryList
+            inventoryList: inventoryList,
+            tableCount: tableCount
         };
         var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8;' });
         var url = URL.createObjectURL(blob);
@@ -2364,6 +2416,7 @@
             staffList = Array.isArray(data.staffList) ? data.staffList : [];
             salaryLog = Array.isArray(data.salaryLog) ? data.salaryLog : [];
             inventoryList = Array.isArray(data.inventoryList) ? data.inventoryList : [];
+            tableCount = typeof data.tableCount === 'number' ? data.tableCount : 12;
             saveMenu();
             saveSales();
             saveInvoiceCounter();
@@ -2373,6 +2426,7 @@
             saveStaffList();
             saveSalaryLog();
             saveInventory();
+            saveTableCount();
             renderCatalog();
             updateSalesDashboard();
             renderKitchenOrders();
@@ -2383,6 +2437,10 @@
             renderInventory();
             renderCategoryTiles();
             renderItemsForCategory();
+            clearOrphanedTableSelection();
+            renderTableButtons();
+            var tableCountSettingEl = document.getElementById('table-count-setting');
+            if (tableCountSettingEl) tableCountSettingEl.value = tableCount;
             alert("Backup restored successfully!");
         };
         reader.onerror = function() { alert("Could not read that file."); };
