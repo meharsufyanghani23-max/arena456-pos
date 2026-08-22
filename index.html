@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ARENA 456 CLOUD POS</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b; --bg: #f5f6fa; }
+        :root { --primary: #2c3e50; --accent: #27ae60; --secondary: #e67e22; --danger: #c0392b; --bg: #f5f6fa; }
         html { margin: 0; padding: 0; }
         body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg); box-sizing: border-box; }
         .container { display: flex; flex-direction: column; gap: 10px; }
@@ -23,8 +23,8 @@
         h2 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
         .flex-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         label { display: block; font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
         .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .checkbox-row input { width: auto; }
         .checkbox-row label { margin-bottom: 0; }
@@ -70,7 +70,7 @@
         .summary-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
         .kitchen-ticket { display: none; background: #fff; border: 1px dashed #bbb; padding: 15px; width: 100%; max-width: 260px; margin: 10px auto; box-sizing: border-box; font-family: monospace; }
         .kitchen-ticket-row { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; font-weight: bold; }
-        .ko-card { border: 2px solid #dcdde1; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .ko-card { border: 1px solid #eee; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .ko-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .ko-header strong { font-size: 0.95rem; color: var(--primary); }
         .ko-time { font-size: 0.7rem; color: #95a5a6; margin-bottom: 6px; }
@@ -88,7 +88,7 @@
         .order-type-btn .ot-icon { font-size: 1rem; }
         .order-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .backup-btn { background: var(--primary); margin-top: 10px; }
-        .restore-btn { background: #8e44ad; margin-top: 10px; }
+        .restore-btn { background: var(--secondary); margin-top: 10px; }
         .log-actions { display: flex; gap: 10px; align-items: center; }
         .log-action { cursor: pointer; font-size: 1.05rem; user-select: none; }
         .log-action.log-delete { color: var(--danger); font-weight: bold; }
@@ -101,20 +101,23 @@
         .pos-zone-items { width: calc(40% - 5px); }
         .pos-zone-bill { width: calc(38% - 5px); }
         .pos-zone-title { font-size: 0.72rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .pos-zone-title .manage-link { font-size: 0.9rem; color: #8e44ad; cursor: pointer; font-weight: normal; }
+        .pos-zone-title .manage-link { font-size: 0.9rem; color: var(--secondary); cursor: pointer; font-weight: normal; }
         .pos-zone-scroll { overflow-y: auto; }
         .pos-zone-categories .pos-zone-scroll { max-height: 440px; }
         .pos-zone-items .pos-zone-scroll { max-height: 440px; }
         .pos-zone-bill .pos-zone-scroll { max-height: 170px; overflow-x: auto; }
         .category-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-        .category-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 3px; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 8px; font-size: 1.05rem; cursor: pointer; }
+        .category-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 3px; background: #fff; border: 1px solid #eee; border-radius: 14px; font-size: 1.15rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .category-tile .cat-name { font-size: 0.5rem; font-weight: bold; color: var(--primary); line-height: 1.05; text-align: center; }
-        .category-tile.active { border-color: var(--accent); background: #eafaf1; }
-        .item-tile-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-        .item-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 8px; padding: 5px; cursor: pointer; text-align: center; }
+        .category-tile.active { border-color: var(--accent); background: #eafaf1; box-shadow: 0 2px 6px rgba(39,174,96,0.25); }
+        .item-tile-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .item-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 10px 6px 8px 6px; cursor: pointer; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .item-icon-circle { width: 34px; height: 34px; border-radius: 50%; background: #eafaf1; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; margin: 0 auto 6px auto; }
         .table-btn-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
-        .table-btn { flex: 0 0 calc(20% - 4px); box-sizing: border-box; height: 30px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 6px; font-size: 0.72rem; font-weight: bold; cursor: pointer; color: var(--primary); }
+        .table-btn { flex: 0 0 calc(20% - 4px); box-sizing: border-box; height: 30px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; font-size: 0.72rem; font-weight: bold; cursor: pointer; color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .table-btn.active { border-color: var(--accent); background: #eafaf1; color: var(--accent); }
+        .table-btn.occupied { position: relative; }
+        .table-btn.occupied::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); border: 1.5px solid #fff; }
         .item-tile strong { display: block; font-size: 0.72rem; color: var(--primary); line-height: 1.25; }
         .item-tile span { display: block; font-size: 0.72rem; color: var(--accent); font-weight: bold; margin-top: 3px; }
         .item-tile .size-btn-row { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
@@ -122,7 +125,8 @@
         .pos-zone-bill td, .pos-zone-bill th { padding: 4px 2px; }
         .pos-bill-total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; padding: 4px 0; }
         .calendar-grid { display: flex; flex-wrap: wrap; gap: 4px; }
-        .calendar-day { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
+        .calendar-day { position: relative; flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
+        .day-add-btn { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; line-height: 13px; font-size: 0.62rem; font-weight: bold; text-align: center; background: var(--secondary); color: #fff; border-radius: 50%; cursor: pointer; }
         .calendar-dow { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #7f8c8d; }
         .calendar-blank { flex: 0 0 calc(14.28% - 4px); height: 40px; }
         .calendar-day .day-num { font-size: 0.62rem; color: #95a5a6; }
@@ -180,6 +184,7 @@
 
         <div class="pos-zone pos-zone-items">
             <div class="pos-zone-title" id="items-zone-title">🍽️ Select category</div>
+            <input type="text" id="item-quick-search" placeholder="🔍 Search items..." oninput="renderItemsForCategory()" style="padding:6px 8px; font-size:0.7rem; margin-bottom:6px;">
             <div class="pos-zone-scroll">
                 <div class="item-tile-grid" id="item-tile-grid"></div>
                 <div id="item-tile-empty" style="text-align:center; color:#95a5a6; padding:16px 4px; font-size:0.72rem;">👆 Tap a category</div>
@@ -219,8 +224,8 @@
                 <option value="Card">Card</option>
             </select>
             <input type="number" id="order-discount" placeholder="Discount %" min="0" max="100" value="0" oninput="updateBillDisplay()" style="padding:7px; font-size:0.75rem; margin-bottom:6px;">
-            <button onclick="printKitchenTicket()" style="background:#d35400; margin-bottom:5px;">🧾 Kitchen</button>
-            <button onclick="processCheckout()" style="background:var(--primary);">🖨️ Checkout</button>
+            <button onclick="printKitchenTicket()" style="background:var(--secondary); margin-bottom:5px;">🧾 Kitchen</button>
+            <button onclick="processCheckout()" style="background:var(--accent);">🖨️ Checkout</button>
             <span class="delete-tag" style="display:block; text-align:center; margin-top:6px;" onclick="clearBill()">🗑️ Clear Order</span>
         </div>
         </div>
@@ -329,7 +334,7 @@
     <div id="kitchen-tab" class="tab-content">
         <div class="panel">
             <h2>🍳 Kitchen Orders Queue</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here automatically when you tap "🧾 Print Kitchen Ticket" on the Billing tab. Move each one through its status as the kitchen works on it. When an order is marked "Ready" it moves to the ✅ Ready Orders tab. You can also tap "🧾 Load to Billing" any time to pull an order's items back into the bill (e.g. if the customer wants to pay early or add more items).</p>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Your kitchen's prep queue. Move each order through its status as it's made — once marked Ready, it drops off this list (it's still billable from the Ready tab).</p>
             <div id="kitchen-orders-list"></div>
             <div id="kitchen-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No active kitchen orders right now.</div>
         </div>
@@ -337,8 +342,8 @@
 
     <div id="ready-tab" class="tab-content">
         <div class="panel">
-            <h2>✅ Ready Orders — Awaiting Billing</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders show up here once the kitchen marks them "Ready". Prep Time shows how long it took from order taken to ready, so you know your chef's speed. Tap "Load to Billing" to pull the order straight into the bill — no retyping.</p>
+            <h2>✅ Active Orders — Bill Anytime</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Every active order lives here the moment a kitchen ticket is printed — bill it any time, no need to wait for prep status. Tap "Load to Billing" — no retyping.</p>
             <div id="ready-orders-list"></div>
             <div id="ready-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No orders ready for billing right now.</div>
         </div>
@@ -347,7 +352,7 @@
     <div id="received-tab" class="tab-content">
         <div class="panel">
             <h2>💰 Receive Payment</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here after you tap "🖨️ Print & Save Order" on the Billing tab. Nothing counts toward Daily Sales until you tap "✅ Receive Payment" below to confirm the money actually came in. Use "🗑️ Void" if a customer didn't end up paying.</p>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Nothing counts toward Daily Sales until you tap "✅ Receive Payment." Use "🗑️ Void" if the customer didn't pay.</p>
             <div id="pending-payments-list"></div>
             <div id="pending-payments-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No payments waiting to be received right now.</div>
         </div>
@@ -367,13 +372,14 @@
             </div>
 
             <h2>📋 Transaction Log History</h2>
-            <p style="font-size:0.8rem; color:#555; margin-top:-4px;">✏️ edit a row's type/method/amount, 🖨️ reprint that receipt, × delete.</p>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">✏️ Edit amount/method/type &nbsp; 📝 Edit items &nbsp; 🖨️ Reprint &nbsp; × Delete</p>
             <div class="bill-table-container" style="max-height:300px;">
                 <table>
                     <thead>
                         <tr>
                             <th>Invoice #</th>
-                            <th>Time</th>
+                            <th>Date, Time</th>
+                            <th>Table</th>
                             <th>Type</th>
                             <th>Method</th>
                             <th>Amount</th>
@@ -385,6 +391,19 @@
             </div>
             <button onclick="exportSalesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Sales CSV</button>
             <button onclick="resetDailySales()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Sales Log Counter</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>📦 Item Sales Summary</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">How many of each item sold — cross-check against Inventory's Sold column.</p>
+            <div class="bill-table-container" style="max-height:280px;">
+                <table>
+                    <thead>
+                        <tr><th>Item</th><th>Qty Sold</th><th>Revenue</th></tr>
+                    </thead>
+                    <tbody id="item-sales-summary-table"></tbody>
+                </table>
+            </div>
         </div>
 
         <div class="panel" style="margin-top:15px;">
@@ -486,7 +505,7 @@
                 <button type="button" onclick="shiftCalendarMonth(1)" style="width:auto; padding:8px 16px;">▶</button>
             </div>
             <div class="calendar-grid" id="staff-calendar-grid"></div>
-            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank</p>
+            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank. Tap the small + for an exact amount.</p>
             <div style="display:flex; gap:12px; justify-content:center; margin-top:8px; font-size:0.75rem;">
                 <span><b style="color:var(--accent);">P</b> Paid</span>
                 <span><b style="color:#e67e22;">L</b> Leave</span>
@@ -500,10 +519,29 @@
         </div>
     </div>
 
+    <div id="sale-items-edit-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1002; padding:10px; box-sizing:border-box; overflow-y:auto;">
+        <div class="panel" style="max-width:480px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 id="sale-edit-items-title" style="margin:0; border:none; padding:0; font-size:1rem;"></h2>
+                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeSaleItemsEdit()">✖</span>
+            </div>
+            <p style="font-size:0.75rem; color:#888; margin-top:0;">Fixes a bill that's already paid - e.g. the customer asked for something extra, or you forgot an item.</p>
+            <div id="sale-edit-items-list"></div>
+            <div style="margin-top:12px;">
+                <label>Add an item</label>
+                <input type="text" id="sale-edit-add-search" placeholder="Search menu..." oninput="renderSaleEditAddResults()">
+                <div id="sale-edit-add-results" style="max-height:160px; overflow-y:auto; margin-top:6px;"></div>
+            </div>
+            <div class="pos-bill-total-row" style="margin-top:10px; font-size:1rem; border-top:1px solid #eee; padding-top:8px;"><span>New Total:</span><span id="sale-edit-new-total">Rs. 0</span></div>
+            <button type="button" onclick="saveSaleItemsEdit()" style="margin-top:10px;">💾 Save Changes</button>
+            <button type="button" onclick="closeSaleItemsEdit()" style="background:#95a5a6; margin-top:6px;">Cancel</button>
+        </div>
+    </div>
+
     <div id="inventory-tab" class="tab-content">
         <div class="panel">
             <h2>📦 Add / Restock Inventory</h2>
-            <button type="button" onclick="importMenuItemsToInventory()" style="background:#8e44ad; margin-bottom:12px;">📋 Import All Menu Items</button>
+            <button type="button" onclick="importMenuItemsToInventory()" style="background:var(--secondary); margin-bottom:12px;">📋 Import All Menu Items</button>
             <p style="font-size:0.78rem; color:#888; margin:-6px 0 12px 0;">Adds every item from your menu that isn't already tracked here, starting at 0 stock — set each one's quantity yourself below.</p>
             <div class="flex-row">
                 <div style="flex: 2;">
@@ -526,7 +564,8 @@
 
         <div class="panel" style="margin-top:15px;">
             <h2>📊 Stock &amp; Today's Sales</h2>
-            <p style="font-size:0.85rem; color:#555; margin-top:0;">"Sold" is tallied from your current Daily Sales log — use the same item name you use on the menu (size variants count together). Wiping the sales log starts a fresh count.</p>
+            <p style="font-size:0.78rem; color:#888; margin:-4px 0 10px 0;">"Sold" comes from your current Daily Sales log, matched by item name.</p>
+            <input type="text" id="inventory-search" placeholder="🔍 Search inventory..." oninput="renderInventory()" style="margin-bottom:10px;">
             <div class="bill-table-container" style="max-height:320px;">
                 <table>
                     <thead>
@@ -753,22 +792,73 @@
         grid.innerHTML = '';
         for (var i = 1; i <= tableCount; i++) {
             (function(num) {
+                var occupied = !!findActiveOrderForTable(String(num));
                 var btn = document.createElement('div');
-                btn.className = 'table-btn' + (selectedTableNumber === String(num) ? ' active' : '');
+                btn.className = 'table-btn' + (selectedTableNumber === String(num) ? ' active' : '') + (occupied ? ' occupied' : '');
                 btn.innerText = num;
+                if (occupied) btn.title = 'Table ' + num + ' has an order awaiting payment';
                 btn.onclick = function() { selectTableNumber(String(num)); };
                 grid.appendChild(btn);
             })(i);
         }
     }
 
+    // Looks for an order still "open" against a table number - either still with the kitchen,
+    // or checked out but not yet received. This is what makes a table "reserved" until paid.
+    function findActiveOrderForTable(num) {
+        var label = 'Table ' + num;
+        for (var i = 0; i < kitchenOrders.length; i++) {
+            if (kitchenOrders[i].table === label) return { source: 'kitchen', order: kitchenOrders[i] };
+        }
+        for (var j = 0; j < pendingPayments.length; j++) {
+            if (pendingPayments[j].table === label) return { source: 'pending', order: pendingPayments[j] };
+        }
+        return null;
+    }
+
     function selectTableNumber(num) {
+        // Tapping a table that already has an order open (reserved until its bill is paid)
+        // loads that exact order instead of starting a blank one - "same result of receipt
+        // that i already make" so you can review or change it without hunting for it.
+        var active = findActiveOrderForTable(num);
+        if (active) {
+            var alreadyLinkedHere = (active.source === 'kitchen' && currentKitchenOrderId === active.order.id);
+            if (!alreadyLinkedHere) {
+                if (active.source === 'kitchen') loadOrderToBilling(active.order.id);
+                else loadPendingPaymentToBilling(active.order.id);
+                return;
+            }
+        }
+
         selectedTableNumber = (selectedTableNumber === num) ? null : num;
         saveSelectedTableNumber();
         renderTableButtons();
         updateTableInfo();
         // Picking a table only makes sense for Dine-in, so set it automatically - one less tap.
         if (selectedTableNumber && currentOrderType !== 'Dine-in') setOrderType('Dine-in');
+    }
+
+    // Loads a checked-out-but-not-yet-received order back into the active bill for editing -
+    // e.g. the customer wants to add something before paying, or you tapped their reserved table.
+    function loadPendingPaymentToBilling(id) {
+        var payment = pendingPayments.filter(function(p) { return p.id === id; })[0];
+        if (!payment) return;
+
+        if (currentBill.length > 0 && !confirm('Load Order #' + String(payment.invoiceNo).padStart(4, '0') + ' here? This replaces your current unsaved bill.')) return;
+
+        currentBill = payment.items.map(function(it) {
+            return { name: it.name, price: it.price, qty: it.qty, discVal: 0, discType: 'pct' };
+        });
+        pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
+        savePendingPayments();
+
+        setOrderType(payment.orderType || 'Dine-in');
+        restoreTableSelectionFromLabel(payment.table);
+
+        switchTab('billing');
+        updateBillDisplay();
+        renderPendingPayments();
+        scrollToBillingTerminal();
     }
 
     function updateTableCount() {
@@ -871,11 +961,18 @@
     function renderInventory() {
         var list = document.getElementById('inventory-list');
         var emptyMsg = document.getElementById('inventory-empty');
+        var searchInput = document.getElementById('inventory-search');
+        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
         if (!list) return;
         list.innerHTML = '';
 
-        if (inventoryList.length === 0) {
-            if (emptyMsg) emptyMsg.style.display = 'block';
+        var visibleList = searchTerm ? inventoryList.filter(function(it) { return it.itemName.toLowerCase().indexOf(searchTerm) !== -1; }) : inventoryList;
+
+        if (visibleList.length === 0) {
+            if (emptyMsg) {
+                emptyMsg.style.display = 'block';
+                emptyMsg.innerText = searchTerm ? 'No inventory items match "' + searchInput.value.trim() + '".' : 'No inventory items added yet.';
+            }
             return;
         }
         if (emptyMsg) emptyMsg.style.display = 'none';
@@ -891,7 +988,7 @@
             }
         }
 
-        for (var i = 0; i < inventoryList.length; i++) {
+        for (var i = 0; i < visibleList.length; i++) {
             (function(item) {
                 var sold = soldMap[item.itemName] || 0;
                 var remaining = item.stockQty - sold;
@@ -1240,23 +1337,30 @@
         var grid = document.getElementById('item-tile-grid');
         var emptyMsg = document.getElementById('item-tile-empty');
         var title = document.getElementById('items-zone-title');
+        var searchInput = document.getElementById('item-quick-search');
+        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
         if (!grid || !emptyMsg || !title) return;
 
-        if (!selectedCategory) {
+        var items;
+        if (searchTerm) {
+            items = menuCatalog.filter(function(it) { return it.name.toLowerCase().indexOf(searchTerm) !== -1; });
+            title.innerText = '🔍 "' + searchInput.value.trim() + '"';
+        } else if (!selectedCategory) {
             grid.innerHTML = '';
             emptyMsg.style.display = 'block';
-            emptyMsg.innerText = '👆 Tap a category to see its items';
-            title.innerText = '🍽️ Select a category above';
+            emptyMsg.innerText = '👆 Tap a category, or search above';
+            title.innerText = '🍽️ Select category';
             return;
+        } else {
+            title.innerText = (CATEGORY_ICONS[selectedCategory] || '🍽️') + ' ' + selectedCategory;
+            items = menuCatalog.filter(function(it) { return (it.category || 'General') === selectedCategory; });
         }
 
-        title.innerText = (CATEGORY_ICONS[selectedCategory] || '🍽️') + ' ' + selectedCategory;
-        var items = menuCatalog.filter(function(it) { return (it.category || 'General') === selectedCategory; });
         grid.innerHTML = '';
 
         if (items.length === 0) {
             emptyMsg.style.display = 'block';
-            emptyMsg.innerText = 'No items in this category yet.';
+            emptyMsg.innerText = searchTerm ? 'No items match "' + searchInput.value.trim() + '".' : 'No items in this category yet.';
             return;
         }
         emptyMsg.style.display = 'none';
@@ -1265,6 +1369,12 @@
             (function(item) {
                 var tile = document.createElement('div');
                 tile.className = 'item-tile';
+
+                var iconCircle = document.createElement('div');
+                iconCircle.className = 'item-icon-circle';
+                iconCircle.innerText = CATEGORY_ICONS[item.category] || '🍽️';
+                tile.appendChild(iconCircle);
+
                 var nameEl = document.createElement('strong');
                 nameEl.innerText = item.name;
                 tile.appendChild(nameEl);
@@ -1544,6 +1654,7 @@
                 saveKitchenOrders();
                 renderKitchenOrders();
                 renderReadyOrders();
+                renderTableButtons();
                 document.body.classList.add('print-kitchen');
                 window.print();
                 return;
@@ -1576,6 +1687,7 @@
         saveKitchenOrders();
         renderKitchenOrders();
         renderKitchenLinkBanner();
+        renderTableButtons();
 
         document.body.classList.add('print-kitchen');
         window.print();
@@ -1616,6 +1728,7 @@
         saveKitchenOrders();
         renderKitchenOrders();
         renderReadyOrders();
+        renderTableButtons();
     }
 
     function cancelKitchenOrder(id) {
@@ -1643,10 +1756,29 @@
         currentKitchenOrderId = order.id;
         saveLinkedOrderId();
         setOrderType(order.orderType || 'Dine-in');
+        restoreTableSelectionFromLabel(order.table);
         switchTab('billing');
         updateBillDisplay();
         renderKitchenLinkBanner();
         scrollToBillingTerminal();
+    }
+
+    // Splits a stored "Table 5 - Ali" label back into a selected table-button number and the
+    // optional name field, so loading an order restores exactly what was on it.
+    function restoreTableSelectionFromLabel(tableLabel) {
+        var nameExtraInput = document.getElementById('table-name-extra');
+        if (tableLabel) {
+            var m = tableLabel.match(/^Table (\d+)/);
+            selectedTableNumber = m ? m[1] : null;
+            var extra = tableLabel.replace(/^Table \d+\s*-?\s*/, '');
+            if (nameExtraInput) nameExtraInput.value = extra;
+        } else {
+            selectedTableNumber = null;
+            if (nameExtraInput) nameExtraInput.value = '';
+        }
+        saveSelectedTableNumber();
+        updateTableInfo();
+        renderTableButtons();
     }
 
     // Best-effort price lookup for older kitchen-order records that didn't store a price,
@@ -1695,7 +1827,7 @@
             var statusClass = order.status.toLowerCase();
             var actionHtml = '';
             if (order.status === 'Pending') {
-                actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#2980b9;">▶ Start Preparing</button>';
+                actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:var(--secondary);">▶ Start Preparing</button>';
             } else if (order.status === 'Preparing') {
                 actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#27ae60;">✅ Mark Ready</button>';
             }
@@ -1704,8 +1836,8 @@
                 '<div class="ko-header"><strong>' + order.invoiceLabel + (order.table ? ' &middot; ' + order.table : '') + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ' + statusClass + '">' + order.status + '</span></div>' +
                 '<div class="ko-time">' + order.time + '</div>' +
                 '<div class="ko-items">' + itemsHtml + '</div>' +
-                '<div class="ko-actions">' + actionHtml + '<button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button></div>' +
-                '<div class="ko-actions"><button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<div class="ko-actions">' + actionHtml + '<button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:var(--secondary);">🧾 Load to Billing</button></div>' +
+                '<div class="ko-actions"><button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:var(--primary);">🖨️ Reprint</button></div>' +
                 '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
 
             list.appendChild(card);
@@ -1713,23 +1845,23 @@
     }
 
     // Renders the "Ready Orders" tab: orders the kitchen has finished, waiting to be billed.
-    // Shows Prep Time = time from the order being sent to the kitchen, to it being marked Ready.
+    // Shows every order that's been sent to the kitchen, regardless of prep status, so you can
+    // bill it the moment it's needed without waiting for the kitchen to mark it Ready. Prep Time
+    // only fills in once an order actually reaches Ready.
     function renderReadyOrders() {
         var list = document.getElementById('ready-orders-list');
         var emptyMsg = document.getElementById('ready-orders-empty');
         if (!list || !emptyMsg) return;
         list.innerHTML = '';
 
-        var readyOrders = kitchenOrders.filter(function(o) { return o.status === 'Ready'; });
-
-        if (readyOrders.length === 0) {
+        if (kitchenOrders.length === 0) {
             emptyMsg.style.display = 'block';
             return;
         }
         emptyMsg.style.display = 'none';
 
-        for (var i = 0; i < readyOrders.length; i++) {
-            var order = readyOrders[i];
+        for (var i = 0; i < kitchenOrders.length; i++) {
+            var order = kitchenOrders[i];
             var card = document.createElement('div');
             card.className = 'ko-card';
 
@@ -1741,13 +1873,14 @@
             // was Date.now() at creation time, so it doubles as a reliable fallback.
             var createdAt = order.createdAt || order.id;
             var prepTimeText = order.readyAt ? formatDuration(order.readyAt - createdAt) : '—';
+            var statusClass = order.status.toLowerCase();
 
             card.innerHTML =
-                '<div class="ko-header"><strong>' + order.invoiceLabel + (order.table ? ' &middot; ' + order.table : '') + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ready">Ready</span></div>' +
+                '<div class="ko-header"><strong>' + order.invoiceLabel + (order.table ? ' &middot; ' + order.table : '') + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ' + statusClass + '">' + order.status + '</span></div>' +
                 '<div class="ko-time">Ordered: ' + order.time + ' &nbsp;|&nbsp; ⏱️ Prep Time: <b>' + prepTimeText + '</b></div>' +
                 '<div class="ko-items">' + itemsHtml + '</div>' +
-                '<div class="ko-actions"><button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button>' +
-                '<button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<div class="ko-actions"><button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:var(--secondary);">🧾 Load to Billing</button>' +
+                '<button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:var(--primary);">🖨️ Reprint</button></div>' +
                 '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
 
             list.appendChild(card);
@@ -1762,6 +1895,7 @@
         var finalAmount = lastComputedGrandTotal || 0;
         var paymentMethod = document.getElementById('payment-method').value;
         var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
+        var dateStr = new Date().toLocaleDateString("en-PK", {month: 'short', day: 'numeric'});
 
         // If this bill came from a kitchen order, it already reserved its own invoice number
         // when the kitchen ticket was first printed - reuse it instead of taking a new one.
@@ -1802,6 +1936,7 @@
             id: Date.now(),
             invoiceNo: thisInvoiceNo,
             time: timeStr,
+            date: dateStr,
             method: paymentMethod,
             amount: finalAmount,
             orderType: currentOrderType,
@@ -1823,6 +1958,7 @@
         clearBill();
         renderPendingPayments();
         updateBillDisplay();
+        renderTableButtons();
     }
 
     // Sends a background copy of a received sale to your Google Sheet, only if the webhook URL
@@ -1908,6 +2044,7 @@
         salesLog.push({
             invoiceNo: payment.invoiceNo,
             time: payment.time,
+            date: payment.date,
             method: payment.method,
             amount: payment.amount,
             orderType: payment.orderType,
@@ -1921,6 +2058,7 @@
         saveSales();
         renderPendingPayments();
         updateSalesDashboard();
+        renderTableButtons();
     }
 
     function voidPendingPayment(id) {
@@ -1928,6 +2066,7 @@
         pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
         savePendingPayments();
         renderPendingPayments();
+        renderTableButtons();
     }
 
     function updateSalesDashboard() {
@@ -1946,8 +2085,9 @@
 
                 var tr = document.createElement('tr');
                 var tdInv = document.createElement('td'); tdInv.innerText = '#' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
-                var tdTime = document.createElement('td'); tdTime.innerText = record.time;
-                tr.appendChild(tdInv); tr.appendChild(tdTime);
+                var tdWhen = document.createElement('td'); tdWhen.innerText = (record.date ? record.date + ', ' : '') + record.time;
+                var tdTable = document.createElement('td'); tdTable.innerText = record.table || '-';
+                tr.appendChild(tdInv); tr.appendChild(tdWhen); tr.appendChild(tdTable);
 
                 if (editingSalesIndex === index) {
                     var tdTypeEdit = document.createElement('td');
@@ -1989,13 +2129,15 @@
 
                     var tdActions = document.createElement('td');
                     var actionsWrap = document.createElement('div'); actionsWrap.className = 'log-actions';
-                    var editSpan = document.createElement('span'); editSpan.className = 'log-action'; editSpan.innerText = '✏️'; editSpan.title = 'Edit';
+                    var editSpan = document.createElement('span'); editSpan.className = 'log-action'; editSpan.innerText = '✏️'; editSpan.title = 'Edit amount/method/type';
                     editSpan.onclick = function() { startEditSalesRecord(index); };
+                    var itemsSpan = document.createElement('span'); itemsSpan.className = 'log-action'; itemsSpan.innerText = '📝'; itemsSpan.title = 'Edit items';
+                    itemsSpan.onclick = function() { openSaleItemsEdit(index); };
                     var reprintSpan = document.createElement('span'); reprintSpan.className = 'log-action'; reprintSpan.innerText = '🖨️'; reprintSpan.title = 'Reprint receipt';
                     reprintSpan.onclick = function() { reprintSaleReceipt(index); };
                     var delSpan = document.createElement('span'); delSpan.className = 'log-action log-delete'; delSpan.innerText = '×'; delSpan.title = 'Delete';
                     delSpan.onclick = function() { deleteSalesRecord(index); };
-                    actionsWrap.appendChild(editSpan); actionsWrap.appendChild(reprintSpan); actionsWrap.appendChild(delSpan);
+                    actionsWrap.appendChild(editSpan); actionsWrap.appendChild(itemsSpan); actionsWrap.appendChild(reprintSpan); actionsWrap.appendChild(delSpan);
                     tdActions.appendChild(actionsWrap);
 
                     tr.appendChild(tdType); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdActions);
@@ -2009,9 +2151,176 @@
         document.getElementById('sales-easypaisa').innerText = formatCurrency(easypaisa);
         document.getElementById('sales-jazzcash').innerText = formatCurrency(jazzcash);
         document.getElementById('sales-card').innerText = formatCurrency(card);
+        renderItemSalesSummary();
+    }
+
+    // Aggregates every sale's items into "how many of each thing sold today" - lets you
+    // cross-check against Inventory's Sold column without needing items tracked there.
+    function renderItemSalesSummary() {
+        var tbody = document.getElementById('item-sales-summary-table');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        var summary = {};
+        for (var s = 0; s < salesLog.length; s++) {
+            var rec = salesLog[s];
+            if (!rec.items) continue;
+            for (var it = 0; it < rec.items.length; it++) {
+                var item = rec.items[it];
+                if (!summary[item.name]) summary[item.name] = { qty: 0, revenue: 0 };
+                summary[item.name].qty += item.qty;
+                summary[item.name].revenue += (item.lineTotal != null ? item.lineTotal : item.price * item.qty);
+            }
+        }
+
+        var names = Object.keys(summary).sort(function(a, b) { return summary[b].qty - summary[a].qty; });
+
+        if (names.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#95a5a6; padding:15px;">No sales yet today.</td></tr>';
+            return;
+        }
+
+        for (var n = 0; n < names.length; n++) {
+            var name = names[n];
+            var tr = document.createElement('tr');
+            var tdName = document.createElement('td'); tdName.innerText = name;
+            var tdQty = document.createElement('td'); tdQty.innerHTML = '<b>' + summary[name].qty + '</b>';
+            var tdRev = document.createElement('td'); tdRev.innerText = formatCurrency(summary[name].revenue);
+            tr.appendChild(tdName); tr.appendChild(tdQty); tr.appendChild(tdRev);
+            tbody.appendChild(tr);
+        }
     }
 
     function deleteSalesRecord(index) { if(confirm("Delete record?")) { salesLog.splice(index, 1); saveSales(); updateSalesDashboard(); } }
+
+    // ---- Edit Items on an already-completed sale (customer asked for more after paying,
+    // or you forgot to add something before checkout) ----
+    var editingSaleItemsIndex = -1;
+    var editingSaleItemsCopy = [];
+
+    function openSaleItemsEdit(index) {
+        var record = salesLog[index];
+        if (!record) return;
+        if (!record.items || record.items.length === 0) {
+            alert("This sale doesn't have saved item details (it was made before this feature was added), so items can't be edited.");
+            return;
+        }
+        editingSaleItemsIndex = index;
+        editingSaleItemsCopy = record.items.map(function(it) { return { name: it.name, price: it.price, qty: it.qty }; });
+        document.getElementById('sale-edit-items-title').innerText = 'Edit Items — Order #' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
+        document.getElementById('sale-edit-add-search').value = '';
+        document.getElementById('sale-edit-add-results').innerHTML = '';
+        document.getElementById('sale-items-edit-overlay').style.display = 'block';
+        renderSaleEditItemsList();
+    }
+
+    function closeSaleItemsEdit() {
+        document.getElementById('sale-items-edit-overlay').style.display = 'none';
+        editingSaleItemsIndex = -1;
+        editingSaleItemsCopy = [];
+    }
+
+    function renderSaleEditItemsList() {
+        var list = document.getElementById('sale-edit-items-list');
+        list.innerHTML = '';
+        var total = 0;
+
+        for (var i = 0; i < editingSaleItemsCopy.length; i++) {
+            (function(item, idx) {
+                var lineTotal = item.price * item.qty;
+                total += lineTotal;
+                var row = document.createElement('div');
+                row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eee; gap:6px;';
+                row.innerHTML =
+                    '<span style="flex:1; font-size:0.8rem;">' + item.name + '</span>' +
+                    '<div class="qty-control"><button type="button" class="qty-btn" onclick="adjustSaleEditQty(' + idx + ',-1)">−</button><span>' + item.qty + '</span><button type="button" class="qty-btn" onclick="adjustSaleEditQty(' + idx + ',1)">+</button></div>' +
+                    '<span style="font-size:0.8rem; font-weight:bold; width:64px; text-align:right;">' + formatCurrency(lineTotal) + '</span>' +
+                    '<span class="remove-idx" style="font-size:1.1rem;" onclick="removeSaleEditItem(' + idx + ')">×</span>';
+                list.appendChild(row);
+            })(editingSaleItemsCopy[i], i);
+        }
+
+        if (editingSaleItemsCopy.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#95a5a6; padding:10px; font-size:0.8rem;">No items left — add one below, or Cancel and delete this sale instead.</div>';
+        }
+
+        document.getElementById('sale-edit-new-total').innerText = formatCurrency(total);
+    }
+
+    function adjustSaleEditQty(idx, delta) {
+        editingSaleItemsCopy[idx].qty += delta;
+        if (editingSaleItemsCopy[idx].qty <= 0) editingSaleItemsCopy.splice(idx, 1);
+        renderSaleEditItemsList();
+    }
+
+    function removeSaleEditItem(idx) {
+        editingSaleItemsCopy.splice(idx, 1);
+        renderSaleEditItemsList();
+    }
+
+    function renderSaleEditAddResults() {
+        var searchInput = document.getElementById('sale-edit-add-search');
+        var term = searchInput.value.trim().toLowerCase();
+        var resultsDiv = document.getElementById('sale-edit-add-results');
+        resultsDiv.innerHTML = '';
+        if (!term) return;
+
+        var matches = menuCatalog.filter(function(it) { return it.name.toLowerCase().indexOf(term) !== -1; }).slice(0, 8);
+        matches.forEach(function(item) {
+            if (item.sizes) {
+                ['Small', 'Medium', 'Large'].forEach(function(sz) {
+                    if (item.sizes[sz] == null) return;
+                    var row = document.createElement('div');
+                    row.style.cssText = 'padding:7px 8px; border-bottom:1px solid #eee; cursor:pointer; font-size:0.78rem; display:flex; justify-content:space-between;';
+                    row.innerHTML = '<span>' + item.name + ' (' + sz + ')</span><span>' + formatCurrency(item.sizes[sz]) + '</span>';
+                    row.onclick = function() { addItemToSaleEdit(item.name + ' (' + sz + ')', item.sizes[sz]); };
+                    resultsDiv.appendChild(row);
+                });
+            } else {
+                var row2 = document.createElement('div');
+                row2.style.cssText = 'padding:7px 8px; border-bottom:1px solid #eee; cursor:pointer; font-size:0.78rem; display:flex; justify-content:space-between;';
+                row2.innerHTML = '<span>' + item.name + '</span><span>' + formatCurrency(item.price) + '</span>';
+                row2.onclick = function() { addItemToSaleEdit(item.name, item.price); };
+                resultsDiv.appendChild(row2);
+            }
+        });
+    }
+
+    function addItemToSaleEdit(name, price) {
+        var existing = editingSaleItemsCopy.filter(function(it) { return it.name === name; })[0];
+        if (existing) existing.qty += 1;
+        else editingSaleItemsCopy.push({ name: name, price: price, qty: 1 });
+        document.getElementById('sale-edit-add-search').value = '';
+        document.getElementById('sale-edit-add-results').innerHTML = '';
+        renderSaleEditItemsList();
+    }
+
+    function saveSaleItemsEdit() {
+        if (editingSaleItemsIndex === -1) return;
+        if (editingSaleItemsCopy.length === 0) return alert("Add at least one item, or close this and delete the sale instead.");
+        var record = salesLog[editingSaleItemsIndex];
+        if (!record) return;
+
+        var newSubtotal = 0;
+        var finalItems = editingSaleItemsCopy.map(function(it) {
+            var lineTotal = it.price * it.qty;
+            newSubtotal += lineTotal;
+            return { name: it.name, price: it.price, qty: it.qty, lineTotal: lineTotal };
+        });
+
+        // Keep any existing item/order discounts as flat amounts rather than re-deriving
+        // percentages (which aren't stored) - simplest, most predictable outcome.
+        var newAmount = newSubtotal - (record.itemDiscountTotal || 0) - (record.orderDiscountAmount || 0);
+        if (newAmount < 0) newAmount = 0;
+
+        record.items = finalItems;
+        record.subtotal = newSubtotal;
+        record.amount = newAmount;
+
+        saveSales();
+        closeSaleItemsEdit();
+        updateSalesDashboard();
+    }
 
     // ---- Transaction Log editing (order type / method / amount) ----
     function startEditSalesRecord(index) { editingSalesIndex = index; updateSalesDashboard(); }
@@ -2092,10 +2401,10 @@
 
     function exportSalesCSV() {
         if (salesLog.length == 0) return alert("No sales records to export yet!");
-        var rows = [["Invoice #", "Time", "Table", "Order Type", "Method", "Amount"]];
+        var rows = [["Invoice #", "Date", "Time", "Table", "Order Type", "Method", "Amount"]];
         for (var i = 0; i < salesLog.length; i++) {
             var r = salesLog[i];
-            rows.push([r.invoiceNo != null ? r.invoiceNo : (i + 1), r.time, r.table || '-', r.orderType || '-', r.method, r.amount]);
+            rows.push([r.invoiceNo != null ? r.invoiceNo : (i + 1), r.date || '-', r.time, r.table || '-', r.orderType || '-', r.method, r.amount]);
         }
         var csvContent = rows.map(function(row) {
             return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
@@ -2243,7 +2552,7 @@
             card.innerHTML =
                 '<div class="ko-header"><strong>' + staff.name + ' &middot; ' + staff.role + '</strong><span class="ko-badge preparing">' + formatCurrency(staff.dailySalary) + '/day</span></div>' +
                 '<div class="ko-time">Total paid: <b style="color:var(--accent);">' + formatCurrency(totalPaid) + '</b></div>' +
-                '<div class="ko-actions"><button type="button" onclick="openStaffCalendar(' + staff.id + ')" style="background:#8e44ad;">📅 View Calendar</button></div>' +
+                '<div class="ko-actions"><button type="button" onclick="openStaffCalendar(' + staff.id + ')" style="background:var(--secondary);">📅 View Calendar</button></div>' +
                 '<div class="item-actions" style="margin-top:6px;"><span></span><span class="delete-tag" onclick="removeStaff(' + staff.id + ')">Remove Staff</span></div>';
 
             list.appendChild(card);
@@ -2323,6 +2632,14 @@
             statusDiv.innerText = entry ? entry.status.charAt(0).toUpperCase() : '';
             cell.appendChild(numDiv); cell.appendChild(statusDiv);
             cell.onclick = (function(ds) { return function() { cycleCalendarDay(ds); }; })(dateStr);
+
+            var addBtn = document.createElement('span');
+            addBtn.className = 'day-add-btn';
+            addBtn.innerText = '+';
+            addBtn.title = 'Type a custom amount for this day';
+            addBtn.onclick = (function(ds) { return function(e) { e.stopPropagation(); promptCustomSalaryAmount(ds); }; })(dateStr);
+            cell.appendChild(addBtn);
+
             grid.appendChild(cell);
 
             if (entry) {
@@ -2335,6 +2652,31 @@
         document.getElementById('calendar-paid-count').innerText = paidCount + ' (' + formatCurrency(paidAmount) + ')';
         document.getElementById('calendar-leave-count').innerText = leaveCount;
         document.getElementById('calendar-absent-count').innerText = absentCount;
+    }
+
+    // Lets you type an exact amount for a day instead of the default full day rate - for when
+    // you paid less, more, or an odd amount and want to remember exactly what was given.
+    function promptCustomSalaryAmount(dateStr) {
+        var staff = staffList.filter(function(s) { return s.id === calendarStaffId; })[0];
+        if (!staff) return;
+        var entry = null;
+        for (var i = 0; i < salaryLog.length; i++) {
+            if (salaryLog[i].staffId === calendarStaffId && salaryLog[i].date === dateStr) { entry = salaryLog[i]; break; }
+        }
+        var defaultVal = entry && entry.status === 'Paid' ? entry.amount : staff.dailySalary;
+        var input = prompt('Amount paid to ' + staff.name + ' on ' + dateStr + ':', defaultVal);
+        if (input === null) return;
+        var amount = parseFloat(input);
+        if (isNaN(amount) || amount < 0) return alert('Enter a valid amount!');
+
+        if (entry) {
+            entry.status = 'Paid';
+            entry.amount = amount;
+        } else {
+            salaryLog.push({ id: Date.now(), staffId: calendarStaffId, date: dateStr, amount: amount, status: 'Paid' });
+        }
+        saveSalaryLog();
+        renderStaffCalendar();
     }
 
     function cycleCalendarDay(dateStr) {
