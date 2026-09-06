@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ARENA 456 CLOUD POS</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --secondary: #e67e22; --danger: #c0392b; --bg: #f5f6fa; }
+        :root { --primary: #2c3e50; --accent: #27ae60; --danger: #c0392b; --bg: #f5f6fa; }
         html { margin: 0; padding: 0; }
         body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg); box-sizing: border-box; }
         .container { display: flex; flex-direction: column; gap: 10px; }
@@ -23,8 +23,8 @@
         h2 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
         .flex-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         label { display: block; font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
         .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .checkbox-row input { width: auto; }
         .checkbox-row label { margin-bottom: 0; }
@@ -70,7 +70,7 @@
         .summary-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
         .kitchen-ticket { display: none; background: #fff; border: 1px dashed #bbb; padding: 15px; width: 100%; max-width: 260px; margin: 10px auto; box-sizing: border-box; font-family: monospace; }
         .kitchen-ticket-row { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; font-weight: bold; }
-        .ko-card { border: 1px solid #eee; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .ko-card { border: 2px solid #dcdde1; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
         .ko-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .ko-header strong { font-size: 0.95rem; color: var(--primary); }
         .ko-time { font-size: 0.7rem; color: #95a5a6; margin-bottom: 6px; }
@@ -88,7 +88,7 @@
         .order-type-btn .ot-icon { font-size: 1rem; }
         .order-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .backup-btn { background: var(--primary); margin-top: 10px; }
-        .restore-btn { background: var(--secondary); margin-top: 10px; }
+        .restore-btn { background: #8e44ad; margin-top: 10px; }
         .log-actions { display: flex; gap: 10px; align-items: center; }
         .log-action { cursor: pointer; font-size: 1.05rem; user-select: none; }
         .log-action.log-delete { color: var(--danger); font-weight: bold; }
@@ -101,25 +101,20 @@
         .pos-zone-items { width: calc(40% - 5px); }
         .pos-zone-bill { width: calc(38% - 5px); }
         .pos-zone-title { font-size: 0.72rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .pos-zone-title .manage-link { font-size: 0.9rem; color: var(--secondary); cursor: pointer; font-weight: normal; }
+        .pos-zone-title .manage-link { font-size: 0.9rem; color: #8e44ad; cursor: pointer; font-weight: normal; }
         .pos-zone-scroll { overflow-y: auto; }
         .pos-zone-categories .pos-zone-scroll { max-height: 440px; }
         .pos-zone-items .pos-zone-scroll { max-height: 440px; }
         .pos-zone-bill .pos-zone-scroll { max-height: 170px; overflow-x: auto; }
         .category-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-        .category-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 3px; background: #fff; border: 1px solid #eee; border-radius: 14px; font-size: 1.15rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .category-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 3px; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 8px; font-size: 1.05rem; cursor: pointer; }
         .category-tile .cat-name { font-size: 0.5rem; font-weight: bold; color: var(--primary); line-height: 1.05; text-align: center; }
-        .category-tile.active { border-color: var(--accent); background: #eafaf1; box-shadow: 0 2px 6px rgba(39,174,96,0.25); }
-        .item-tile-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-        .item-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 10px 6px 8px 6px; cursor: pointer; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-        .item-icon-circle { width: 34px; height: 34px; border-radius: 50%; background: #eafaf1; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; margin: 0 auto 6px auto; }
+        .category-tile.active { border-color: var(--accent); background: #eafaf1; }
+        .item-tile-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+        .item-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 8px; padding: 5px; cursor: pointer; text-align: center; }
         .table-btn-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
-        .table-btn { flex: 0 0 calc(20% - 4px); box-sizing: border-box; height: 30px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; font-size: 0.72rem; font-weight: bold; cursor: pointer; color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .table-btn { flex: 0 0 calc(20% - 4px); box-sizing: border-box; height: 30px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 2px solid #dcdde1; border-radius: 6px; font-size: 0.72rem; font-weight: bold; cursor: pointer; color: var(--primary); }
         .table-btn.active { border-color: var(--accent); background: #eafaf1; color: var(--accent); }
-        .table-btn.occupied { position: relative; }
-        .table-btn.occupied::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); border: 1.5px solid #fff; }
-        .table-btn.has-draft { position: relative; }
-        .table-btn.has-draft::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: #95a5a6; border: 1.5px solid #fff; }
         .item-tile strong { display: block; font-size: 0.72rem; color: var(--primary); line-height: 1.25; }
         .item-tile span { display: block; font-size: 0.72rem; color: var(--accent); font-weight: bold; margin-top: 3px; }
         .item-tile .size-btn-row { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
@@ -127,9 +122,7 @@
         .pos-zone-bill td, .pos-zone-bill th { padding: 4px 2px; }
         .pos-bill-total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; padding: 4px 0; }
         .calendar-grid { display: flex; flex-wrap: wrap; gap: 4px; }
-        .calendar-day { position: relative; flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
-        .day-amount { font-size: 0.48rem; color: var(--accent); font-weight: bold; line-height: 1; margin-top: 1px; }
-        .day-add-btn { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; line-height: 13px; font-size: 0.62rem; font-weight: bold; text-align: center; background: var(--secondary); color: #fff; border-radius: 50%; cursor: pointer; }
+        .calendar-day { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
         .calendar-dow { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #7f8c8d; }
         .calendar-blank { flex: 0 0 calc(14.28% - 4px); height: 40px; }
         .calendar-day .day-num { font-size: 0.62rem; color: #95a5a6; }
@@ -187,7 +180,6 @@
 
         <div class="pos-zone pos-zone-items">
             <div class="pos-zone-title" id="items-zone-title">🍽️ Select category</div>
-            <input type="text" id="item-quick-search" placeholder="🔍 Search items..." oninput="renderItemsForCategory()" style="padding:6px 8px; font-size:0.7rem; margin-bottom:6px;">
             <div class="pos-zone-scroll">
                 <div class="item-tile-grid" id="item-tile-grid"></div>
                 <div id="item-tile-empty" style="text-align:center; color:#95a5a6; padding:16px 4px; font-size:0.72rem;">👆 Tap a category</div>
@@ -227,8 +219,8 @@
                 <option value="Card">Card</option>
             </select>
             <input type="number" id="order-discount" placeholder="Discount %" min="0" max="100" value="0" oninput="updateBillDisplay()" style="padding:7px; font-size:0.75rem; margin-bottom:6px;">
-            <button onclick="printKitchenTicket()" style="background:var(--secondary); margin-bottom:5px;">🧾 Kitchen</button>
-            <button onclick="processCheckout()" style="background:var(--accent);">🖨️ Checkout</button>
+            <button onclick="printKitchenTicket()" style="background:#d35400; margin-bottom:5px;">🧾 Kitchen</button>
+            <button onclick="processCheckout()" style="background:var(--primary);">🖨️ Checkout</button>
             <span class="delete-tag" style="display:block; text-align:center; margin-top:6px;" onclick="clearBill()">🗑️ Clear Order</span>
         </div>
         </div>
@@ -337,7 +329,7 @@
     <div id="kitchen-tab" class="tab-content">
         <div class="panel">
             <h2>🍳 Kitchen Orders Queue</h2>
-            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Your kitchen's prep queue. Move each order through its status as it's made — once marked Ready, it drops off this list (it's still billable from the Ready tab).</p>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here automatically when you tap "🧾 Print Kitchen Ticket" on the Billing tab. Move each one through its status as the kitchen works on it. When an order is marked "Ready" it moves to the ✅ Ready Orders tab. You can also tap "🧾 Load to Billing" any time to pull an order's items back into the bill (e.g. if the customer wants to pay early or add more items).</p>
             <div id="kitchen-orders-list"></div>
             <div id="kitchen-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No active kitchen orders right now.</div>
         </div>
@@ -345,8 +337,8 @@
 
     <div id="ready-tab" class="tab-content">
         <div class="panel">
-            <h2>✅ Active Orders — Bill Anytime</h2>
-            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Every active order lives here the moment a kitchen ticket is printed — bill it any time, no need to wait for prep status. Tap "Load to Billing" — no retyping.</p>
+            <h2>✅ Ready Orders — Awaiting Billing</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders show up here once the kitchen marks them "Ready". Prep Time shows how long it took from order taken to ready, so you know your chef's speed. Tap "Load to Billing" to pull the order straight into the bill — no retyping.</p>
             <div id="ready-orders-list"></div>
             <div id="ready-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No orders ready for billing right now.</div>
         </div>
@@ -355,7 +347,7 @@
     <div id="received-tab" class="tab-content">
         <div class="panel">
             <h2>💰 Receive Payment</h2>
-            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Nothing counts toward Daily Sales until you tap "✅ Receive Payment." Use "🗑️ Void" if the customer didn't pay.</p>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Orders land here after you tap "🖨️ Print & Save Order" on the Billing tab. Nothing counts toward Daily Sales until you tap "✅ Receive Payment" below to confirm the money actually came in. Use "🗑️ Void" if a customer didn't end up paying.</p>
             <div id="pending-payments-list"></div>
             <div id="pending-payments-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No payments waiting to be received right now.</div>
         </div>
@@ -375,14 +367,13 @@
             </div>
 
             <h2>📋 Transaction Log History</h2>
-            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">✏️ Edit amount/method/type &nbsp; 📝 Edit items &nbsp; 🖨️ Reprint &nbsp; × Delete</p>
+            <p style="font-size:0.8rem; color:#555; margin-top:-4px;">✏️ edit a row's type/method/amount, 🖨️ reprint that receipt, × delete.</p>
             <div class="bill-table-container" style="max-height:300px;">
                 <table>
                     <thead>
                         <tr>
                             <th>Invoice #</th>
-                            <th>Date, Time</th>
-                            <th>Table</th>
+                            <th>Time</th>
                             <th>Type</th>
                             <th>Method</th>
                             <th>Amount</th>
@@ -394,19 +385,6 @@
             </div>
             <button onclick="exportSalesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Sales CSV</button>
             <button onclick="resetDailySales()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Sales Log Counter</button>
-        </div>
-
-        <div class="panel" style="margin-top:15px;">
-            <h2>📦 Item Sales Summary</h2>
-            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">How many of each item sold — cross-check against Inventory's Sold column.</p>
-            <div class="bill-table-container" style="max-height:280px;">
-                <table>
-                    <thead>
-                        <tr><th>Item</th><th>Qty Sold</th><th>Revenue</th></tr>
-                    </thead>
-                    <tbody id="item-sales-summary-table"></tbody>
-                </table>
-            </div>
         </div>
 
         <div class="panel" style="margin-top:15px;">
@@ -508,7 +486,7 @@
                 <button type="button" onclick="shiftCalendarMonth(1)" style="width:auto; padding:8px 16px;">▶</button>
             </div>
             <div class="calendar-grid" id="staff-calendar-grid"></div>
-            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank. Tap the small + for an exact amount.</p>
+            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank</p>
             <div style="display:flex; gap:12px; justify-content:center; margin-top:8px; font-size:0.75rem;">
                 <span><b style="color:var(--accent);">P</b> Paid</span>
                 <span><b style="color:#e67e22;">L</b> Leave</span>
@@ -522,29 +500,10 @@
         </div>
     </div>
 
-    <div id="sale-items-edit-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1002; padding:10px; box-sizing:border-box; overflow-y:auto;">
-        <div class="panel" style="max-width:480px; margin:0 auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h2 id="sale-edit-items-title" style="margin:0; border:none; padding:0; font-size:1rem;"></h2>
-                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeSaleItemsEdit()">✖</span>
-            </div>
-            <p style="font-size:0.75rem; color:#888; margin-top:0;">Fixes a bill that's already paid - e.g. the customer asked for something extra, or you forgot an item.</p>
-            <div id="sale-edit-items-list"></div>
-            <div style="margin-top:12px;">
-                <label>Add an item</label>
-                <input type="text" id="sale-edit-add-search" placeholder="Search menu..." oninput="renderSaleEditAddResults()">
-                <div id="sale-edit-add-results" style="max-height:160px; overflow-y:auto; margin-top:6px;"></div>
-            </div>
-            <div class="pos-bill-total-row" style="margin-top:10px; font-size:1rem; border-top:1px solid #eee; padding-top:8px;"><span>New Total:</span><span id="sale-edit-new-total">Rs. 0</span></div>
-            <button type="button" onclick="saveSaleItemsEdit()" style="margin-top:10px;">💾 Save Changes</button>
-            <button type="button" onclick="closeSaleItemsEdit()" style="background:#95a5a6; margin-top:6px;">Cancel</button>
-        </div>
-    </div>
-
     <div id="inventory-tab" class="tab-content">
         <div class="panel">
             <h2>📦 Add / Restock Inventory</h2>
-            <button type="button" onclick="importMenuItemsToInventory()" style="background:var(--secondary); margin-bottom:12px;">📋 Import All Menu Items</button>
+            <button type="button" onclick="importMenuItemsToInventory()" style="background:#8e44ad; margin-bottom:12px;">📋 Import All Menu Items</button>
             <p style="font-size:0.78rem; color:#888; margin:-6px 0 12px 0;">Adds every item from your menu that isn't already tracked here, starting at 0 stock — set each one's quantity yourself below.</p>
             <div class="flex-row">
                 <div style="flex: 2;">
@@ -567,8 +526,7 @@
 
         <div class="panel" style="margin-top:15px;">
             <h2>📊 Stock &amp; Today's Sales</h2>
-            <p style="font-size:0.78rem; color:#888; margin:-4px 0 10px 0;">"Sold" comes from your current Daily Sales log, matched by item name.</p>
-            <input type="text" id="inventory-search" placeholder="🔍 Search inventory..." oninput="renderInventory()" style="margin-bottom:10px;">
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">"Sold" is tallied from your current Daily Sales log — use the same item name you use on the menu (size variants count together). Wiping the sales log starts a fresh count.</p>
             <div class="bill-table-container" style="max-height:320px;">
                 <table>
                     <thead>
@@ -604,8 +562,7 @@
         tableInfo: 'arena456_tableInfo',
         selectedTableNumber: 'arena456_selectedTableNumber',
         tableCount: 'arena456_tableCount',
-        inventory: 'arena456_inventory',
-        tableBills: 'arena456_tableBills'
+        inventory: 'arena456_inventory'
     };
 
     // ==== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup guide). Must stay in quotes! ====
@@ -630,10 +587,6 @@
     var currentTableInfo = ''; // table number / name for the active order
     var selectedTableNumber = null; // e.g. "5", or null if none tapped
     var tableCount = 12; // how many numbered table buttons to show, configurable in Manage Menu
-    // Each table (and '__none__' for Takeaway/Delivery/no table picked) keeps its own
-    // in-progress bill here until it's sent to the kitchen or checked out - so switching
-    // between tables never mixes up items. { "5": { items: [...], nameExtra: "" }, ... }
-    var tableBills = {};
     var pendingPayments = []; // checked-out orders awaiting "Receive Payment" confirmation before they count as sales
     var expenseLog = [];
     var staffList = [];
@@ -764,8 +717,6 @@
             if (savedSelectedTable !== null && savedSelectedTable !== '') selectedTableNumber = savedSelectedTable;
             var savedTableCount = localStorage.getItem(STORAGE_KEYS.tableCount);
             if (savedTableCount !== null) tableCount = parseInt(savedTableCount, 10) || 12;
-            var savedTableBills = localStorage.getItem(STORAGE_KEYS.tableBills);
-            if (savedTableBills !== null) tableBills = JSON.parse(savedTableBills);
         } catch (e) {
             console.warn('Could not load saved POS data:', e);
         }
@@ -781,7 +732,6 @@
     function saveTableInfo() { localStorage.setItem(STORAGE_KEYS.tableInfo, currentTableInfo); }
     function saveSelectedTableNumber() { localStorage.setItem(STORAGE_KEYS.selectedTableNumber, selectedTableNumber === null ? '' : selectedTableNumber); }
     function saveTableCount() { localStorage.setItem(STORAGE_KEYS.tableCount, tableCount); }
-    function saveTableBills() { localStorage.setItem(STORAGE_KEYS.tableBills, JSON.stringify(tableBills)); }
 
     // Combines the tapped table-number button (if any) with the optional typed name into
     // one string, and writes it into the hidden #table-info field that the rest of the app
@@ -803,121 +753,22 @@
         grid.innerHTML = '';
         for (var i = 1; i <= tableCount; i++) {
             (function(num) {
-                var occupied = !!findActiveOrderForTable(String(num));
-                var hasDraft = !occupied && tableHasDraft(String(num));
                 var btn = document.createElement('div');
-                btn.className = 'table-btn' + (selectedTableNumber === String(num) ? ' active' : '') + (occupied ? ' occupied' : (hasDraft ? ' has-draft' : ''));
+                btn.className = 'table-btn' + (selectedTableNumber === String(num) ? ' active' : '');
                 btn.innerText = num;
-                if (occupied) btn.title = 'Table ' + num + ' has an order awaiting payment';
-                else if (hasDraft) btn.title = 'Table ' + num + ' has items not yet sent to the kitchen';
                 btn.onclick = function() { selectTableNumber(String(num)); };
                 grid.appendChild(btn);
             })(i);
         }
     }
 
-    // Looks for an order still "open" against a table number - either still with the kitchen,
-    // or checked out but not yet received. This is what makes a table "reserved" until paid.
-    function findActiveOrderForTable(num) {
-        var label = 'Table ' + num;
-        for (var i = 0; i < kitchenOrders.length; i++) {
-            if (kitchenOrders[i].table === label) return { source: 'kitchen', order: kitchenOrders[i] };
-        }
-        for (var j = 0; j < pendingPayments.length; j++) {
-            if (pendingPayments[j].table === label) return { source: 'pending', order: pendingPayments[j] };
-        }
-        return null;
-    }
-
-    // A "draft" is items sitting on a table that haven't been sent to the kitchen yet - lighter
-    // weight than a reserved/official order, but still worth flagging so nothing gets forgotten.
-    function tableHasDraft(num) {
-        var saved = tableBills[num];
-        return !!(saved && saved.items && saved.items.length > 0);
-    }
-
     function selectTableNumber(num) {
-        var newTable = (selectedTableNumber === num) ? null : num;
-        switchWorkingTable(newTable);
-    }
-
-    // Every table (and a shared "no table" slot for Takeaway/Delivery/walk-ins) keeps its own
-    // in-progress bill, so switching tables never carries one table's items onto another's.
-    // If the destination already has an "official" order (sent to kitchen, or checked out and
-    // awaiting payment), that's loaded instead of any draft - that's what makes a table stay
-    // "reserved" until its bill is paid.
-    function switchWorkingTable(newTable) {
-        if (newTable) {
-            var active = findActiveOrderForTable(newTable);
-            if (active) {
-                if (active.source === 'kitchen') loadOrderToBilling(active.order.id);
-                else loadPendingPaymentToBilling(active.order.id);
-                return;
-            }
-        }
-
-        saveAwayCurrentTableBill();
-
-        var key = newTable || '__none__';
-        var saved = tableBills[key];
-        currentBill = saved ? JSON.parse(JSON.stringify(saved.items)) : [];
-        currentKitchenOrderId = null;
-        saveLinkedOrderId();
-        selectedTableNumber = newTable;
+        selectedTableNumber = (selectedTableNumber === num) ? null : num;
         saveSelectedTableNumber();
-
-        var nameExtraInput = document.getElementById('table-name-extra');
-        if (nameExtraInput) nameExtraInput.value = saved ? (saved.nameExtra || '') : '';
-        var discountInput = document.getElementById('order-discount');
-        if (discountInput) discountInput.value = 0;
-
+        renderTableButtons();
         updateTableInfo();
-        renderTableButtons();
-        updateBillDisplay();
-        renderKitchenLinkBanner();
+        // Picking a table only makes sense for Dine-in, so set it automatically - one less tap.
         if (selectedTableNumber && currentOrderType !== 'Dine-in') setOrderType('Dine-in');
-    }
-
-    // Parks whatever's in the active bill under the table (or "no table" slot) it belongs to,
-    // unless it's already officially tracked via a printed kitchen ticket - in that case there's
-    // nothing to park, since findActiveOrderForTable will find the real thing next time.
-    function saveAwayCurrentTableBill() {
-        if (currentKitchenOrderId) return;
-        var key = selectedTableNumber || '__none__';
-        if (currentBill.length > 0) {
-            var nameExtraInput = document.getElementById('table-name-extra');
-            tableBills[key] = {
-                items: JSON.parse(JSON.stringify(currentBill)),
-                nameExtra: nameExtraInput ? nameExtraInput.value : ''
-            };
-        } else {
-            delete tableBills[key];
-        }
-        saveTableBills();
-    }
-
-    // Loads a checked-out-but-not-yet-received order back into the active bill for editing -
-    // e.g. the customer wants to add something before paying, or you tapped their reserved table.
-    function loadPendingPaymentToBilling(id) {
-        var payment = pendingPayments.filter(function(p) { return p.id === id; })[0];
-        if (!payment) return;
-
-        saveAwayCurrentTableBill();
-
-        currentBill = payment.items.map(function(it) {
-            return { name: it.name, price: it.price, qty: it.qty, discVal: 0, discType: 'pct' };
-        });
-        pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
-        savePendingPayments();
-
-        setOrderType(payment.orderType || 'Dine-in');
-        restoreTableSelectionFromLabel(payment.table);
-
-        switchTab('billing');
-        updateBillDisplay();
-        renderPendingPayments();
-        renderTableButtons();
-        scrollToBillingTerminal();
     }
 
     function updateTableCount() {
@@ -1020,18 +871,11 @@
     function renderInventory() {
         var list = document.getElementById('inventory-list');
         var emptyMsg = document.getElementById('inventory-empty');
-        var searchInput = document.getElementById('inventory-search');
-        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
         if (!list) return;
         list.innerHTML = '';
 
-        var visibleList = searchTerm ? inventoryList.filter(function(it) { return it.itemName.toLowerCase().indexOf(searchTerm) !== -1; }) : inventoryList;
-
-        if (visibleList.length === 0) {
-            if (emptyMsg) {
-                emptyMsg.style.display = 'block';
-                emptyMsg.innerText = searchTerm ? 'No inventory items match "' + searchInput.value.trim() + '".' : 'No inventory items added yet.';
-            }
+        if (inventoryList.length === 0) {
+            if (emptyMsg) emptyMsg.style.display = 'block';
             return;
         }
         if (emptyMsg) emptyMsg.style.display = 'none';
@@ -1047,7 +891,7 @@
             }
         }
 
-        for (var i = 0; i < visibleList.length; i++) {
+        for (var i = 0; i < inventoryList.length; i++) {
             (function(item) {
                 var sold = soldMap[item.itemName] || 0;
                 var remaining = item.stockQty - sold;
@@ -1058,4 +902,1551 @@
                 var tdSold = document.createElement('td'); tdSold.innerText = sold;
                 var tdRemaining = document.createElement('td');
                 tdRemaining.innerHTML = '<b style="color:' + (remaining < 0 ? 'var(--danger)' : 'var(--accent)') + ';">' + remaining + '</b>';
-                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; 
+                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×';
+                tdDel.onclick = function() { deleteInventoryItem(item.id); };
+                tr.appendChild(tdName); tr.appendChild(tdUnit); tr.appendChild(tdStock); tr.appendChild(tdSold); tr.appendChild(tdRemaining); tr.appendChild(tdDel);
+                list.appendChild(tr);
+            })(inventoryList[i]);
+        }
+    }
+
+    function setOrderType(type) {
+        currentOrderType = type;
+        saveOrderType();
+        var btns = document.querySelectorAll('#order-type-btns .order-type-btn');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].classList.toggle('active', btns[i].getAttribute('data-type') === type);
+        }
+        updateBillDisplay();
+    }
+
+    // Cleans up the print-kitchen mode after the print dialog closes, however the user closes it.
+    window.onafterprint = function() { document.body.classList.remove('print-kitchen'); };
+
+    window.onload = function() {
+        var options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        document.getElementById('receipt-date').innerText = new Date().toLocaleDateString("en-PK", options);
+        loadState();
+        renderCatalog();
+        setOrderType(currentOrderType);
+        updateBillDisplay();
+        updateSalesDashboard();
+        renderKitchenOrders();
+        renderReadyOrders();
+        renderKitchenLinkBanner();
+        renderPendingPayments();
+        renderExpenses();
+        renderStaffList();
+        renderCategoryTiles();
+        renderItemsForCategory();
+        renderTableButtons();
+        var nameExtraInput = document.getElementById('table-name-extra');
+        if (nameExtraInput && currentTableInfo && !selectedTableNumber) nameExtraInput.value = currentTableInfo;
+        var tableCountSetting = document.getElementById('table-count-setting');
+        if (tableCountSetting) tableCountSetting.value = tableCount;
+        updateTableInfo();
+        renderInventory();
+    };
+
+    function switchTab(tabName) {
+        var tabButtons = { billing: 'btn-billing', kitchen: 'btn-kitchen', ready: 'btn-ready', received: 'btn-received', sales: 'btn-sales', expenses: 'btn-expenses', salary: 'btn-salary', inventory: 'btn-inventory' };
+        var tabPanels = { billing: 'billing-tab', kitchen: 'kitchen-tab', ready: 'ready-tab', received: 'received-tab', sales: 'sales-tab', expenses: 'expenses-tab', salary: 'salary-tab', inventory: 'inventory-tab' };
+        for (var key in tabButtons) {
+            document.getElementById(tabButtons[key]).classList.remove('active');
+            document.getElementById(tabPanels[key]).classList.remove('active');
+        }
+        document.getElementById(tabButtons[tabName]).classList.add('active');
+        document.getElementById(tabPanels[tabName]).classList.add('active');
+
+        if (tabName == 'sales') { updateSalesDashboard(); }
+        else if (tabName == 'kitchen') { renderKitchenOrders(); }
+        else if (tabName == 'ready') { renderReadyOrders(); }
+        else if (tabName == 'received') { renderPendingPayments(); }
+        else if (tabName == 'expenses') { renderExpenses(); }
+        else if (tabName == 'salary') { renderStaffList(); }
+        else if (tabName == 'inventory') { renderInventory(); }
+    }
+
+    function toggleSizeInputs() {
+        var hasSizes = document.getElementById('new-item-has-sizes').checked;
+        document.getElementById('new-item-size-row').classList.toggle('active', hasSizes);
+        document.getElementById('new-item-single-price-row').style.display = hasSizes ? 'none' : 'flex';
+    }
+
+    function saveToCatalog() {
+        var nameInput = document.getElementById('new-item-name');
+        var categoryInput = document.getElementById('new-item-category');
+        var imageInput = document.getElementById('new-item-image');
+        var hasSizes = document.getElementById('new-item-has-sizes').checked;
+        var name = nameInput.value.trim();
+        var category = (categoryInput.value || 'General').trim() || 'General';
+        var image = imageInput.value.trim();
+
+        if (!name) return alert("Enter an item name!");
+
+        var newItem = { name: name, category: category, image: image };
+
+        if (hasSizes) {
+            var small = parseFloat(document.getElementById('new-item-size-small').value);
+            var medium = parseFloat(document.getElementById('new-item-size-medium').value);
+            var large = parseFloat(document.getElementById('new-item-size-large').value);
+            if (isNaN(small) && isNaN(medium) && isNaN(large)) return alert("Enter at least one size price!");
+            if ((!isNaN(small) && small < 0) || (!isNaN(medium) && medium < 0) || (!isNaN(large) && large < 0)) return alert("Prices can't be negative!");
+            newItem.sizes = {};
+            if (!isNaN(small)) newItem.sizes.Small = small;
+            if (!isNaN(medium)) newItem.sizes.Medium = medium;
+            if (!isNaN(large)) newItem.sizes.Large = large;
+        } else {
+            var price = parseFloat(document.getElementById('new-item-price').value);
+            if (isNaN(price)) return alert("Enter a valid price!");
+            if (price < 0) return alert("Price can't be negative!");
+            newItem.price = price;
+        }
+
+        menuCatalog.push(newItem);
+        nameInput.value = ''; categoryInput.value = 'General'; imageInput.value = '';
+        document.getElementById('new-item-price').value = '';
+        document.getElementById('new-item-size-small').value = '';
+        document.getElementById('new-item-size-medium').value = '';
+        document.getElementById('new-item-size-large').value = '';
+        document.getElementById('new-item-has-sizes').checked = false;
+        toggleSizeInputs();
+        saveMenu();
+        renderCatalog();
+    }
+
+    function deleteFromCatalog(index) {
+        menuCatalog.splice(index, 1);
+        saveMenu();
+        renderCatalog();
+    }
+
+    function startEditItem(index) {
+        editingIndex = index;
+        renderCatalog();
+    }
+
+    function cancelEditItem() {
+        editingIndex = -1;
+        renderCatalog();
+    }
+
+    function saveEditItem(index) {
+        var item = menuCatalog[index];
+        var newName = document.getElementById('edit-name-' + index).value.trim();
+        var newCategory = document.getElementById('edit-category-' + index).value.trim();
+        var newImage = document.getElementById('edit-image-' + index).value.trim();
+        if (!newName) return alert("Name can't be empty!");
+
+        item.name = newName;
+        item.category = newCategory || 'General';
+        item.image = newImage;
+
+        if (item.sizes) {
+            var s = parseFloat(document.getElementById('edit-size-small-' + index).value);
+            var m = parseFloat(document.getElementById('edit-size-medium-' + index).value);
+            var l = parseFloat(document.getElementById('edit-size-large-' + index).value);
+            if ((!isNaN(s) && s < 0) || (!isNaN(m) && m < 0) || (!isNaN(l) && l < 0)) return alert("Prices can't be negative!");
+            item.sizes = {};
+            if (!isNaN(s)) item.sizes.Small = s;
+            if (!isNaN(m)) item.sizes.Medium = m;
+            if (!isNaN(l)) item.sizes.Large = l;
+        } else {
+            var p = parseFloat(document.getElementById('edit-price-' + index).value);
+            if (isNaN(p)) return alert("Enter a valid price!");
+            if (p < 0) return alert("Price can't be negative!");
+            item.price = p;
+        }
+
+        editingIndex = -1;
+        saveMenu();
+        renderCatalog();
+    }
+
+    function renderCatalog() {
+        var grid = document.getElementById('catalog-list');
+        var searchInput = document.getElementById('menu-search');
+        var categorySelect = document.getElementById('menu-category-filter');
+        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+        if (categorySelect) {
+            var currentSelection = categorySelect.value;
+            var categories = [];
+            for (var c = 0; c < menuCatalog.length; c++) {
+                var cat = menuCatalog[c].category || 'General';
+                if (categories.indexOf(cat) === -1) categories.push(cat);
+            }
+            categorySelect.innerHTML = '<option value="">All</option>';
+            for (var c2 = 0; c2 < categories.length; c2++) {
+                var opt = document.createElement('option');
+                opt.value = categories[c2]; opt.innerText = categories[c2];
+                if (categories[c2] === currentSelection) opt.selected = true;
+                categorySelect.appendChild(opt);
+            }
+        }
+        var categoryFilter = categorySelect ? categorySelect.value : '';
+
+        grid.innerHTML = '';
+        for (var i = 0; i < menuCatalog.length; i++) {
+            var item = menuCatalog[i];
+            var itemCategory = item.category || 'General';
+            if (searchTerm && item.name.toLowerCase().indexOf(searchTerm) === -1) continue;
+            if (categoryFilter && itemCategory !== categoryFilter) continue;
+
+            var card = document.createElement('div');
+            card.className = 'catalog-item';
+
+            if (editingIndex === i) {
+                card.appendChild(buildEditForm(item, i));
+                grid.appendChild(card);
+                continue;
+            }
+
+            // image or icon placeholder
+            if (item.image) {
+                var img = document.createElement('img');
+                img.className = 'catalog-img'; img.src = item.image; img.alt = item.name;
+                img.onerror = function() { this.style.display = 'none'; };
+                card.appendChild(img);
+            } else {
+                var placeholder = document.createElement('div');
+                placeholder.className = 'catalog-placeholder';
+                placeholder.innerText = CATEGORY_ICONS[itemCategory] || '🍽️';
+                card.appendChild(placeholder);
+            }
+
+            var body = document.createElement('div');
+            body.className = 'catalog-body';
+            var infoDiv = document.createElement('div');
+            infoDiv.innerHTML = '<small>' + itemCategory + '</small><strong>' + item.name + '</strong>';
+            body.appendChild(infoDiv);
+
+            if (item.sizes) {
+                var priceLine = document.createElement('span');
+                priceLine.className = 'price-tag';
+                var parts = [];
+                if (item.sizes.Small != null) parts.push('S ' + formatCurrency(item.sizes.Small));
+                if (item.sizes.Medium != null) parts.push('M ' + formatCurrency(item.sizes.Medium));
+                if (item.sizes.Large != null) parts.push('L ' + formatCurrency(item.sizes.Large));
+                priceLine.innerText = parts.join(' / ');
+                body.appendChild(priceLine);
+
+                var sizeRow = document.createElement('div');
+                sizeRow.className = 'size-btn-row';
+                ['Small', 'Medium', 'Large'].forEach(function(sizeLabel) {
+                    if (item.sizes[sizeLabel] == null) return;
+                    var sBtn = document.createElement('button');
+                    sBtn.type = 'button'; sBtn.className = 'size-btn';
+                    sBtn.innerText = sizeLabel + '\n' + formatCurrency(item.sizes[sizeLabel]);
+                    sBtn.onclick = (function(nm, sz, pr) {
+                        return function() { addItemToBill(nm + ' (' + sz + ')', pr); };
+                    })(item.name, sizeLabel, item.sizes[sizeLabel]);
+                    sizeRow.appendChild(sBtn);
+                });
+                body.appendChild(sizeRow);
+            } else {
+                var priceLine2 = document.createElement('span');
+                priceLine2.className = 'price-tag';
+                priceLine2.innerText = formatCurrency(item.price);
+                body.appendChild(priceLine2);
+
+                var addBtn = document.createElement('button');
+                addBtn.className = 'select-btn'; addBtn.innerText = '🛒 Add to Bill';
+                addBtn.onclick = (function(nm, pr) { return function() { addItemToBill(nm, pr); }; })(item.name, item.price);
+                body.appendChild(addBtn);
+            }
+
+            var actions = document.createElement('div');
+            actions.className = 'item-actions';
+            var editSpan = document.createElement('span');
+            editSpan.className = 'edit-tag'; editSpan.innerText = '✏️ Edit';
+            editSpan.onclick = (function(idx) { return function() { startEditItem(idx); }; })(i);
+            var delSpan = document.createElement('span');
+            delSpan.className = 'delete-tag'; delSpan.innerText = 'Remove';
+            delSpan.onclick = (function(idx, nm) { return function() { if (confirm('Remove "' + nm + '" from the menu?')) { deleteFromCatalog(idx); } }; })(i, item.name);
+            actions.appendChild(editSpan); actions.appendChild(delSpan);
+            body.appendChild(actions);
+
+            card.appendChild(body);
+            grid.appendChild(card);
+        }
+    }
+
+    function buildEditForm(item, index) {
+        var wrap = document.createElement('div');
+        wrap.className = 'edit-form';
+        wrap.style.padding = '10px';
+
+        wrap.innerHTML =
+            '<label>Name</label><input id="edit-name-' + index + '" value="' + item.name.replace(/"/g, '&quot;') + '">' +
+            '<label>Category</label><input id="edit-category-' + index + '" value="' + (item.category || '').replace(/"/g, '&quot;') + '">' +
+            '<label>Image URL</label><input id="edit-image-' + index + '" value="' + (item.image || '').replace(/"/g, '&quot;') + '">' +
+            (item.sizes
+                ? '<div class="size-inputs active">' +
+                    '<div><label>Small</label><input type="number" id="edit-size-small-' + index + '" value="' + (item.sizes.Small != null ? item.sizes.Small : '') + '"></div>' +
+                    '<div><label>Medium</label><input type="number" id="edit-size-medium-' + index + '" value="' + (item.sizes.Medium != null ? item.sizes.Medium : '') + '"></div>' +
+                    '<div><label>Large</label><input type="number" id="edit-size-large-' + index + '" value="' + (item.sizes.Large != null ? item.sizes.Large : '') + '"></div>' +
+                  '</div>'
+                : '<label>Price</label><input type="number" id="edit-price-' + index + '" value="' + item.price + '">') +
+            '<div class="edit-form-actions">' +
+                '<button type="button" class="save-edit-btn" onclick="saveEditItem(' + index + ')">💾 Save</button>' +
+                '<button type="button" class="cancel-edit-btn" onclick="cancelEditItem()">✖ Cancel</button>' +
+            '</div>';
+
+        return wrap;
+    }
+
+    // Renders the icon-only category tiles in the top zone. No text labels - staff identify
+    // categories by icon alone, so this stays compact even with a dozen-plus categories.
+    function renderCategoryTiles() {
+        var grid = document.getElementById('category-grid');
+        if (!grid) return;
+        var categories = [];
+        for (var i = 0; i < menuCatalog.length; i++) {
+            var cat = menuCatalog[i].category || 'General';
+            if (categories.indexOf(cat) === -1) categories.push(cat);
+        }
+        grid.innerHTML = '';
+        for (var c = 0; c < categories.length; c++) {
+            (function(catName) {
+                var tile = document.createElement('div');
+                tile.className = 'category-tile' + (selectedCategory === catName ? ' active' : '');
+                tile.title = catName;
+                tile.onclick = function() { selectCategory(catName); };
+                var iconSpan = document.createElement('div');
+                iconSpan.innerText = CATEGORY_ICONS[catName] || '🍽️';
+                var nameSpan = document.createElement('div');
+                nameSpan.className = 'cat-name';
+                nameSpan.innerText = catName;
+                tile.appendChild(iconSpan);
+                tile.appendChild(nameSpan);
+                grid.appendChild(tile);
+            })(categories[c]);
+        }
+    }
+
+    function selectCategory(cat) {
+        selectedCategory = cat;
+        renderCategoryTiles();
+        renderItemsForCategory();
+        var itemsScroll = document.querySelector('.pos-zone-items .pos-zone-scroll');
+        if (itemsScroll) itemsScroll.scrollTop = 0;
+    }
+
+    // Renders the items belonging to the selected category (with names, unlike the icon-only
+    // category zone) in the middle zone. Tapping a plain item adds it straight to the bill;
+    // sized items (pizza etc.) show Small/Medium/Large buttons instead.
+    function renderItemsForCategory() {
+        var grid = document.getElementById('item-tile-grid');
+        var emptyMsg = document.getElementById('item-tile-empty');
+        var title = document.getElementById('items-zone-title');
+        if (!grid || !emptyMsg || !title) return;
+
+        if (!selectedCategory) {
+            grid.innerHTML = '';
+            emptyMsg.style.display = 'block';
+            emptyMsg.innerText = '👆 Tap a category to see its items';
+            title.innerText = '🍽️ Select a category above';
+            return;
+        }
+
+        title.innerText = (CATEGORY_ICONS[selectedCategory] || '🍽️') + ' ' + selectedCategory;
+        var items = menuCatalog.filter(function(it) { return (it.category || 'General') === selectedCategory; });
+        grid.innerHTML = '';
+
+        if (items.length === 0) {
+            emptyMsg.style.display = 'block';
+            emptyMsg.innerText = 'No items in this category yet.';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < items.length; i++) {
+            (function(item) {
+                var tile = document.createElement('div');
+                tile.className = 'item-tile';
+                var nameEl = document.createElement('strong');
+                nameEl.innerText = item.name;
+                tile.appendChild(nameEl);
+
+                if (item.sizes) {
+                    var sizeRow = document.createElement('div');
+                    sizeRow.className = 'size-btn-row';
+                    ['Small', 'Medium', 'Large'].forEach(function(sizeLabel) {
+                        if (item.sizes[sizeLabel] == null) return;
+                        var sBtn = document.createElement('button');
+                        sBtn.type = 'button'; sBtn.className = 'size-btn';
+                        sBtn.innerText = sizeLabel.charAt(0) + ' ' + formatCurrency(item.sizes[sizeLabel]);
+                        sBtn.onclick = (function(nm, sz, pr) {
+                            return function(e) { e.stopPropagation(); addItemToBill(nm + ' (' + sz + ')', pr); };
+                        })(item.name, sizeLabel, item.sizes[sizeLabel]);
+                        sizeRow.appendChild(sBtn);
+                    });
+                    tile.appendChild(sizeRow);
+                } else {
+                    var priceEl = document.createElement('span');
+                    priceEl.innerText = formatCurrency(item.price);
+                    tile.appendChild(priceEl);
+                    tile.onclick = (function(nm, pr) { return function() { addItemToBill(nm, pr); }; })(item.name, item.price);
+                }
+
+                grid.appendChild(tile);
+            })(items[i]);
+        }
+    }
+
+    // The full add/edit/delete menu management form now lives in an overlay, since it's an
+    // occasional admin task rather than part of fast order-taking.
+    function openMenuManager() {
+        document.getElementById('menu-manager-overlay').style.display = 'block';
+        renderCatalog();
+    }
+    function closeMenuManager() {
+        document.getElementById('menu-manager-overlay').style.display = 'none';
+        renderCategoryTiles();
+        renderItemsForCategory();
+    }
+
+    function addItemToBill(name, price) {
+        var existingItem = null;
+        for (var i = 0; i < currentBill.length; i++) {
+            if (currentBill[i].name == name) { existingItem = currentBill[i]; break; }
+        }
+        if (existingItem) { existingItem.qty += 1; }
+        else { currentBill.push({ name: name, price: price, qty: 1, discVal: 0, discType: 'pct' }); }
+        updateBillDisplay();
+        var billScroll = document.querySelector('.pos-zone-bill .pos-zone-scroll');
+        if (billScroll) billScroll.scrollTop = billScroll.scrollHeight;
+    }
+
+    function changeItemDiscount(index, field, value) {
+        if (field == 'val') {
+            var v = parseFloat(value) || 0;
+            if (v < 0) v = 0;
+            if (currentBill[index].discType === 'pct' && v > 100) v = 100;
+            currentBill[index].discVal = v;
+        }
+        else { currentBill[index].discType = value; }
+        updateBillDisplay();
+    }
+
+    function changeItemQty(index, delta) {
+        currentBill[index].qty += delta;
+        if (currentBill[index].qty <= 0) { currentBill.splice(index, 1); }
+        updateBillDisplay();
+    }
+
+    function removeBillItem(index) { currentBill.splice(index, 1); updateBillDisplay(); }
+    function clearBill() {
+        currentBill = [];
+        currentKitchenOrderId = null;
+        saveLinkedOrderId();
+        currentTableInfo = '';
+        selectedTableNumber = null;
+        saveSelectedTableNumber();
+        var tableInput = document.getElementById('table-info');
+        if (tableInput) tableInput.value = '';
+        var nameExtraInput = document.getElementById('table-name-extra');
+        if (nameExtraInput) nameExtraInput.value = '';
+        saveTableInfo();
+        renderTableButtons();
+        updateBillDisplay();
+        renderKitchenLinkBanner();
+    }
+
+    // Small helper: format milliseconds as "Xh Ym" or "Ym" for prep time display.
+    function formatDuration(ms) {
+        if (ms == null || ms < 0) return '—';
+        var totalMinutes = Math.round(ms / 60000);
+        var hours = Math.floor(totalMinutes / 60);
+        var minutes = totalMinutes % 60;
+        if (hours > 0) return hours + 'h ' + minutes + 'm';
+        return minutes + ' min';
+    }
+
+    // Shows a small banner on the Billing tab when the current bill is linked to an existing kitchen order,
+    // so the cashier knows they're adding to an order instead of starting a fresh one.
+    function renderKitchenLinkBanner() {
+        var existing = document.getElementById('kitchen-link-banner');
+        if (currentKitchenOrderId) {
+            var order = kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0];
+            var label = order ? order.invoiceLabel : ('Order #' + String(invoiceCounter).padStart(4, '0'));
+            var html = '<div id="kitchen-link-banner" style="background:#eafaf1; border:1px solid #27ae60; color:#1e8449; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; gap:8px;">' +
+                '<span>🔗 Adding to <b>' + label + '</b> from the kitchen queue.</span>' +
+                '<span style="text-decoration:underline; cursor:pointer; white-space:nowrap;" onclick="clearBill()">Unlink</span></div>';
+            if (existing) { existing.outerHTML = html; }
+            else {
+                var billingPanelHeading = document.getElementById('active-bill-heading');
+                if (billingPanelHeading) billingPanelHeading.insertAdjacentHTML('afterend', html);
+            }
+        } else if (existing) {
+            existing.remove();
+        }
+    }
+
+    // Jumps straight to the active bill table after loading an order from the Kitchen/Ready
+    // tabs, instead of leaving the page scrolled wherever it happened to be (which could land
+    // you down near the Live Receipt at the very bottom of the Billing tab).
+    function scrollToBillingTerminal() {
+        var target = document.getElementById('active-bill-heading');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function updateBillDisplay() {
+        var tableBody = document.getElementById('bill-items-table');
+        var receiptItems = document.getElementById('receipt-items');
+
+        // This function rebuilds the bill rows from scratch, which would normally steal focus
+        // away from whatever input the user is actively typing in (e.g. a per-item discount box)
+        // every single keystroke. Remember what had focus (and cursor position) so we can restore
+        // it to the freshly-rebuilt element afterwards.
+        var activeEl = document.activeElement;
+        var activeId = (activeEl && activeEl.id) ? activeEl.id : null;
+        var activeSelStart = null, activeSelEnd = null;
+        if (activeId && typeof activeEl.selectionStart === 'number') {
+            try { activeSelStart = activeEl.selectionStart; activeSelEnd = activeEl.selectionEnd; } catch (e) {}
+        }
+
+        tableBody.innerHTML = ''; receiptItems.innerHTML = '';
+        var totalBillSubtotal = 0; var totalAfterItemDiscounts = 0; var totalItemDiscounts = 0;
+
+        for (var i = 0; i < currentBill.length; i++) {
+            (function(index) {
+                var item = currentBill[index];
+                var rawRowTotal = item.price * item.qty;
+                totalBillSubtotal += rawRowTotal;
+                var rowDiscountAmount = 0;
+                if (item.discType == 'pct') { rowDiscountAmount = rawRowTotal * (item.discVal / 100); }
+                else { rowDiscountAmount = item.discVal; }
+                var finalRowNetTotal = rawRowTotal - rowDiscountAmount;
+                if (finalRowNetTotal < 0) finalRowNetTotal = 0;
+                totalAfterItemDiscounts += finalRowNetTotal;
+                totalItemDiscounts += rowDiscountAmount;
+
+                var tr = document.createElement('tr');
+                var tdName = document.createElement('td'); tdName.innerText = item.name;
+
+                var tdQty = document.createElement('td');
+                var qtyWrap = document.createElement('div'); qtyWrap.className = 'qty-control';
+                var minusBtn = document.createElement('button'); minusBtn.type = 'button'; minusBtn.className = 'qty-btn'; minusBtn.innerText = '−';
+                minusBtn.onclick = function() { changeItemQty(index, -1); };
+                var qtySpan = document.createElement('span'); qtySpan.innerText = item.qty;
+                var plusBtn = document.createElement('button'); plusBtn.type = 'button'; plusBtn.className = 'qty-btn'; plusBtn.innerText = '+';
+                plusBtn.onclick = function() { changeItemQty(index, 1); };
+                qtyWrap.appendChild(minusBtn); qtyWrap.appendChild(qtySpan); qtyWrap.appendChild(plusBtn);
+                tdQty.appendChild(qtyWrap);
+
+                var tdPrice = document.createElement('td'); tdPrice.innerText = item.price;
+                var tdDisc = document.createElement('td');
+                var discInput = document.createElement('input'); discInput.type = 'number'; discInput.id = 'item-disc-input-' + index; discInput.className = 'item-disc-input'; discInput.value = item.discVal; discInput.oninput = function() { changeItemDiscount(index, 'val', this.value); };
+                var discSelect = document.createElement('select'); discSelect.id = 'item-disc-type-' + index; discSelect.className = 'item-disc-type';
+                var optPct = document.createElement('option'); optPct.value = 'pct'; optPct.innerText = '%'; if(item.discType == 'pct') optPct.selected = true;
+                var optFlat = document.createElement('option'); optFlat.value = 'flat'; optFlat.innerText = 'Rs'; if(item.discType == 'flat') optFlat.selected = true;
+                discSelect.appendChild(optPct); discSelect.appendChild(optFlat); discSelect.onchange = function() { changeItemDiscount(index, 'type', this.value); };
+                tdDisc.appendChild(discInput); tdDisc.appendChild(discSelect);
+                var tdTotal = document.createElement('td'); tdTotal.innerHTML = '<b>' + finalRowNetTotal.toFixed(0) + '</b>';
+                var tdRem = document.createElement('td'); tdRem.className = 'remove-idx'; tdRem.innerText = '×'; tdRem.onclick = function() { removeBillItem(index); };
+                tr.appendChild(tdName); tr.appendChild(tdQty); tr.appendChild(tdPrice); tr.appendChild(tdDisc); tr.appendChild(tdTotal); tr.appendChild(tdRem); tableBody.appendChild(tr);
+
+                receiptItems.innerHTML += '<div class="receipt-row"><span>' + item.qty + 'x ' + item.name + '</span><span>' + formatCurrency(rawRowTotal) + '</span></div>';
+            })(i);
+        }
+
+        // Restore focus (and cursor position, for text/number inputs) to whatever was active
+        // before the rebuild, so the user can keep typing without needing to click back in.
+        if (activeId) {
+            var restoredEl = document.getElementById(activeId);
+            if (restoredEl && restoredEl !== document.activeElement) {
+                restoredEl.focus();
+                if (activeSelStart !== null && typeof restoredEl.setSelectionRange === 'function') {
+                    try { restoredEl.setSelectionRange(activeSelStart, activeSelEnd); } catch (e) {}
+                }
+            }
+        }
+
+        var orderDiscountInput = document.getElementById('order-discount');
+        var orderDiscountPct = orderDiscountInput ? (parseFloat(orderDiscountInput.value) || 0) : 0;
+        var orderDiscountAmount = totalAfterItemDiscounts * (orderDiscountPct / 100);
+        var grandTotal = totalAfterItemDiscounts - orderDiscountAmount;
+        if (grandTotal < 0) grandTotal = 0;
+
+        document.getElementById('receipt-subtotal').innerText = formatCurrency(totalBillSubtotal);
+        var itemDiscRow = document.getElementById('receipt-item-discount-row');
+        if (totalItemDiscounts > 0) {
+            itemDiscRow.style.display = 'flex';
+            document.getElementById('receipt-item-discount').innerText = '- ' + formatCurrency(totalItemDiscounts);
+        } else {
+            itemDiscRow.style.display = 'none';
+        }
+        var discRow = document.getElementById('receipt-order-discount-row');
+        if (orderDiscountAmount > 0) {
+            discRow.style.display = 'flex';
+            document.getElementById('receipt-order-discount').innerText = '- ' + formatCurrency(orderDiscountAmount);
+        } else {
+            discRow.style.display = 'none';
+        }
+        document.getElementById('receipt-net-total').innerText = formatCurrency(grandTotal);
+        lastComputedGrandTotal = grandTotal;
+        var linkedOrder = currentKitchenOrderId ? kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0] : null;
+        document.getElementById('receipt-invoice').innerText = linkedOrder ? linkedOrder.invoiceLabel : ('Order #' + String(invoiceCounter).padStart(4, '0'));
+        document.getElementById('receipt-order-type').innerText = currentOrderType;
+        var tableInputVal = document.getElementById('table-info') ? document.getElementById('table-info').value.trim() : '';
+        document.getElementById('receipt-table').innerText = tableInputVal ? ('Table: ' + tableInputVal) : '';
+        var totalEl = document.getElementById('pos-bill-total');
+        if (totalEl) totalEl.innerText = formatCurrency(grandTotal);
+
+        saveBill();
+    }
+
+    // Fills the printable kitchen ticket DOM with a given set of items.
+    function fillKitchenTicketDOM(items, invoiceLabel, orderTypeStr, timeStr, tableInfo) {
+        var ktItems = document.getElementById('kt-items');
+        ktItems.innerHTML = '';
+        for (var i = 0; i < items.length; i++) {
+            ktItems.innerHTML += '<div class="kitchen-ticket-row"><span>' + items[i].qty + 'x ' + items[i].name + '</span></div>';
+        }
+        document.getElementById('kt-invoice').innerText = invoiceLabel;
+        document.getElementById('kt-table').innerText = tableInfo ? ('Table: ' + tableInfo) : '';
+        document.getElementById('kt-order-type').innerText = orderTypeStr.toUpperCase();
+        document.getElementById('kt-date').innerText = timeStr;
+    }
+
+    function printKitchenTicket() {
+        if (currentBill.length == 0) return alert("The current order is empty - add items before printing a kitchen ticket!");
+        // Store a full copy of the bill (with prices/discounts) on the order so it can be
+        // loaded straight back into billing later - not just name/qty.
+        var billSnapshot = JSON.parse(JSON.stringify(currentBill));
+        var ticketItems = currentBill.map(function(it) { return { name: it.name, qty: it.qty }; });
+        var options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        var timeStr = new Date().toLocaleDateString("en-PK", options);
+        var tableInfo = document.getElementById('table-info') ? document.getElementById('table-info').value.trim() : '';
+
+        // If this bill is already linked to a kitchen order (e.g. the customer ordered more,
+        // or we're reprinting), update that same order instead of creating a duplicate ticket.
+        if (currentKitchenOrderId) {
+            var existingOrder = kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0];
+            if (existingOrder) {
+                existingOrder.items = billSnapshot;
+                existingOrder.orderType = currentOrderType;
+                existingOrder.table = tableInfo;
+                existingOrder.lastUpdated = timeStr;
+                // New items were just sent to the kitchen, so if it was already "Ready" it needs
+                // to go back to "Preparing" until the kitchen confirms the extra items too.
+                if (existingOrder.status === 'Ready') {
+                    existingOrder.status = 'Preparing';
+                    existingOrder.readyAt = null;
+                }
+                fillKitchenTicketDOM(ticketItems, existingOrder.invoiceLabel, existingOrder.orderType, timeStr, existingOrder.table);
+                saveKitchenOrders();
+                renderKitchenOrders();
+                renderReadyOrders();
+                document.body.classList.add('print-kitchen');
+                window.print();
+                return;
+            }
+        }
+
+        var thisOrderNo = invoiceCounter;
+        var invoiceLabel = 'Order #' + String(thisOrderNo).padStart(4, '0');
+        fillKitchenTicketDOM(ticketItems, invoiceLabel, currentOrderType, timeStr, tableInfo);
+
+        var newOrder = {
+            id: Date.now(),
+            invoiceNo: thisOrderNo,
+            invoiceLabel: invoiceLabel,
+            orderType: currentOrderType,
+            table: tableInfo,
+            time: timeStr,
+            createdAt: Date.now(),
+            readyAt: null,
+            items: billSnapshot,
+            status: 'Pending'
+        };
+        kitchenOrders.push(newOrder);
+        currentKitchenOrderId = newOrder.id;
+        // Reserve this order number right away so a second table opened at the same time
+        // (before this one is paid) gets its own, different number.
+        invoiceCounter += 1;
+        saveInvoiceCounter();
+        saveLinkedOrderId();
+        saveKitchenOrders();
+        renderKitchenOrders();
+        renderKitchenLinkBanner();
+
+        document.body.classList.add('print-kitchen');
+        window.print();
+    }
+
+    function reprintKitchenOrder(id) {
+        var order = null;
+        for (var i = 0; i < kitchenOrders.length; i++) { if (kitchenOrders[i].id === id) { order = kitchenOrders[i]; break; } }
+        if (!order) return;
+        fillKitchenTicketDOM(order.items, order.invoiceLabel, order.orderType, order.time, order.table);
+        document.body.classList.add('print-kitchen');
+        window.print();
+    }
+
+    function advanceKitchenOrderStatus(id) {
+        for (var i = 0; i < kitchenOrders.length; i++) {
+            if (kitchenOrders[i].id === id) {
+                if (kitchenOrders[i].status === 'Pending') kitchenOrders[i].status = 'Preparing';
+                else if (kitchenOrders[i].status === 'Preparing') {
+                    kitchenOrders[i].status = 'Ready';
+                    kitchenOrders[i].readyAt = Date.now();
+                }
+                break;
+            }
+        }
+        saveKitchenOrders();
+        renderKitchenOrders();
+        renderReadyOrders();
+    }
+
+    function completeKitchenOrder(id) {
+        kitchenOrders = kitchenOrders.filter(function(o) { return o.id !== id; });
+        if (currentKitchenOrderId === id) {
+            currentKitchenOrderId = null;
+            saveLinkedOrderId();
+            renderKitchenLinkBanner();
+        }
+        saveKitchenOrders();
+        renderKitchenOrders();
+        renderReadyOrders();
+    }
+
+    function cancelKitchenOrder(id) {
+        if (!confirm("Cancel this kitchen order? This can't be undone.")) return;
+        completeKitchenOrder(id);
+    }
+
+    // Pulls a kitchen order's items straight into the active bill, so the cashier never has to
+    // re-type an order from scratch. Works for orders at any status (Pending/Preparing/Ready).
+    function loadOrderToBilling(id) {
+        var order = kitchenOrders.filter(function(o) { return o.id === id; })[0];
+        if (!order) return;
+
+        if (currentKitchenOrderId !== id && currentBill.length > 0) {
+            if (!confirm('This will replace your current active bill with the items from ' + order.invoiceLabel + '. Continue?')) return;
+        }
+
+        // Older orders (created before this update) only stored {name, qty} with no price -
+        // fall back to looking the price up from the menu so nothing breaks.
+        currentBill = order.items.map(function(it) {
+            if (it.price != null) return JSON.parse(JSON.stringify(it));
+            return { name: it.name, price: lookupMenuPrice(it.name), qty: it.qty, discVal: 0, discType: 'pct' };
+        });
+
+        currentKitchenOrderId = order.id;
+        saveLinkedOrderId();
+        setOrderType(order.orderType || 'Dine-in');
+        switchTab('billing');
+        updateBillDisplay();
+        renderKitchenLinkBanner();
+        scrollToBillingTerminal();
+    }
+
+    // Best-effort price lookup for older kitchen-order records that didn't store a price,
+    // handling "Item Name (Small/Medium/Large)" size variants.
+    function lookupMenuPrice(itemName) {
+        var sizeMatch = itemName.match(/^(.*) \((Small|Medium|Large)\)$/);
+        if (sizeMatch) {
+            var baseName = sizeMatch[1];
+            var sizeLabel = sizeMatch[2];
+            for (var i = 0; i < menuCatalog.length; i++) {
+                if (menuCatalog[i].name === baseName && menuCatalog[i].sizes && menuCatalog[i].sizes[sizeLabel] != null) {
+                    return menuCatalog[i].sizes[sizeLabel];
+                }
+            }
+        }
+        for (var j = 0; j < menuCatalog.length; j++) {
+            if (menuCatalog[j].name === itemName && menuCatalog[j].price != null) return menuCatalog[j].price;
+        }
+        return 0;
+    }
+
+    function renderKitchenOrders() {
+        var list = document.getElementById('kitchen-orders-list');
+        var emptyMsg = document.getElementById('kitchen-orders-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        // Ready orders have their own "Ready Orders" tab, so only show active ones here.
+        var activeOrders = kitchenOrders.filter(function(o) { return o.status !== 'Ready'; });
+
+        if (activeOrders.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < activeOrders.length; i++) {
+            var order = activeOrders[i];
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+
+            var itemsHtml = order.items.map(function(it) {
+                return '<div class="ko-item-row">' + it.qty + 'x ' + it.name + '</div>';
+            }).join('');
+
+            var statusClass = order.status.toLowerCase();
+            var actionHtml = '';
+            if (order.status === 'Pending') {
+                actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#2980b9;">▶ Start Preparing</button>';
+            } else if (order.status === 'Preparing') {
+                actionHtml = '<button type="button" onclick="advanceKitchenOrderStatus(' + order.id + ')" style="background:#27ae60;">✅ Mark Ready</button>';
+            }
+
+            card.innerHTML =
+                '<div class="ko-header"><strong>' + order.invoiceLabel + (order.table ? ' &middot; ' + order.table : '') + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ' + statusClass + '">' + order.status + '</span></div>' +
+                '<div class="ko-time">' + order.time + '</div>' +
+                '<div class="ko-items">' + itemsHtml + '</div>' +
+                '<div class="ko-actions">' + actionHtml + '<button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button></div>' +
+                '<div class="ko-actions"><button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
+
+            list.appendChild(card);
+        }
+    }
+
+    // Renders the "Ready Orders" tab: orders the kitchen has finished, waiting to be billed.
+    // Shows Prep Time = time from the order being sent to the kitchen, to it being marked Ready.
+    function renderReadyOrders() {
+        var list = document.getElementById('ready-orders-list');
+        var emptyMsg = document.getElementById('ready-orders-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        var readyOrders = kitchenOrders.filter(function(o) { return o.status === 'Ready'; });
+
+        if (readyOrders.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < readyOrders.length; i++) {
+            var order = readyOrders[i];
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+
+            var itemsHtml = order.items.map(function(it) {
+                return '<div class="ko-item-row">' + it.qty + 'x ' + it.name + '</div>';
+            }).join('');
+
+            // createdAt may be missing on orders made before this update - the order's id
+            // was Date.now() at creation time, so it doubles as a reliable fallback.
+            var createdAt = order.createdAt || order.id;
+            var prepTimeText = order.readyAt ? formatDuration(order.readyAt - createdAt) : '—';
+
+            card.innerHTML =
+                '<div class="ko-header"><strong>' + order.invoiceLabel + (order.table ? ' &middot; ' + order.table : '') + ' &middot; ' + order.orderType + '</strong><span class="ko-badge ready">Ready</span></div>' +
+                '<div class="ko-time">Ordered: ' + order.time + ' &nbsp;|&nbsp; ⏱️ Prep Time: <b>' + prepTimeText + '</b></div>' +
+                '<div class="ko-items">' + itemsHtml + '</div>' +
+                '<div class="ko-actions"><button type="button" onclick="loadOrderToBilling(' + order.id + ')" style="background:#8e44ad;">🧾 Load to Billing</button>' +
+                '<button type="button" onclick="reprintKitchenOrder(' + order.id + ')" style="background:#34495e;">🖨️ Reprint</button></div>' +
+                '<span class="ko-cancel" onclick="cancelKitchenOrder(' + order.id + ')">Cancel Order</span>';
+
+            list.appendChild(card);
+        }
+    }
+
+    function processCheckout() {
+        if(currentBill.length == 0) return alert("Your current active bill table is empty!");
+        // IMPORTANT: read the raw number kept in sync by updateBillDisplay(), not the
+        // formatted "Rs. 650" text - parsing that text used to turn 650 into 0.65 because
+        // the period after "Rs" was mistaken for a decimal point.
+        var finalAmount = lastComputedGrandTotal || 0;
+        var paymentMethod = document.getElementById('payment-method').value;
+        var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
+
+        // If this bill came from a kitchen order, it already reserved its own invoice number
+        // when the kitchen ticket was first printed - reuse it instead of taking a new one.
+        var linkedOrderForCheckout = currentKitchenOrderId ? kitchenOrders.filter(function(o) { return o.id === currentKitchenOrderId; })[0] : null;
+        var thisInvoiceNo;
+        if (linkedOrderForCheckout && linkedOrderForCheckout.invoiceNo) {
+            thisInvoiceNo = linkedOrderForCheckout.invoiceNo;
+        } else {
+            thisInvoiceNo = invoiceCounter;
+            invoiceCounter += 1;
+            saveInvoiceCounter();
+        }
+
+        // Full item snapshot (name/price/qty/line total) saved on the record itself, so this
+        // exact receipt can be reprinted later. itemDiscountTotal is the sum of all per-item
+        // discounts, shown as its own line on the receipt (see updateBillDisplay).
+        var itemsSnapshot = [];
+        var billSubtotal = 0, billAfterItemDiscounts = 0, billItemDiscountTotal = 0;
+        for (var i = 0; i < currentBill.length; i++) {
+            var billItem = currentBill[i];
+            var rawRowTotal = billItem.price * billItem.qty;
+            var rowDiscountAmount = (billItem.discType == 'pct') ? rawRowTotal * (billItem.discVal / 100) : billItem.discVal;
+            var rowNetTotal = rawRowTotal - rowDiscountAmount;
+            if (rowNetTotal < 0) rowNetTotal = 0;
+            billSubtotal += rawRowTotal;
+            billAfterItemDiscounts += rowNetTotal;
+            billItemDiscountTotal += rowDiscountAmount;
+            itemsSnapshot.push({ name: billItem.name, price: billItem.price, qty: billItem.qty, lineTotal: rowNetTotal });
+        }
+        var orderDiscountPctAtCheckout = parseFloat(document.getElementById('order-discount').value) || 0;
+        var orderDiscountAmountAtCheckout = billAfterItemDiscounts * (orderDiscountPctAtCheckout / 100);
+        var tableInfoAtCheckout = document.getElementById('table-info') ? document.getElementById('table-info').value.trim() : '';
+
+        // Checked-out orders wait here for "Receive Payment" to confirm the money actually came
+        // in before they count toward Daily Sales or sync to your Google Sheet - see the
+        // Receive Payment tab.
+        pendingPayments.push({
+            id: Date.now(),
+            invoiceNo: thisInvoiceNo,
+            time: timeStr,
+            method: paymentMethod,
+            amount: finalAmount,
+            orderType: currentOrderType,
+            table: tableInfoAtCheckout,
+            items: itemsSnapshot,
+            subtotal: billSubtotal,
+            itemDiscountTotal: billItemDiscountTotal,
+            orderDiscountAmount: orderDiscountAmountAtCheckout
+        });
+        savePendingPayments();
+
+        window.print();
+        if (currentKitchenOrderId) {
+            kitchenOrders = kitchenOrders.filter(function(o) { return o.id !== currentKitchenOrderId; });
+            saveKitchenOrders();
+            renderKitchenOrders();
+            renderReadyOrders();
+        }
+        clearBill();
+        renderPendingPayments();
+        updateBillDisplay();
+    }
+
+    // Sends a background copy of a received sale to your Google Sheet, only if the webhook URL
+    // has been configured. Fires from receivePayment() so unreceived/voided orders never reach
+    // your sheet.
+    function syncSaleToGoogleSheet(record) {
+        if (!(GOOGLE_SHEET_WEBHOOK_URL && GOOGLE_SHEET_WEBHOOK_URL.indexOf('PASTE_YOUR') === -1)) return;
+        var itemsSummaryText = record.items.map(function(it) { return it.qty + "x " + it.name; }).join(", ");
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = GOOGLE_SHEET_WEBHOOK_URL;
+        form.target = 'hidden_frame';
+
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'contents';
+        input.value = JSON.stringify({ invoiceNo: record.invoiceNo, time: record.time, method: record.method, items: itemsSummaryText, amount: record.amount, orderType: record.orderType });
+
+        var iframe = document.getElementById('hidden_frame');
+        if(!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'hidden_frame';
+            iframe.id = 'hidden_frame';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+
+        setTimeout(function() {
+            document.body.removeChild(form);
+        }, 500);
+    }
+
+    // ---- Receive Payment: confirms a checked-out order's money actually came in before it
+    // counts toward Daily Sales. ----
+    function renderPendingPayments() {
+        var list = document.getElementById('pending-payments-list');
+        var emptyMsg = document.getElementById('pending-payments-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        if (pendingPayments.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < pendingPayments.length; i++) {
+            var payment = pendingPayments[i];
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+
+            var itemsHtml = payment.items.map(function(it) {
+                return '<div class="ko-item-row">' + it.qty + 'x ' + it.name + '</div>';
+            }).join('');
+
+            card.innerHTML =
+                '<div class="ko-header"><strong>Order #' + String(payment.invoiceNo).padStart(4, '0') + (payment.table ? ' &middot; ' + payment.table : '') + ' &middot; ' + payment.orderType + '</strong><span class="ko-badge pending">' + payment.method + '</span></div>' +
+                '<div class="ko-time">' + payment.time + ' &nbsp;|&nbsp; Amount: <b>' + formatCurrency(payment.amount) + '</b></div>' +
+                '<div class="ko-items">' + itemsHtml + '</div>' +
+                '<div class="ko-actions">' +
+                    '<button type="button" onclick="receivePayment(' + payment.id + ')" style="background:var(--accent);">✅ Receive Payment</button>' +
+                    '<button type="button" onclick="voidPendingPayment(' + payment.id + ')" style="background:var(--danger);">🗑️ Void</button>' +
+                '</div>';
+
+            list.appendChild(card);
+        }
+    }
+
+    function receivePayment(id) {
+        var idx = -1;
+        for (var i = 0; i < pendingPayments.length; i++) { if (pendingPayments[i].id === id) { idx = i; break; } }
+        if (idx === -1) return;
+        var payment = pendingPayments[idx];
+
+        syncSaleToGoogleSheet(payment);
+
+        pendingPayments.splice(idx, 1);
+        salesLog.push({
+            invoiceNo: payment.invoiceNo,
+            time: payment.time,
+            method: payment.method,
+            amount: payment.amount,
+            orderType: payment.orderType,
+            table: payment.table,
+            items: payment.items,
+            subtotal: payment.subtotal,
+            itemDiscountTotal: payment.itemDiscountTotal,
+            orderDiscountAmount: payment.orderDiscountAmount
+        });
+        savePendingPayments();
+        saveSales();
+        renderPendingPayments();
+        updateSalesDashboard();
+    }
+
+    function voidPendingPayment(id) {
+        if (!confirm("Void this order? It will NOT be recorded in Daily Sales.")) return;
+        pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
+        savePendingPayments();
+        renderPendingPayments();
+    }
+
+    function updateSalesDashboard() {
+        var logTable = document.getElementById('sales-log-table');
+        if(!logTable) return;
+        logTable.innerHTML = '';
+        var total = 0, cash = 0, easypaisa = 0, jazzcash = 0, card = 0;
+
+        for(var i = salesLog.length - 1; i >= 0; i--) {
+            (function(index) {
+                var record = salesLog[index]; total += record.amount;
+                if(record.method == 'Cash') cash += record.amount;
+                else if(record.method == 'EasyPaisa') easypaisa += record.amount;
+                else if(record.method == 'JazzCash') jazzcash += record.amount;
+                else if(record.method == 'Card') card += record.amount;
+
+                var tr = document.createElement('tr');
+                var tdInv = document.createElement('td'); tdInv.innerText = '#' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
+                var tdTime = document.createElement('td'); tdTime.innerText = record.time;
+                tr.appendChild(tdInv); tr.appendChild(tdTime);
+
+                if (editingSalesIndex === index) {
+                    var tdTypeEdit = document.createElement('td');
+                    var typeSelect = document.createElement('select'); typeSelect.id = 'sales-edit-type-' + index; typeSelect.className = 'sales-edit-input';
+                    ['Dine-in', 'Takeaway', 'Delivery'].forEach(function(opt) {
+                        var o = document.createElement('option'); o.value = opt; o.innerText = opt;
+                        if ((record.orderType || 'Dine-in') === opt) o.selected = true;
+                        typeSelect.appendChild(o);
+                    });
+                    tdTypeEdit.appendChild(typeSelect);
+
+                    var tdMethodEdit = document.createElement('td');
+                    var methodSelect = document.createElement('select'); methodSelect.id = 'sales-edit-method-' + index; methodSelect.className = 'sales-edit-input';
+                    ['Cash', 'JazzCash', 'EasyPaisa', 'Card'].forEach(function(opt) {
+                        var o = document.createElement('option'); o.value = opt; o.innerText = opt;
+                        if (record.method === opt) o.selected = true;
+                        methodSelect.appendChild(o);
+                    });
+                    tdMethodEdit.appendChild(methodSelect);
+
+                    var tdAmtEdit = document.createElement('td');
+                    var amtInput = document.createElement('input'); amtInput.type = 'number'; amtInput.id = 'sales-edit-amount-' + index; amtInput.value = record.amount; amtInput.className = 'sales-edit-input';
+                    tdAmtEdit.appendChild(amtInput);
+
+                    var tdActionsEdit = document.createElement('td');
+                    var editActionsWrap = document.createElement('div'); editActionsWrap.className = 'sales-edit-actions';
+                    var saveBtn = document.createElement('button'); saveBtn.type = 'button'; saveBtn.innerText = '💾'; saveBtn.style.background = 'var(--accent)';
+                    saveBtn.onclick = function() { saveEditSalesRecord(index); };
+                    var cancelBtn = document.createElement('button'); cancelBtn.type = 'button'; cancelBtn.innerText = '✖'; cancelBtn.style.background = '#95a5a6';
+                    cancelBtn.onclick = function() { cancelEditSalesRecord(); };
+                    editActionsWrap.appendChild(saveBtn); editActionsWrap.appendChild(cancelBtn);
+                    tdActionsEdit.appendChild(editActionsWrap);
+
+                    tr.appendChild(tdTypeEdit); tr.appendChild(tdMethodEdit); tr.appendChild(tdAmtEdit); tr.appendChild(tdActionsEdit);
+                } else {
+                    var tdType = document.createElement('td'); tdType.innerText = record.orderType || '-';
+                    var tdMethod = document.createElement('td'); tdMethod.innerText = record.method;
+                    var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
+
+                    var tdActions = document.createElement('td');
+                    var actionsWrap = document.createElement('div'); actionsWrap.className = 'log-actions';
+                    var editSpan = document.createElement('span'); editSpan.className = 'log-action'; editSpan.innerText = '✏️'; editSpan.title = 'Edit';
+                    editSpan.onclick = function() { startEditSalesRecord(index); };
+                    var reprintSpan = document.createElement('span'); reprintSpan.className = 'log-action'; reprintSpan.innerText = '🖨️'; reprintSpan.title = 'Reprint receipt';
+                    reprintSpan.onclick = function() { reprintSaleReceipt(index); };
+                    var delSpan = document.createElement('span'); delSpan.className = 'log-action log-delete'; delSpan.innerText = '×'; delSpan.title = 'Delete';
+                    delSpan.onclick = function() { deleteSalesRecord(index); };
+                    actionsWrap.appendChild(editSpan); actionsWrap.appendChild(reprintSpan); actionsWrap.appendChild(delSpan);
+                    tdActions.appendChild(actionsWrap);
+
+                    tr.appendChild(tdType); tr.appendChild(tdMethod); tr.appendChild(tdAmt); tr.appendChild(tdActions);
+                }
+
+                logTable.appendChild(tr);
+            })(i);
+        }
+        document.getElementById('total-sales').innerText = formatCurrency(total);
+        document.getElementById('sales-cash').innerText = formatCurrency(cash);
+        document.getElementById('sales-easypaisa').innerText = formatCurrency(easypaisa);
+        document.getElementById('sales-jazzcash').innerText = formatCurrency(jazzcash);
+        document.getElementById('sales-card').innerText = formatCurrency(card);
+    }
+
+    function deleteSalesRecord(index) { if(confirm("Delete record?")) { salesLog.splice(index, 1); saveSales(); updateSalesDashboard(); } }
+
+    // ---- Transaction Log editing (order type / method / amount) ----
+    function startEditSalesRecord(index) { editingSalesIndex = index; updateSalesDashboard(); }
+    function cancelEditSalesRecord() { editingSalesIndex = -1; updateSalesDashboard(); }
+
+    function saveEditSalesRecord(index) {
+        var record = salesLog[index];
+        if (!record) return;
+        var newAmount = parseFloat(document.getElementById('sales-edit-amount-' + index).value);
+        if (isNaN(newAmount) || newAmount < 0) return alert("Enter a valid amount!");
+        record.amount = newAmount;
+        record.method = document.getElementById('sales-edit-method-' + index).value;
+        record.orderType = document.getElementById('sales-edit-type-' + index).value;
+
+        editingSalesIndex = -1;
+        saveSales();
+        updateSalesDashboard();
+    }
+
+    // Repopulates the Live Receipt view from a past sale's saved item snapshot, then opens the
+    // print dialog - so the same receipt can be reprinted for a customer without re-ringing up
+    // the order. Only works for sales made after this feature was added (older records didn't
+    // save item-level detail) - #billing-tab is force-shown for print via CSS so this works
+    // even while you're sitting on the Sales tab.
+    function reprintSaleReceipt(index) {
+        var record = salesLog[index];
+        if (!record) return;
+        if (!record.items || record.items.length === 0) {
+            alert("This sale doesn't have saved receipt details (it was made before reprinting was added), so it can't be reprinted.");
+            return;
+        }
+
+        document.getElementById('receipt-invoice').innerText = 'Order #' + String(record.invoiceNo != null ? record.invoiceNo : (index + 1)).padStart(4, '0');
+        document.getElementById('receipt-table').innerText = record.table ? ('Table: ' + record.table) : '';
+        document.getElementById('receipt-order-type').innerText = record.orderType || '';
+        document.getElementById('receipt-date').innerText = record.time;
+
+        var itemsHtml = '';
+        for (var i = 0; i < record.items.length; i++) {
+            var it = record.items[i];
+            var rawLineTotal = it.price * it.qty;
+            itemsHtml += '<div class="receipt-row"><span>' + it.qty + 'x ' + it.name + '</span><span>' + formatCurrency(rawLineTotal) + '</span></div>';
+        }
+        document.getElementById('receipt-items').innerHTML = itemsHtml;
+        document.getElementById('receipt-subtotal').innerText = formatCurrency(record.subtotal != null ? record.subtotal : record.amount);
+
+        var itemDiscRow = document.getElementById('receipt-item-discount-row');
+        if (record.itemDiscountTotal > 0) {
+            itemDiscRow.style.display = 'flex';
+            document.getElementById('receipt-item-discount').innerText = '- ' + formatCurrency(record.itemDiscountTotal);
+        } else {
+            itemDiscRow.style.display = 'none';
+        }
+
+        var discRow = document.getElementById('receipt-order-discount-row');
+        if (record.orderDiscountAmount > 0) {
+            discRow.style.display = 'flex';
+            document.getElementById('receipt-order-discount').innerText = '- ' + formatCurrency(record.orderDiscountAmount);
+        } else {
+            discRow.style.display = 'none';
+        }
+        document.getElementById('receipt-net-total').innerText = formatCurrency(record.amount);
+
+        window.print();
+
+        // Restore the live receipt to reflect whatever's actually in the active bill, so
+        // switching to the Billing tab afterwards doesn't still show this old reprinted receipt.
+        updateBillDisplay();
+    }
+
+    function resetDailySales() {
+        if(confirm("This will permanently erase today's sales log. Make sure you've exported a CSV backup first. Continue?")) {
+            salesLog = [];
+            saveSales();
+            updateSalesDashboard();
+        }
+    }
+
+    function exportSalesCSV() {
+        if (salesLog.length == 0) return alert("No sales records to export yet!");
+        var rows = [["Invoice #", "Time", "Table", "Order Type", "Method", "Amount"]];
+        for (var i = 0; i < salesLog.length; i++) {
+            var r = salesLog[i];
+            rows.push([r.invoiceNo != null ? r.invoiceNo : (i + 1), r.time, r.table || '-', r.orderType || '-', r.method, r.amount]);
+        }
+        var csvContent = rows.map(function(row) {
+            return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'arena456-sales-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- Daily Expenses ----
+    function addExpense() {
+        var descInput = document.getElementById('new-expense-desc');
+        var categoryInput = document.getElementById('new-expense-category');
+        var amountInput = document.getElementById('new-expense-amount');
+        var desc = descInput.value.trim();
+        var category = (categoryInput.value || 'General').trim() || 'General';
+        var amount = parseFloat(amountInput.value);
+        if (!desc) return alert("Enter a description!");
+        if (isNaN(amount) || amount < 0) return alert("Enter a valid amount!");
+
+        var timeStr = new Date().toLocaleTimeString("en-PK", {hour: '2-digit', minute: '2-digit'});
+        expenseLog.push({ time: timeStr, desc: desc, category: category, amount: amount });
+        descInput.value = ''; categoryInput.value = 'General'; amountInput.value = '';
+        saveExpenses();
+        renderExpenses();
+    }
+
+    function deleteExpenseRecord(index) {
+        if (!confirm("Delete this expense?")) return;
+        expenseLog.splice(index, 1);
+        saveExpenses();
+        renderExpenses();
+    }
+
+    function resetExpenses() {
+        if (confirm("This will permanently erase the expense log. Make sure you've exported a CSV backup first. Continue?")) {
+            expenseLog = [];
+            saveExpenses();
+            renderExpenses();
+        }
+    }
+
+    function renderExpenses() {
+        var logTable = document.getElementById('expense-log-table');
+        if (!logTable) return;
+        logTable.innerHTML = '';
+        var total = 0;
+
+        for (var i = expenseLog.length - 1; i >= 0; i--) {
+            (function(index) {
+                var record = expenseLog[index];
+                total += record.amount;
+                var tr = document.createElement('tr');
+                var tdTime = document.createElement('td'); tdTime.innerText = record.time;
+                var tdDesc = document.createElement('td'); tdDesc.innerText = record.desc;
+                var tdCat = document.createElement('td'); tdCat.innerText = record.category || '-';
+                var tdAmt = document.createElement('td'); tdAmt.innerText = formatCurrency(record.amount);
+                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; tdDel.innerText = '×'; tdDel.onclick = function() { deleteExpenseRecord(index); };
+                tr.appendChild(tdTime); tr.appendChild(tdDesc); tr.appendChild(tdCat); tr.appendChild(tdAmt); tr.appendChild(tdDel);
+                logTable.appendChild(tr);
+            })(i);
+        }
+        document.getElementById('total-expenses').innerText = formatCurrency(total);
+    }
+
+    function exportExpensesCSV() {
+        if (expenseLog.length == 0) return alert("No expenses to export yet!");
+        var rows = [["Time", "Description", "Category", "Amount"]];
+        for (var i = 0; i < expenseLog.length; i++) {
+            var r = expenseLog[i];
+            rows.push([r.time, r.desc, r.category || '-', r.amount]);
+        }
+        var csvContent = rows.map(function(row) {
+            return row.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'arena456-expenses-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // ---- Staff & Salary ----
+    function addStaff() {
+        var nameInput = document.getElementById('new-staff-name');
+        var roleInput = document.getElementById('new-staff-role');
+        var salaryInput = document.getElementById('new-staff-salary');
+        var name = nameInput.value.trim();
+        var role = roleInput.value.trim();
+        var dailySalary = parseFloat(salaryInput.value);
+        if (!name) return alert("Enter a staff name!");
+        if (isNaN(dailySalary) || dailySalary < 0) return alert("Enter a valid daily salary!");
+
+        staffList.push({ id: Date.now(), name: name, role: role || 'Staff', dailySalary: dailySalary });
+        nameInput.value = ''; roleInput.value = ''; salaryInput.value = '';
+        saveStaffList();
+        renderStaffList();
+    }
+
+    function removeStaff(id) {
+        if (!confirm("Remove this staff member? Their logged salary history will also be removed.")) return;
+        staffList = staffList.filter(function(s) { return s.id !== id; });
+        salaryLog = salaryLog.filter(function(e) { return e.staffId !== id; });
+        saveStaffList();
+        saveSalaryLog();
+        renderStaffList();
+    }
+
+    // Renders every staff member as a compact card: daily rate, running total paid, and a
+    // button that opens their attendance/pay calendar (see openStaffCalendar below).
+    function renderStaffList() {
+        var list = document.getElementById('staff-list');
+        var emptyMsg = document.getElementById('staff-list-empty');
+        if (!list || !emptyMsg) return;
+        list.innerHTML = '';
+
+        if (staffList.length === 0) {
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+
+        for (var i = 0; i < staffList.length; i++) {
+            var staff = staffList[i];
+            var entries = salaryLog.filter(function(e) { return e.staffId === staff.id; });
+            var totalPaid = 0;
+            for (var e = 0; e < entries.length; e++) {
+                if (entries[e].status === 'Paid') totalPaid += entries[e].amount;
+            }
+
+            var card = document.createElement('div');
+            card.className = 'ko-card';
+            card.innerHTML =
+                '<div class="ko-header"><strong>' + staff.name + ' &middot; ' + staff.role + '</strong><span class="ko-badge preparing">' + formatCurrency(staff.dailySalary) + '/day</span></div>' +
+                '<div class="ko-time">Total paid: <b style="color:var(--accent);">' + formatCurrency(totalPaid) + '</b></div>' +
+                '<div class="ko-actions"><button type="button" onclick="openStaffCalendar(' + staff.id + ')" style="background:#8e44ad;">📅 View Calendar</button></div>' +
+                '<div class="item-actions" style="margin-top:6px;"><span></span><span class="delete-tag" onclick="removeStaff(' + staff.id + ')">Remove Staff</span></div>';
+
+            list.appendChild(card);
+        }
+    }
+
+    // ---- Staff calendar: tap a day to cycle it through Paid -> Leave -> Absent -> blank ----
+    var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var calendarStaffId = null;
+    var calendarYear = new Date().getFullYear();
+    var calendarMonth = new Date().getMonth();
+
+    function openStaffCalendar(staffId) {
+        var staff = staffList.filter(function(s) { return s.id === staffId; })[0];
+        if (!staff) return;
+        calendarStaffId = staffId;
+        var now = new Date();
+        calendarYear = now.getFullYear();
+        calendarMonth = now.getMonth();
+        document.getElementById('staff-calendar-title').innerText = staff.name + ' (' + staff.role + ')';
+        document.getElementById('staff-calendar-overlay').style.display = 'block';
+        renderStaffCalendar();
+    }
+
+    function closeStaffCalendar() {
+        document.getElementById('staff-calendar-overlay').style.display = 'none';
+        calendarStaffId = null;
+        renderStaffList();
+    }
+
+    function shiftCalendarMonth(delta) {
+        calendarMonth += delta;
+        if (calendarMonth < 0) { calendarMonth = 11; calendarYear -= 1; }
+        else if (calendarMonth > 11) { calendarMonth = 0; calendarYear += 1; }
+        renderStaffCalendar();
+    }
+
+    function renderStaffCalendar() {
+        var staff = staffList.filter(function(s) { return s.id === calendarStaffId; })[0];
+        if (!staff) return;
+        document.getElementById('calendar-month-label').innerText = MONTH_NAMES[calendarMonth] + ' ' + calendarYear;
+
+        var grid = document.getElementById('staff-calendar-grid');
+        grid.innerHTML = '';
+
+        var dowLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        for (var d = 0; d < 7; d++) {
+            var dowEl = document.createElement('div');
+            dowEl.className = 'calendar-dow';
+            dowEl.innerText = dowLabels[d];
+            grid.appendChild(dowEl);
+        }
+
+        var firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        var daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+        for (var b = 0; b < firstDay; b++) {
+            var blank = document.createElement('div');
+            blank.className = 'calendar-blank';
+            grid.appendChild(blank);
+        }
+
+        var entries = salaryLog.filter(function(e) { return e.staffId === calendarStaffId; });
+        var entryByDate = {};
+        for (var i = 0; i < entries.length; i++) { entryByDate[entries[i].date] = entries[i]; }
+
+        var paidCount = 0, paidAmount = 0, leaveCount = 0, absentCount = 0;
+
+        for (var day = 1; day <= daysInMonth; day++) {
+            var dateStr = calendarYear + '-' + String(calendarMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+            var entry = entryByDate[dateStr];
+
+            var cell = document.createElement('div');
+            cell.className = 'calendar-day' + (entry ? ' status-' + entry.status.charAt(0).toLowerCase() : '');
+            var numDiv = document.createElement('div'); numDiv.className = 'day-num'; numDiv.innerText = day;
+            var statusDiv = document.createElement('div'); statusDiv.className = 'day-status';
+            statusDiv.innerText = entry ? entry.status.charAt(0).toUpperCase() : '';
+            cell.appendChild(numDiv); cell.appendChild(statusDiv);
+            cell.onclick = (function(ds) { return function() { cycleCalendarDay(ds); }; })(dateStr);
+            grid.appendChild(cell);
+
+            if (entry) {
+                if (entry.status === 'Paid') { paidCount += 1; paidAmount += entry.amount; }
+                else if (entry.status === 'Leave') { leaveCount += 1; }
+                else if (entry.status === 'Absent') { absentCount += 1; }
+            }
+        }
+
+        document.getElementById('calendar-paid-count').innerText = paidCount + ' (' + formatCurrency(paidAmount) + ')';
+        document.getElementById('calendar-leave-count').innerText = leaveCount;
+        document.getElementById('calendar-absent-count').innerText = absentCount;
+    }
+
+    function cycleCalendarDay(dateStr) {
+        var entry = null, entryIndex = -1;
+        for (var i = 0; i < salaryLog.length; i++) {
+            if (salaryLog[i].staffId === calendarStaffId && salaryLog[i].date === dateStr) { entry = salaryLog[i]; entryIndex = i; break; }
+        }
+        var staff = staffList.filter(function(s) { return s.id === calendarStaffId; })[0];
+
+        if (!entry) {
+            salaryLog.push({ id: Date.now(), staffId: calendarStaffId, date: dateStr, amount: staff ? staff.dailySalary : 0, status: 'Paid' });
+        } else if (entry.status === 'Paid') {
+            entry.status = 'Leave';
+            entry.amount = 0;
+        } else if (entry.status === 'Leave') {
+            entry.status = 'Absent';
+        } else {
+            salaryLog.splice(entryIndex, 1);
+        }
+
+        saveSalaryLog();
+        renderStaffCalendar();
+    }
+
+    // ---- Backup & Restore ----
+    // Exports everything (menu, sales log, invoice counter) into one JSON file.
+    function exportBackup() {
+        var backup = {
+            backupType: 'arena456-pos-backup',
+            version: 4,
+            exportedAt: new Date().toISOString(),
+            menuCatalog: menuCatalog,
+            salesLog: salesLog,
+            invoiceCounter: invoiceCounter,
+            kitchenOrders: kitchenOrders,
+            pendingPayments: pendingPayments,
+            expenseLog: expenseLog,
+            staffList: staffList,
+            salaryLog: salaryLog,
+            inventoryList: inventoryList,
+            tableCount: tableCount
+        };
+        var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'arena456-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // Restores menu, sales log, invoice counter, and kitchen orders from a previously exported backup file.
+    function restoreBackup(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var data;
+            try {
+                data = JSON.parse(e.target.result);
+            } catch (err) {
+                alert("This doesn't look like a valid backup file.");
+                return;
+            }
+            if (!data || data.backupType !== 'arena456-pos-backup' || !Array.isArray(data.menuCatalog)) {
+                alert("This doesn't look like an Arena 456 backup file.");
+                return;
+            }
+            if (!confirm("This will REPLACE your current menu, sales log, and kitchen orders with the backup from " + (data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'an earlier date') + ". Continue?")) {
+                return;
+            }
+            menuCatalog = data.menuCatalog;
+            salesLog = Array.isArray(data.salesLog) ? data.salesLog : [];
+            invoiceCounter = typeof data.invoiceCounter === 'number' ? data.invoiceCounter : 1;
+            kitchenOrders = Array.isArray(data.kitchenOrders) ? data.kitchenOrders : [];
+            pendingPayments = Array.isArray(data.pendingPayments) ? data.pendingPayments : [];
+            expenseLog = Array.isArray(data.expenseLog) ? data.expenseLog : [];
+            staffList = Array.isArray(data.staffList) ? data.staffList : [];
+            salaryLog = Array.isArray(data.salaryLog) ? data.salaryLog : [];
+            inventoryList = Array.isArray(data.inventoryList) ? data.inventoryList : [];
+            tableCount = typeof data.tableCount === 'number' ? data.tableCount : 12;
+            saveMenu();
+            saveSales();
+            saveInvoiceCounter();
+            saveKitchenOrders();
+            savePendingPayments();
+            saveExpenses();
+            saveStaffList();
+            saveSalaryLog();
+            saveInventory();
+            saveTableCount();
+            renderCatalog();
+            updateSalesDashboard();
+            renderKitchenOrders();
+            renderReadyOrders();
+            renderPendingPayments();
+            renderExpenses();
+            renderStaffList();
+            renderInventory();
+            renderCategoryTiles();
+            renderItemsForCategory();
+            clearOrphanedTableSelection();
+            renderTableButtons();
+            var tableCountSettingEl = document.getElementById('table-count-setting');
+            if (tableCountSettingEl) tableCountSettingEl.value = tableCount;
+            alert("Backup restored successfully!");
+        };
+        reader.onerror = function() { alert("Could not read that file."); };
+        reader.readAsText(file);
+        document.getElementById('restore-file-input').value = '';
+    }
+</script>
+</body>
+</html>
