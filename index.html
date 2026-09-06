@@ -1,1 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ARENA 456 CLOUD POS</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #27ae60; --secondary: #e67e22; --danger: #c0392b; --bg: #f5f6fa; }
+        html { margin: 0; padding: 0; }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg); box-sizing: border-box; }
+        .container { display: flex; flex-direction: column; gap: 10px; }
+        .brand-header { display: flex; align-items: center; justify-content: center; gap: 12px; background: #0d1b12; padding: 12px; border-radius: 10px; }
+        .brand-header img { height: 54px; width: 54px; border-radius: 50%; object-fit: cover; }
+        .brand-header h1 { color: #27ae60; font-size: 1.3rem; margin: 0; letter-spacing: 1px; }
+        .brand-header span { color: #ecf0f1; font-size: 0.7rem; display: block; }
+        .tabs { display: flex; flex-wrap: nowrap; gap: 3px; background: #fff; padding: 4px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn { flex: 1; min-width: 0; padding: 5px 1px; border: none; background: none; font-weight: bold; color: #7f8c8d; cursor: pointer; border-radius: 5px; font-size: 0.5rem; display: flex; flex-direction: column; align-items: center; gap: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tab-btn .tab-icon { font-size: 0.9rem; line-height: 1.3; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .panel { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        h2 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        label { display: block; font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        button { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .checkbox-row input { width: auto; }
+        .checkbox-row label { margin-bottom: 0; }
+        .size-inputs { display: none; gap: 8px; margin-bottom: 10px; }
+        .size-inputs.active { display: flex; }
+        .size-inputs div { flex: 1; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+        .catalog-item { background: #fff; border: 2px solid #dcdde1; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .catalog-img { width: 100%; height: 90px; object-fit: cover; background: #ecf0f1; }
+        .catalog-placeholder { width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; background: linear-gradient(135deg,#eafaf1,#f5f6fa); }
+        .catalog-body { padding: 8px 10px 10px 10px; text-align: center; }
+        .catalog-item small { display: block; color: #7f8c8d; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .catalog-item strong { display: block; font-size: 0.9rem; color: #2c3e50; }
+        .catalog-item span.price-tag { display: block; font-size: 0.85rem; color: #27ae60; font-weight: bold; margin: 4px 0 8px 0; }
+        .select-btn { background: #27ae60; color: white; padding: 8px; font-size: 0.8rem; border-radius: 6px; border: none; width: 100%; cursor: pointer; margin-bottom: 4px;}
+        .size-btn-row { display: flex; gap: 4px; margin-bottom: 6px; }
+        .size-btn { flex: 1; background: #2c3e50; color: #fff; font-size: 0.65rem; padding: 6px 2px; border-radius: 5px; border: none; cursor: pointer; }
+        .item-actions { display: flex; justify-content: space-between; margin-top: 4px; }
+        .edit-tag { color: #2980b9; font-size: 0.72rem; text-decoration: underline; cursor: pointer; }
+        .delete-tag { color: var(--danger); font-size: 0.72rem; text-decoration: underline; cursor: pointer; }
+        .edit-form input, .edit-form select { margin-bottom: 6px; font-size: 0.8rem; padding: 6px; }
+        .edit-form .size-inputs { display: flex; }
+        .edit-form-actions { display: flex; gap: 6px; }
+        .edit-form-actions button { padding: 8px; font-size: 0.75rem; }
+        .save-edit-btn { background: var(--accent); }
+        .cancel-edit-btn { background: #95a5a6; }
+        .bill-table-container { max-height: 220px; overflow-y: auto; overflow-x: auto; margin-top: 10px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 8px 4px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; white-space: nowrap; }
+        th { background: #f1f2f6; }
+        .item-disc-input { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 45px; text-align: center; display: inline-block; }
+        .item-disc-type { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 40px; display: inline-block; background: #fff; }
+        .remove-idx { color: var(--danger); cursor: pointer; font-weight: bold; font-size: 1.3rem; text-align: center; padding: 0 5px; }
+        .qty-control { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .qty-btn { width: 24px; height: 24px; padding: 0; font-size: 1rem; line-height: 1; border-radius: 6px; background: var(--primary); }
+        .receipt-preview { display: none; background: #fff; border: 1px dashed #bbb; padding: 15px; width: 100%; max-width: 260px; margin: 10px auto; box-sizing: border-box; font-family: monospace; }
+        .receipt-header { text-align: center; margin-bottom: 10px; }
+        .receipt-header img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; }
+        .receipt-line { border-top: 1px dashed #000; margin: 8px 0; }
+        .receipt-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+        .total-row { font-weight: bold; font-size: 1rem; }
+        .summary-box { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
+        .kitchen-ticket { display: none; background: #fff; border: 1px dashed #bbb; padding: 15px; width: 100%; max-width: 260px; margin: 10px auto; box-sizing: border-box; font-family: monospace; }
+        .kitchen-ticket-row { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; font-weight: bold; }
+        .ko-card { border: 1px solid #eee; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .ko-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .ko-header strong { font-size: 0.95rem; color: var(--primary); }
+        .ko-time { font-size: 0.7rem; color: #95a5a6; margin-bottom: 6px; }
+        .ko-badge { font-size: 0.68rem; font-weight: bold; padding: 4px 10px; border-radius: 12px; color: #fff; white-space: nowrap; }
+        .ko-badge.pending { background: #e67e22; }
+        .ko-badge.preparing { background: #2980b9; }
+        .ko-badge.ready { background: #27ae60; }
+        .ko-items { font-size: 0.88rem; margin: 6px 0; padding: 8px; background: #f8f9fa; border-radius: 6px; }
+        .ko-item-row { padding: 2px 0; }
+        .ko-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .ko-actions button { font-size: 0.75rem; padding: 9px 4px; }
+        .ko-cancel { color: var(--danger); font-size: 0.72rem; text-decoration: underline; cursor: pointer; display: block; text-align: right; margin-top: 6px; }
+        .order-type-btns { display: flex; gap: 6px; margin-top: 6px; }
+        .order-type-btn { flex: 1; padding: 6px 2px; font-size: 0.6rem; font-weight: bold; background: #ecf0f1; color: #2c3e50; border: 2px solid #dcdde1; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .order-type-btn .ot-icon { font-size: 1rem; }
+        .order-type-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .backup-btn { background: var(--primary); margin-top: 10px; }
+        .restore-btn { background: var(--secondary); margin-top: 10px; }
+        .log-actions { display: flex; gap: 10px; align-items: center; }
+        .log-action { cursor: pointer; font-size: 1.05rem; user-select: none; }
+        .log-action.log-delete { color: var(--danger); font-weight: bold; }
+        .sales-edit-input { padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        .sales-edit-actions { display: flex; gap: 4px; }
+        .sales-edit-actions button { padding: 6px 8px; font-size: 0.75rem; width: auto; }
+        .pos-columns { display: flex; flex-direction: row; gap: 6px; align-items: flex-start; }
+        .pos-zone { background: white; border-radius: 10px; padding: 7px; box-sizing: border-box; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .pos-zone-categories { width: calc(22% - 5px); }
+        .pos-zone-items { width: calc(40% - 5px); }
+        .pos-zone-bill { width: calc(38% - 5px); }
+        .pos-zone-title { font-size: 0.72rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .pos-zone-title .manage-link { font-size: 0.9rem; color: var(--secondary); cursor: pointer; font-weight: normal; }
+        .pos-zone-scroll { overflow-y: auto; }
+        .pos-zone-categories .pos-zone-scroll { max-height: 440px; }
+        .pos-zone-items .pos-zone-scroll { max-height: 440px; }
+        .pos-zone-bill .pos-zone-scroll { max-height: 170px; overflow-x: auto; }
+        .category-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+        .category-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 3px; background: #fff; border: 1px solid #eee; border-radius: 14px; font-size: 1.15rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .category-tile .cat-name { font-size: 0.5rem; font-weight: bold; color: var(--primary); line-height: 1.05; text-align: center; }
+        .category-tile.active { border-color: var(--accent); background: #eafaf1; box-shadow: 0 2px 6px rgba(39,174,96,0.25); }
+        .item-tile-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .item-tile { flex: 0 0 calc(50% - 3px); box-sizing: border-box; background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 10px 6px 8px 6px; cursor: pointer; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .item-icon-circle { width: 34px; height: 34px; border-radius: 50%; background: #eafaf1; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; margin: 0 auto 6px auto; }
+        .table-btn-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
+        .table-btn { flex: 0 0 calc(20% - 4px); box-sizing: border-box; height: 30px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; font-size: 0.72rem; font-weight: bold; cursor: pointer; color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .table-btn.active { border-color: var(--accent); background: #eafaf1; color: var(--accent); }
+        .table-btn.occupied { position: relative; }
+        .table-btn.occupied::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--secondary); border: 1.5px solid #fff; }
+        .table-btn.has-draft { position: relative; }
+        .table-btn.has-draft::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; border-radius: 50%; background: #95a5a6; border: 1.5px solid #fff; }
+        .item-tile strong { display: block; font-size: 0.72rem; color: var(--primary); line-height: 1.25; }
+        .item-tile span { display: block; font-size: 0.72rem; color: var(--accent); font-weight: bold; margin-top: 3px; }
+        .item-tile .size-btn-row { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; }
+        .pos-zone-bill table { font-size: 0.66rem; }
+        .pos-zone-bill td, .pos-zone-bill th { padding: 4px 2px; }
+        .pos-bill-total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; padding: 4px 0; }
+        .calendar-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+        .calendar-day { position: relative; flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; border: 1px solid #dcdde1; border-radius: 6px; cursor: pointer; }
+        .day-amount { font-size: 0.48rem; color: var(--accent); font-weight: bold; line-height: 1; margin-top: 1px; }
+        .day-add-btn { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; line-height: 13px; font-size: 0.62rem; font-weight: bold; text-align: center; background: var(--secondary); color: #fff; border-radius: 50%; cursor: pointer; }
+        .calendar-dow { flex: 0 0 calc(14.28% - 4px); box-sizing: border-box; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #7f8c8d; }
+        .calendar-blank { flex: 0 0 calc(14.28% - 4px); height: 40px; }
+        .calendar-day .day-num { font-size: 0.62rem; color: #95a5a6; }
+        .calendar-day .day-status { font-weight: bold; font-size: 0.9rem; line-height: 1; }
+        .calendar-day.status-p { background: #eafaf1; border-color: var(--accent); }
+        .calendar-day.status-p .day-status { color: var(--accent); }
+        .calendar-day.status-l { background: #fef5e7; border-color: #e67e22; }
+        .calendar-day.status-l .day-status { color: #e67e22; }
+        .calendar-day.status-a { background: #fdecea; border-color: var(--danger); }
+        .calendar-day.status-a .day-status { color: var(--danger); }
+        @media print {
+            body { overflow: visible !important; }
+            body * { visibility: hidden; }
+            #billing-tab { display: block !important; }
+            #receipt { display: block !important; }
+            #receipt, #receipt * { visibility: visible; }
+            #receipt { position: absolute; left: 0; top: 0; width: 100%; }
+            body.print-kitchen #receipt { display: none !important; }
+            body.print-kitchen .kitchen-ticket { display: block !important; }
+            body.print-kitchen .kitchen-ticket, body.print-kitchen .kitchen-ticket * { visibility: visible !important; }
+            body.print-kitchen .kitchen-ticket { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
 
+    <div class="brand-header">
+        <img src="data:image/jpeg;base64,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" alt="Arena 456 Logo">
+        <div>
+            <h1>ARENA 456</h1>
+            <span>Cafe &amp; Restaurant — Cloud POS</span>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button id="btn-billing" class="tab-btn active" onclick="switchTab('billing')"><span class="tab-icon">🛒</span>Billing</button>
+        <button id="btn-kitchen" class="tab-btn" onclick="switchTab('kitchen')"><span class="tab-icon">🍳</span>Kitchen</button>
+        <button id="btn-ready" class="tab-btn" onclick="switchTab('ready')"><span class="tab-icon">✅</span>Ready</button>
+        <button id="btn-received" class="tab-btn" onclick="switchTab('received')"><span class="tab-icon">💰</span>Receive</button>
+        <button id="btn-sales" class="tab-btn" onclick="switchTab('sales')"><span class="tab-icon">📈</span>Sales</button>
+        <button id="btn-expenses" class="tab-btn" onclick="switchTab('expenses')"><span class="tab-icon">💸</span>Expenses</button>
+        <button id="btn-salary" class="tab-btn" onclick="switchTab('salary')"><span class="tab-icon">👥</span>Salary</button>
+        <button id="btn-inventory" class="tab-btn" onclick="switchTab('inventory')"><span class="tab-icon">📦</span>Inventory</button>
+    </div>
+
+    <div id="billing-tab" class="tab-content active">
+        <div class="pos-columns">
+        <div class="pos-zone pos-zone-categories">
+            <div class="pos-zone-title">📂 <span class="manage-link" onclick="openMenuManager()">⚙️</span></div>
+            <div class="pos-zone-scroll">
+                <div class="category-grid" id="category-grid"></div>
+            </div>
+        </div>
+
+        <div class="pos-zone pos-zone-items">
+            <div class="pos-zone-title" id="items-zone-title">🍽️ Select category</div>
+            <input type="text" id="item-quick-search" placeholder="🔍 Search items..." oninput="renderItemsForCategory()" style="padding:6px 8px; font-size:0.7rem; margin-bottom:6px;">
+            <div class="pos-zone-scroll">
+                <div class="item-tile-grid" id="item-tile-grid"></div>
+                <div id="item-tile-empty" style="text-align:center; color:#95a5a6; padding:16px 4px; font-size:0.72rem;">👆 Tap a category</div>
+            </div>
+        </div>
+
+        <div class="pos-zone pos-zone-bill">
+            <div class="pos-zone-title" id="active-bill-heading">🧾 Order</div>
+            <div class="table-btn-grid" id="table-btn-grid"></div>
+            <div class="pos-zone-title" style="margin-bottom:2px; font-size:0.68rem;">
+                🪑 Table
+                <span>
+                    <span class="manage-link" onclick="adjustTableCount(-1)" title="Remove a table">➖</span>
+                    <span class="manage-link" onclick="adjustTableCount(1)" title="Add a table">➕</span>
+                </span>
+            </div>
+            <div class="table-btn-grid" id="table-btn-grid"></div>
+            <input type="text" id="table-name-extra" placeholder="Optional name" style="padding:7px; font-size:0.72rem; margin-bottom:5px;" oninput="updateTableInfo()">
+            <input type="hidden" id="table-info">
+            <div class="order-type-btns" id="order-type-btns" style="margin-top:0; margin-bottom:5px;">
+                <button type="button" class="order-type-btn active" data-type="Dine-in" onclick="setOrderType('Dine-in')"><span class="ot-icon">🍽️</span>Dine-in</button>
+                <button type="button" class="order-type-btn" data-type="Takeaway" onclick="setOrderType('Takeaway')"><span class="ot-icon">🥡</span>Takeaway</button>
+                <button type="button" class="order-type-btn" data-type="Delivery" onclick="setOrderType('Delivery')"><span class="ot-icon">🛵</span>Delivery</button>
+            </div>
+
+            <div class="pos-zone-scroll" style="border-top:1px solid #eee; border-bottom:1px solid #eee;">
+                <table>
+                    <tbody id="bill-items-table"></tbody>
+                </table>
+            </div>
+
+            <div class="pos-bill-total-row" style="margin-top:6px;"><span>Total:</span><span id="pos-bill-total">Rs. 0</span></div>
+            <select id="payment-method" style="padding:7px; font-size:0.75rem; margin-bottom:5px;">
+                <option value="Cash">Cash</option>
+                <option value="JazzCash">JazzCash</option>
+                <option value="EasyPaisa">EasyPaisa</option>
+                <option value="Card">Card</option>
+            </select>
+            <input type="number" id="order-discount" placeholder="Discount %" min="0" max="100" value="0" oninput="updateBillDisplay()" style="padding:7px; font-size:0.75rem; margin-bottom:6px;">
+            <button onclick="printKitchenTicket()" style="background:var(--secondary); margin-bottom:5px;">🧾 Kitchen</button>
+            <button onclick="processCheckout()" style="background:var(--accent);">🖨️ Checkout</button>
+            <span class="delete-tag" style="display:block; text-align:center; margin-top:6px;" onclick="clearBill()">🗑️ Clear Order</span>
+        </div>
+        </div>
+
+        <div class="receipt-preview" id="receipt">
+            <div class="receipt-header">
+                <img src="data:image/jpeg;base64,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" alt="Logo">
+                <h3 style="margin:2px 0;">ARENA 456</h3>
+                <div id="receipt-invoice" style="font-size:0.75rem; color:#555;"></div>
+                <div id="receipt-table" style="font-size:0.75rem; color:#555;"></div>
+                <div id="receipt-order-type" style="font-size:0.75rem; color:#555;"></div>
+                <small id="receipt-date"></small>
+            </div>
+            <div class="receipt-line"></div>
+            <div id="receipt-items"></div>
+            <div class="receipt-line"></div>
+            <div class="receipt-row"><span>Subtotal:</span><span id="receipt-subtotal">Rs. 0</span></div>
+            <div class="receipt-row" id="receipt-item-discount-row" style="display:none;"><span>Item Discount:</span><span id="receipt-item-discount">Rs. 0</span></div>
+            <div class="receipt-row" id="receipt-order-discount-row" style="display:none;"><span>Order Discount:</span><span id="receipt-order-discount">Rs. 0</span></div>
+            <div class="receipt-row total-row"><span>Total Amount:</span><span id="receipt-net-total">Rs. 0</span></div>
+            <div class="receipt-line"></div>
+            <div style="font-size:0.75rem;">Thank You For Dining With Us!</div>
+        </div>
+
+        <div class="kitchen-ticket" id="kitchen-ticket">
+            <div style="text-align:center;">
+                <h3 style="margin:2px 0;">KITCHEN TICKET</h3>
+                <div id="kt-invoice" style="font-size:0.8rem;"></div>
+                <div id="kt-table" style="font-size:0.85rem; font-weight:bold;"></div>
+                <div id="kt-order-type" style="font-size:0.85rem; font-weight:bold;"></div>
+                <small id="kt-date"></small>
+            </div>
+            <div class="receipt-line"></div>
+            <div id="kt-items"></div>
+            <div class="receipt-line"></div>
+        </div>
+    </div>
+
+    <div id="menu-manager-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1000; padding:10px; box-sizing:border-box; overflow-y:auto;">
+        <div class="panel" style="max-width:520px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 style="margin:0; border:none; padding:0;">📂 Menu Management</h2>
+                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeMenuManager()">✖</span>
+            </div>
+            <div class="flex-row" style="background:#f8f9fa; padding:8px; border-radius:8px;">
+                <div style="flex: 1;">
+                    <label>🪑 Number of Table Buttons</label>
+                    <input type="number" id="table-count-setting" value="12" min="1" max="60" onchange="updateTableCount()">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Item Name</label>
+                    <input type="text" id="new-item-name" placeholder="e.g., Zinger Burger">
+                </div>
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <input type="text" id="new-item-category" placeholder="e.g., Burgers" value="General">
+                </div>
+            </div>
+
+            <div class="checkbox-row">
+                <input type="checkbox" id="new-item-has-sizes" onchange="toggleSizeInputs()">
+                <label for="new-item-has-sizes">This item has Small / Medium / Large pricing (like Pizza)</label>
+            </div>
+
+            <div class="flex-row" id="new-item-single-price-row">
+                <div style="flex: 1;">
+                    <label>Price</label>
+                    <input type="number" id="new-item-price" placeholder="350">
+                </div>
+            </div>
+
+            <div class="size-inputs" id="new-item-size-row">
+                <div><label>Small Rs.</label><input type="number" id="new-item-size-small" placeholder="670"></div>
+                <div><label>Medium Rs.</label><input type="number" id="new-item-size-medium" placeholder="950"></div>
+                <div><label>Large Rs.</label><input type="number" id="new-item-size-large" placeholder="1450"></div>
+            </div>
+
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Image URL (optional)</label>
+                    <input type="text" id="new-item-image" placeholder="https://... (leave blank for icon)">
+                </div>
+            </div>
+
+            <button type="button" onclick="saveToCatalog()">＋ Add to Menu Grid</button>
+
+            <div class="flex-row" style="margin-top:15px;">
+                <div style="flex: 2;">
+                    <label>Search Menu</label>
+                    <input type="text" id="menu-search" placeholder="Search items..." oninput="renderCatalog()">
+                </div>
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <select id="menu-category-filter" onchange="renderCatalog()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catalog-grid" id="catalog-list"></div>
+        </div>
+    </div>
+
+    <div id="kitchen-tab" class="tab-content">
+        <div class="panel">
+            <h2>🍳 Kitchen Orders Queue</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Your kitchen's prep queue. Move each order through its status as it's made — once marked Ready, it drops off this list (it's still billable from the Ready tab).</p>
+            <div id="kitchen-orders-list"></div>
+            <div id="kitchen-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No active kitchen orders right now.</div>
+        </div>
+    </div>
+
+    <div id="ready-tab" class="tab-content">
+        <div class="panel">
+            <h2>✅ Active Orders — Bill Anytime</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Every active order lives here the moment a kitchen ticket is printed — bill it any time, no need to wait for prep status. Tap "Load to Billing" — no retyping.</p>
+            <div id="ready-orders-list"></div>
+            <div id="ready-orders-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No orders ready for billing right now.</div>
+        </div>
+    </div>
+
+    <div id="received-tab" class="tab-content">
+        <div class="panel">
+            <h2>💰 Receive Payment</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">Nothing counts toward Daily Sales until you tap "✅ Receive Payment." Use "🗑️ Void" if the customer didn't pay.</p>
+            <div id="pending-payments-list"></div>
+            <div id="pending-payments-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No payments waiting to be received right now.</div>
+        </div>
+    </div>
+
+    <div id="sales-tab" class="tab-content">
+        <div class="panel">
+            <h2>📈 Today's Financial Overview</h2>
+            <div class="summary-box">
+                <div class="summary-row" style="font-weight:bold; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:6px;">
+                    <span>Gross Sales Revenue:</span><span id="total-sales">Rs. 0</span>
+                </div>
+                <div class="summary-row"><span>💵 Cash in Drawer:</span><span id="sales-cash">Rs. 0</span></div>
+                <div class="summary-row"><span>📱 EasyPaisa Wallet:</span><span id="sales-easypaisa">Rs. 0</span></div>
+                <div class="summary-row"><span>🔴 JazzCash Wallet:</span><span id="sales-jazzcash">Rs. 0</span></div>
+                <div class="summary-row"><span>💳 Card Swipes:</span><span id="sales-card">Rs. 0</span></div>
+            </div>
+
+            <h2>📋 Transaction Log History</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">✏️ Edit amount/method/type &nbsp; 📝 Edit items &nbsp; 🖨️ Reprint &nbsp; × Delete</p>
+            <div class="bill-table-container" style="max-height:300px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Date, Time</th>
+                            <th>Table</th>
+                            <th>Type</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-log-table"></tbody>
+                </table>
+            </div>
+            <button onclick="exportSalesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Sales CSV</button>
+            <button onclick="resetDailySales()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Sales Log Counter</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>📦 Item Sales Summary</h2>
+            <p style="font-size:0.78rem; color:#888; margin-top:-4px;">How many of each item sold — cross-check against Inventory's Sold column.</p>
+            <div class="bill-table-container" style="max-height:280px;">
+                <table>
+                    <thead>
+                        <tr><th>Item</th><th>Qty Sold</th><th>Revenue</th></tr>
+                    </thead>
+                    <tbody id="item-sales-summary-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>💾 Backup &amp; Restore</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Your menu and sales only live in this browser. Export a backup regularly (e.g. end of each day) so you never lose your data if the device is reset or you switch phones/tablets.</p>
+            <button onclick="exportBackup()" class="backup-btn">⬇️ Export Full Backup (.json)</button>
+            <input type="file" id="restore-file-input" accept=".json" style="display:none;" onchange="restoreBackup(this.files[0])">
+            <button onclick="document.getElementById('restore-file-input').click()" class="restore-btn">📥 Restore From Backup</button>
+        </div>
+    </div>
+
+    <div id="expenses-tab" class="tab-content">
+        <div class="panel">
+            <h2>💸 Add Expense</h2>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Description</label>
+                    <input type="text" id="new-expense-desc" placeholder="e.g., Gas cylinder refill">
+                </div>
+                <div style="flex: 1;">
+                    <label>Category</label>
+                    <input type="text" id="new-expense-category" placeholder="e.g., Utilities" value="General">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Amount (Rs.)</label>
+                    <input type="number" id="new-expense-amount" placeholder="500">
+                </div>
+            </div>
+            <button type="button" onclick="addExpense()">➕ Add Expense</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <div class="summary-box">
+                <div class="summary-row" style="font-weight:bold;">
+                    <span>Total Expenses:</span><span id="total-expenses">Rs. 0</span>
+                </div>
+            </div>
+            <h2>📋 Expense Log</h2>
+            <div class="bill-table-container" style="max-height:300px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-log-table"></tbody>
+                </table>
+            </div>
+            <button onclick="exportExpensesCSV()" style="background: var(--primary); margin-top: 15px;">⬇️ Export Expenses CSV</button>
+            <button onclick="resetExpenses()" style="background: var(--danger); margin-top: 10px;">⚠️ Wipe Expense Log</button>
+        </div>
+    </div>
+
+    <div id="salary-tab" class="tab-content">
+        <div class="panel">
+            <h2>👥 Add Staff Member</h2>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Name</label>
+                    <input type="text" id="new-staff-name" placeholder="e.g., Ahmed">
+                </div>
+                <div style="flex: 1;">
+                    <label>Role</label>
+                    <input type="text" id="new-staff-role" placeholder="e.g., Cook">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Daily Salary (Rs.)</label>
+                    <input type="number" id="new-staff-salary" placeholder="800">
+                </div>
+            </div>
+            <button type="button" onclick="addStaff()">➕ Add Staff</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>🧾 Staff</h2>
+            <p style="font-size:0.85rem; color:#555; margin-top:0;">Tap a staff member's calendar to mark each day Paid, on Leave, or Absent.</p>
+            <div id="staff-list"></div>
+            <div id="staff-list-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No staff added yet.</div>
+        </div>
+    </div>
+
+    <div id="staff-calendar-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1001; padding:10px; box-sizing:border-box; overflow-y:auto;">
+        <div class="panel" style="max-width:420px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 id="staff-calendar-title" style="margin:0; border:none; padding:0; font-size:1rem;"></h2>
+                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeStaffCalendar()">✖</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <button type="button" onclick="shiftCalendarMonth(-1)" style="width:auto; padding:8px 16px;">◀</button>
+                <strong id="calendar-month-label"></strong>
+                <button type="button" onclick="shiftCalendarMonth(1)" style="width:auto; padding:8px 16px;">▶</button>
+            </div>
+            <div class="calendar-grid" id="staff-calendar-grid"></div>
+            <p style="font-size:0.72rem; color:#888; text-align:center; margin:8px 0 0 0;">Tap a day to cycle: blank → Paid → Leave → Absent → blank. Tap the small + for an exact amount.</p>
+            <div style="display:flex; gap:12px; justify-content:center; margin-top:8px; font-size:0.75rem;">
+                <span><b style="color:var(--accent);">P</b> Paid</span>
+                <span><b style="color:#e67e22;">L</b> Leave</span>
+                <span><b style="color:var(--danger);">A</b> Absent</span>
+            </div>
+            <div class="summary-box" style="margin-top:12px;">
+                <div class="summary-row"><span>Paid days:</span><span id="calendar-paid-count">0 (Rs. 0)</span></div>
+                <div class="summary-row"><span>Leave days:</span><span id="calendar-leave-count">0</span></div>
+                <div class="summary-row"><span>Absent days:</span><span id="calendar-absent-count">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sale-items-edit-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1002; padding:10px; box-sizing:border-box; overflow-y:auto;">
+        <div class="panel" style="max-width:480px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h2 id="sale-edit-items-title" style="margin:0; border:none; padding:0; font-size:1rem;"></h2>
+                <span style="cursor:pointer; font-size:1.4rem; color:#7f8c8d;" onclick="closeSaleItemsEdit()">✖</span>
+            </div>
+            <p style="font-size:0.75rem; color:#888; margin-top:0;">Fixes a bill that's already paid - e.g. the customer asked for something extra, or you forgot an item.</p>
+            <div id="sale-edit-items-list"></div>
+            <div style="margin-top:12px;">
+                <label>Add an item</label>
+                <input type="text" id="sale-edit-add-search" placeholder="Search menu..." oninput="renderSaleEditAddResults()">
+                <div id="sale-edit-add-results" style="max-height:160px; overflow-y:auto; margin-top:6px;"></div>
+            </div>
+            <div class="pos-bill-total-row" style="margin-top:10px; font-size:1rem; border-top:1px solid #eee; padding-top:8px;"><span>New Total:</span><span id="sale-edit-new-total">Rs. 0</span></div>
+            <button type="button" onclick="saveSaleItemsEdit()" style="margin-top:10px;">💾 Save Changes</button>
+            <button type="button" onclick="closeSaleItemsEdit()" style="background:#95a5a6; margin-top:6px;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="inventory-tab" class="tab-content">
+        <div class="panel">
+            <h2>📦 Add / Restock Inventory</h2>
+            <button type="button" onclick="importMenuItemsToInventory()" style="background:var(--secondary); margin-bottom:12px;">📋 Import All Menu Items</button>
+            <p style="font-size:0.78rem; color:#888; margin:-6px 0 12px 0;">Adds every item from your menu that isn't already tracked here, starting at 0 stock — set each one's quantity yourself below.</p>
+            <div class="flex-row">
+                <div style="flex: 2;">
+                    <label>Item Name</label>
+                    <input type="text" id="new-inventory-name" placeholder="e.g., Chicken Fajita">
+                </div>
+                <div style="flex: 1;">
+                    <label>Unit (optional)</label>
+                    <input type="text" id="new-inventory-unit" placeholder="pcs, kg">
+                </div>
+            </div>
+            <div class="flex-row">
+                <div style="flex: 1;">
+                    <label>Quantity to Add</label>
+                    <input type="number" id="new-inventory-qty" placeholder="50">
+                </div>
+            </div>
+            <button type="button" onclick="addInventoryItem()">➕ Add / Restock</button>
+        </div>
+
+        <div class="panel" style="margin-top:15px;">
+            <h2>📊 Stock &amp; Today's Sales</h2>
+            <p style="font-size:0.78rem; color:#888; margin:-4px 0 10px 0;">"Sold" comes from your current Daily Sales log, matched by item name.</p>
+            <input type="text" id="inventory-search" placeholder="🔍 Search inventory..." oninput="renderInventory()" style="margin-bottom:10px;">
+            <div class="bill-table-container" style="max-height:320px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Unit</th>
+                            <th>Stocked</th>
+                            <th>Sold</th>
+                            <th>Remaining</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list"></tbody>
+                </table>
+            </div>
+            <div id="inventory-empty" style="text-align:center; color:#95a5a6; padding:25px 10px;">No inventory items added yet.</div>
+        </div>
+    </div>
+</div>
+<script>
+    var STORAGE_KEYS = {
+        menu: 'arena456_menu_v2',
+        sales: 'arena456_salesLog',
+        invoice: 'arena456_invoiceCounter',
+        bill: 'arena456_currentBill',
+        orderType: 'arena456_orderType',
+        kitchenOrders: 'arena456_kitchenOrders',
+        currentKitchenOrderId: 'arena456_currentKitchenOrderId',
+        pendingPayments: 'arena456_pendingPayments',
+        expenses: 'arena456_expenseLog',
+        staff: 'arena456_staffList',
+        salaryLog: 'arena456_salaryLog',
+        tableInfo: 'arena456_tableInfo',
+        selectedTableNumber: 'arena456_selectedTableNumber',
+        tableCount: 'arena456_tableCount',
+        inventory: 'arena456_inventory',
+        tableBills: 'arena456_tableBills'
+    };
+
+    // ==== PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BELOW (see setup guide). Must stay in quotes! ====
+    var GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwGUSChjgX0LcBZupnBSlBYfvGuDpp7DmpGO3HpqeH8wlR_2oKdqSPy2Z4STbGDPla3qw/exec";
+    // =============================================================================
+
+    var CATEGORY_ICONS = {
+        "Pizza": "🍕", "Burgers": "🍔", "Grills": "🍢", "Fries": "🍟",
+        "Shawarma": "🌯", "Sandwiches": "🥪", "Cakes & Sweets": "🍰",
+        "Tea": "☕", "Coffee": "☕", "Chocolate Fountain": "🍫",
+        "Live Juice": "🥤", "Cold Drinks": "🥤", "Water": "💧", "General": "🍽️"
+    };
+
+    var currentBill = [];
+    var invoiceCounter = 1;
+    var salesLog = [];
+    var currentOrderType = 'Dine-in';
+    var kitchenOrders = [];
+    var currentKitchenOrderId = null; // if set, the active bill is linked to this kitchen order
+    var lastComputedGrandTotal = 0; // raw number (not "Rs. X" text) - always kept in sync by updateBillDisplay()
+    var selectedCategory = null; // category currently shown in the items zone, or null if none picked yet
+    var currentTableInfo = ''; // table number / name for the active order
+    var selectedTableNumber = null; // e.g. "5", or null if none tapped
+    var tableCount = 12; // how many numbered table buttons to show, configurable in Manage Menu
+    // Each table (and '__none__' for Takeaway/Delivery/no table picked) keeps its own
+    // in-progress bill here until it's sent to the kitchen or checked out - so switching
+    // between tables never mixes up items. { "5": { items: [...], nameExtra: "" }, ... }
+    var tableBills = {};
+    var pendingPayments = []; // checked-out orders awaiting "Receive Payment" confirmation before they count as sales
+    var expenseLog = [];
+    var staffList = [];
+    var salaryLog = []; // { id, staffId, date, amount, status: 'Paid' | 'Pending' }
+    var inventoryList = []; // { id, itemName, unit, stockQty }
+
+    // Full starter menu built from the Arena 456 menu board.
+    // Items with "sizes" show Small / Medium / Large buttons instead of a single price.
+    // "image" is optional - paste any image URL to show a real photo instead of the icon.
+    var menuCatalog = [
+        // ---- PIZZA ----
+        { name: "Chicken Fajita", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Chicken Tikka Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Chicken Supreme", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Chicken Malai Boti Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Vegetarian Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "BBQ Chicken Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Pepperoni Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+        { name: "Cheese Lover Pizza", category: "Pizza", sizes: { Small: 670, Medium: 950, Large: 1450 }, image: "" },
+
+        // ---- BURGERS ----
+        { name: "Zinger Burger", category: "Burgers", price: 350, image: "" },
+        { name: "Chicken Burger", category: "Burgers", price: 250, image: "" },
+        { name: "Shami Burger", category: "Burgers", price: 150, image: "" },
+        { name: "Chicken Patty Burger", category: "Burgers", price: 330, image: "" },
+        { name: "Double Decker Zinger", category: "Burgers", price: 580, image: "" },
+        { name: "Tower Burger", category: "Burgers", price: 680, image: "" },
+        { name: "BBQ Burger", category: "Burgers", price: 400, image: "" },
+        { name: "Cheese Burger", category: "Burgers", price: 300, image: "" },
+
+        // ---- GRILLS ----
+        { name: "Chicken Tikka (1/4)", category: "Grills", price: 380, image: "" },
+        { name: "Chicken Tikka (1/2)", category: "Grills", price: 720, image: "" },
+        { name: "Chicken Tikka (Full)", category: "Grills", price: 1350, image: "" },
+        { name: "Malai Boti (1/2)", category: "Grills", price: 800, image: "" },
+        { name: "Malai Boti (Full)", category: "Grills", price: 1500, image: "" },
+        { name: "BBQ Wings (6 Pcs)", category: "Grills", price: 450, image: "" },
+        { name: "BBQ Wings (12 Pcs)", category: "Grills", price: 850, image: "" },
+        { name: "Reshmi Kabab (1/2)", category: "Grills", price: 750, image: "" },
+        { name: "Reshmi Kabab (Full)", category: "Grills", price: 1400, image: "" },
+        { name: "Seekh Kabab (3 Pcs)", category: "Grills", price: 450, image: "" },
+        { name: "Beef Seekh Kabab (3 Pcs)", category: "Grills", price: 550, image: "" },
+
+        // ---- FRIES ----
+        { name: "Plain Fries", category: "Fries", price: 150, image: "" },
+        { name: "Masala Fries", category: "Fries", price: 180, image: "" },
+        { name: "Cheese Fries", category: "Fries", price: 280, image: "" },
+        { name: "Loaded Fries", category: "Fries", price: 350, image: "" },
+
+        // ---- SHAWARMA ----
+        { name: "Chicken Shawarma", category: "Shawarma", price: 180, image: "" },
+        { name: "Zinger Shawarma", category: "Shawarma", price: 200, image: "" },
+        { name: "Shawarma Plate", category: "Shawarma", price: 350, image: "" },
+
+        // ---- SANDWICHES ----
+        { name: "Club Sandwich", category: "Sandwiches", price: 280, image: "" },
+        { name: "Chicken Sandwich", category: "Sandwiches", price: 200, image: "" },
+        { name: "Cheese Sandwich", category: "Sandwiches", price: 180, image: "" },
+        { name: "Grilled Sandwich", category: "Sandwiches", price: 250, image: "" },
+
+        // ---- CAKES & SWEETS ----
+        { name: "Chocolate Cake Slice", category: "Cakes & Sweets", price: 250, image: "" },
+        { name: "Chocolate Fudge Cake", category: "Cakes & Sweets", price: 280, image: "" },
+        { name: "Red Velvet Cake Slice", category: "Cakes & Sweets", price: 280, image: "" },
+        { name: "Brownie with Ice Cream", category: "Cakes & Sweets", price: 350, image: "" },
+        { name: "Gulab Jamun (2 Pcs)", category: "Cakes & Sweets", price: 80, image: "" },
+        { name: "Rasmalai (2 Pcs)", category: "Cakes & Sweets", price: 100, image: "" },
+
+        // ---- TEA ----
+        { name: "Kashmiri Tea", category: "Tea", price: 60, image: "" },
+        { name: "Karak Tea", category: "Tea", price: 60, image: "" },
+
+        // ---- COFFEE ----
+        { name: "Hot Coffee", category: "Coffee", price: 150, image: "" },
+        { name: "Iced Coffee", category: "Coffee", price: 180, image: "" },
+
+        // ---- CHOCOLATE FOUNTAIN ----
+        { name: "Live Chocolate Fountain (Per Head)", category: "Chocolate Fountain", price: 150, image: "" },
+
+        // ---- LIVE JUICE ----
+        { name: "Fresh Juice", category: "Live Juice", price: 180, image: "" },
+
+        // ---- COLD DRINKS ----
+        { name: "Soft Drink Can", category: "Cold Drinks", price: 80, image: "" },
+        { name: "Soft Drink 1.5 Ltr", category: "Cold Drinks", price: 150, image: "" },
+
+        // ---- WATER ----
+        { name: "Mineral Water (Small)", category: "Water", price: 40, image: "" },
+        { name: "Mineral Water (Large)", category: "Water", price: 80, image: "" }
+    ];
+
+    var editingIndex = -1;
+    var editingSalesIndex = -1; // index in salesLog currently being edited on the Sales tab, or -1
+
+    function formatCurrency(num) {
+        return 'Rs. ' + Number(num || 0).toLocaleString('en-PK', { maximumFractionDigits: 0 });
+    }
+
+    function loadState() {
+        try {
+            var savedMenu = localStorage.getItem(STORAGE_KEYS.menu);
+            if (savedMenu !== null) menuCatalog = JSON.parse(savedMenu);
+            var savedSales = localStorage.getItem(STORAGE_KEYS.sales);
+            if (savedSales !== null) salesLog = JSON.parse(savedSales);
+            var savedInvoice = localStorage.getItem(STORAGE_KEYS.invoice);
+            if (savedInvoice !== null) invoiceCounter = parseInt(savedInvoice, 10) || 1;
+            var savedBill = localStorage.getItem(STORAGE_KEYS.bill);
+            if (savedBill !== null) currentBill = JSON.parse(savedBill);
+            var savedOrderType = localStorage.getItem(STORAGE_KEYS.orderType);
+            if (savedOrderType !== null) currentOrderType = savedOrderType;
+            var savedKitchenOrders = localStorage.getItem(STORAGE_KEYS.kitchenOrders);
+            if (savedKitchenOrders !== null) kitchenOrders = JSON.parse(savedKitchenOrders);
+            var savedLinkedOrder = localStorage.getItem(STORAGE_KEYS.currentKitchenOrderId);
+            if (savedLinkedOrder !== null && savedLinkedOrder !== 'null') currentKitchenOrderId = JSON.parse(savedLinkedOrder);
+            var savedPending = localStorage.getItem(STORAGE_KEYS.pendingPayments);
+            if (savedPending !== null) pendingPayments = JSON.parse(savedPending);
+            var savedExpenses = localStorage.getItem(STORAGE_KEYS.expenses);
+            if (savedExpenses !== null) expenseLog = JSON.parse(savedExpenses);
+            var savedStaff = localStorage.getItem(STORAGE_KEYS.staff);
+            if (savedStaff !== null) staffList = JSON.parse(savedStaff);
+            var savedSalaryLog = localStorage.getItem(STORAGE_KEYS.salaryLog);
+            if (savedSalaryLog !== null) salaryLog = JSON.parse(savedSalaryLog);
+            var savedInventory = localStorage.getItem(STORAGE_KEYS.inventory);
+            if (savedInventory !== null) inventoryList = JSON.parse(savedInventory);
+            var savedTableInfo = localStorage.getItem(STORAGE_KEYS.tableInfo);
+            if (savedTableInfo !== null) currentTableInfo = savedTableInfo;
+            var savedSelectedTable = localStorage.getItem(STORAGE_KEYS.selectedTableNumber);
+            if (savedSelectedTable !== null && savedSelectedTable !== '') selectedTableNumber = savedSelectedTable;
+            var savedTableCount = localStorage.getItem(STORAGE_KEYS.tableCount);
+            if (savedTableCount !== null) tableCount = parseInt(savedTableCount, 10) || 12;
+            var savedTableBills = localStorage.getItem(STORAGE_KEYS.tableBills);
+            if (savedTableBills !== null) tableBills = JSON.parse(savedTableBills);
+        } catch (e) {
+            console.warn('Could not load saved POS data:', e);
+        }
+    }
+
+    function saveMenu() { localStorage.setItem(STORAGE_KEYS.menu, JSON.stringify(menuCatalog)); }
+    function saveSales() { localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(salesLog)); }
+    function saveInvoiceCounter() { localStorage.setItem(STORAGE_KEYS.invoice, invoiceCounter); }
+    function saveBill() { localStorage.setItem(STORAGE_KEYS.bill, JSON.stringify(currentBill)); }
+    function saveOrderType() { localStorage.setItem(STORAGE_KEYS.orderType, currentOrderType); }
+    function saveKitchenOrders() { localStorage.setItem(STORAGE_KEYS.kitchenOrders, JSON.stringify(kitchenOrders)); }
+    function saveLinkedOrderId() { localStorage.setItem(STORAGE_KEYS.currentKitchenOrderId, JSON.stringify(currentKitchenOrderId)); }
+    function saveTableInfo() { localStorage.setItem(STORAGE_KEYS.tableInfo, currentTableInfo); }
+    function saveSelectedTableNumber() { localStorage.setItem(STORAGE_KEYS.selectedTableNumber, selectedTableNumber === null ? '' : selectedTableNumber); }
+    function saveTableCount() { localStorage.setItem(STORAGE_KEYS.tableCount, tableCount); }
+    function saveTableBills() { localStorage.setItem(STORAGE_KEYS.tableBills, JSON.stringify(tableBills)); }
+
+    // Combines the tapped table-number button (if any) with the optional typed name into
+    // one string, and writes it into the hidden #table-info field that the rest of the app
+    // (kitchen tickets, receipts, sales records, order cards) already reads from.
+    function updateTableInfo() {
+        var nameExtra = document.getElementById('table-name-extra').value.trim();
+        var parts = [];
+        if (selectedTableNumber) parts.push('Table ' + selectedTableNumber);
+        if (nameExtra) parts.push(nameExtra);
+        currentTableInfo = parts.join(' - ');
+        document.getElementById('table-info').value = currentTableInfo;
+        saveTableInfo();
+    }
+
+    // Renders "Table 1".."Table N" quick-tap buttons. Tapping the already-active one deselects it.
+    function renderTableButtons() {
+        var grid = document.getElementById('table-btn-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        for (var i = 1; i <= tableCount; i++) {
+            (function(num) {
+                var occupied = !!findActiveOrderForTable(String(num));
+                var hasDraft = !occupied && tableHasDraft(String(num));
+                var btn = document.createElement('div');
+                btn.className = 'table-btn' + (selectedTableNumber === String(num) ? ' active' : '') + (occupied ? ' occupied' : (hasDraft ? ' has-draft' : ''));
+                btn.innerText = num;
+                if (occupied) btn.title = 'Table ' + num + ' has an order awaiting payment';
+                else if (hasDraft) btn.title = 'Table ' + num + ' has items not yet sent to the kitchen';
+                btn.onclick = function() { selectTableNumber(String(num)); };
+                grid.appendChild(btn);
+            })(i);
+        }
+    }
+
+    // Looks for an order still "open" against a table number - either still with the kitchen,
+    // or checked out but not yet received. This is what makes a table "reserved" until paid.
+    function findActiveOrderForTable(num) {
+        var label = 'Table ' + num;
+        for (var i = 0; i < kitchenOrders.length; i++) {
+            if (kitchenOrders[i].table === label) return { source: 'kitchen', order: kitchenOrders[i] };
+        }
+        for (var j = 0; j < pendingPayments.length; j++) {
+            if (pendingPayments[j].table === label) return { source: 'pending', order: pendingPayments[j] };
+        }
+        return null;
+    }
+
+    // A "draft" is items sitting on a table that haven't been sent to the kitchen yet - lighter
+    // weight than a reserved/official order, but still worth flagging so nothing gets forgotten.
+    function tableHasDraft(num) {
+        var saved = tableBills[num];
+        return !!(saved && saved.items && saved.items.length > 0);
+    }
+
+    function selectTableNumber(num) {
+        var newTable = (selectedTableNumber === num) ? null : num;
+        switchWorkingTable(newTable);
+    }
+
+    // Every table (and a shared "no table" slot for Takeaway/Delivery/walk-ins) keeps its own
+    // in-progress bill, so switching tables never carries one table's items onto another's.
+    // If the destination already has an "official" order (sent to kitchen, or checked out and
+    // awaiting payment), that's loaded instead of any draft - that's what makes a table stay
+    // "reserved" until its bill is paid.
+    function switchWorkingTable(newTable) {
+        if (newTable) {
+            var active = findActiveOrderForTable(newTable);
+            if (active) {
+                if (active.source === 'kitchen') loadOrderToBilling(active.order.id);
+                else loadPendingPaymentToBilling(active.order.id);
+                return;
+            }
+        }
+
+        saveAwayCurrentTableBill();
+
+        var key = newTable || '__none__';
+        var saved = tableBills[key];
+        currentBill = saved ? JSON.parse(JSON.stringify(saved.items)) : [];
+        currentKitchenOrderId = null;
+        saveLinkedOrderId();
+        selectedTableNumber = newTable;
+        saveSelectedTableNumber();
+
+        var nameExtraInput = document.getElementById('table-name-extra');
+        if (nameExtraInput) nameExtraInput.value = saved ? (saved.nameExtra || '') : '';
+        var discountInput = document.getElementById('order-discount');
+        if (discountInput) discountInput.value = 0;
+
+        updateTableInfo();
+        renderTableButtons();
+        updateBillDisplay();
+        renderKitchenLinkBanner();
+        if (selectedTableNumber && currentOrderType !== 'Dine-in') setOrderType('Dine-in');
+    }
+
+    // Parks whatever's in the active bill under the table (or "no table" slot) it belongs to,
+    // unless it's already officially tracked via a printed kitchen ticket - in that case there's
+    // nothing to park, since findActiveOrderForTable will find the real thing next time.
+    function saveAwayCurrentTableBill() {
+        if (currentKitchenOrderId) return;
+        var key = selectedTableNumber || '__none__';
+        if (currentBill.length > 0) {
+            var nameExtraInput = document.getElementById('table-name-extra');
+            tableBills[key] = {
+                items: JSON.parse(JSON.stringify(currentBill)),
+                nameExtra: nameExtraInput ? nameExtraInput.value : ''
+            };
+        } else {
+            delete tableBills[key];
+        }
+        saveTableBills();
+    }
+
+    // Loads a checked-out-but-not-yet-received order back into the active bill for editing -
+    // e.g. the customer wants to add something before paying, or you tapped their reserved table.
+    function loadPendingPaymentToBilling(id) {
+        var payment = pendingPayments.filter(function(p) { return p.id === id; })[0];
+        if (!payment) return;
+
+        saveAwayCurrentTableBill();
+
+        currentBill = payment.items.map(function(it) {
+            return { name: it.name, price: it.price, qty: it.qty, discVal: 0, discType: 'pct' };
+        });
+        pendingPayments = pendingPayments.filter(function(p) { return p.id !== id; });
+        savePendingPayments();
+
+        setOrderType(payment.orderType || 'Dine-in');
+        restoreTableSelectionFromLabel(payment.table);
+
+        switchTab('billing');
+        updateBillDisplay();
+        renderPendingPayments();
+        renderTableButtons();
+        scrollToBillingTerminal();
+    }
+
+    function updateTableCount() {
+        var input = document.getElementById('table-count-setting');
+        var n = parseInt(input.value, 10);
+        if (isNaN(n) || n < 1) n = 1;
+        if (n > 60) n = 60;
+        tableCount = n;
+        saveTableCount();
+        clearOrphanedTableSelection();
+        renderTableButtons();
+    }
+
+    // Quick +/- next to the table grid itself, so tables can be added/removed without opening
+    // Manage Menu. Keeps the number-input setting there in sync too.
+    function adjustTableCount(delta) {
+        tableCount = Math.max(1, Math.min(60, tableCount + delta));
+        saveTableCount();
+        clearOrphanedTableSelection();
+        renderTableButtons();
+        var settingInput = document.getElementById('table-count-setting');
+        if (settingInput) settingInput.value = tableCount;
+    }
+    // If the currently-selected table number no longer has a button (count was reduced below
+    // it), clear the selection instead of leaving a "Table 12" reference with no visible button.
+    function clearOrphanedTableSelection() {
+        if (selectedTableNumber && parseInt(selectedTableNumber, 10) > tableCount) {
+            selectedTableNumber = null;
+            saveSelectedTableNumber();
+            updateTableInfo();
+        }
+    }
+    function savePendingPayments() { localStorage.setItem(STORAGE_KEYS.pendingPayments, JSON.stringify(pendingPayments)); }
+    function saveExpenses() { localStorage.setItem(STORAGE_KEYS.expenses, JSON.stringify(expenseLog)); }
+    function saveStaffList() { localStorage.setItem(STORAGE_KEYS.staff, JSON.stringify(staffList)); }
+    function saveSalaryLog() { localStorage.setItem(STORAGE_KEYS.salaryLog, JSON.stringify(salaryLog)); }
+    function saveInventory() { localStorage.setItem(STORAGE_KEYS.inventory, JSON.stringify(inventoryList)); }
+
+    // Strips a "(Small/Medium/Large)" size suffix so sales of sized items count against
+    // the same inventory entry as their base name, e.g. "Chicken Fajita (Small)" -> "Chicken Fajita".
+    function inventoryBaseName(name) {
+        var m = name.match(/^(.*) \((Small|Medium|Large)\)$/);
+        return m ? m[1] : name;
+    }
+
+    function addInventoryItem() {
+        var nameInput = document.getElementById('new-inventory-name');
+        var unitInput = document.getElementById('new-inventory-unit');
+        var qtyInput = document.getElementById('new-inventory-qty');
+        var name = nameInput.value.trim();
+        var unit = unitInput.value.trim();
+        var qty = parseFloat(qtyInput.value);
+        if (!name) return alert("Enter an item name!");
+        if (isNaN(qty) || qty <= 0) return alert("Enter a valid quantity!");
+
+        var existing = null;
+        for (var i = 0; i < inventoryList.length; i++) {
+            if (inventoryList[i].itemName.toLowerCase() === name.toLowerCase()) { existing = inventoryList[i]; break; }
+        }
+        if (existing) {
+            existing.stockQty += qty;
+            if (unit) existing.unit = unit;
+        } else {
+            inventoryList.push({ id: Date.now(), itemName: name, unit: unit, stockQty: qty });
+        }
+        nameInput.value = ''; unitInput.value = ''; qtyInput.value = '';
+        saveInventory();
+        renderInventory();
+    }
+
+    // Pulls every current menu item into the inventory list (0 stock, no unit) so you don't
+    // have to retype names - skips anything already tracked. You fill in real quantities after.
+    function importMenuItemsToInventory() {
+        var existingNames = {};
+        for (var i = 0; i < inventoryList.length; i++) {
+            existingNames[inventoryList[i].itemName.toLowerCase()] = true;
+        }
+        var added = 0;
+        for (var j = 0; j < menuCatalog.length; j++) {
+            var menuItemName = menuCatalog[j].name;
+            if (!existingNames[menuItemName.toLowerCase()]) {
+                inventoryList.push({ id: Date.now() + j, itemName: menuItemName, unit: '', stockQty: 0 });
+                existingNames[menuItemName.toLowerCase()] = true;
+                added += 1;
+            }
+        }
+        saveInventory();
+        renderInventory();
+        if (added === 0) alert("Every menu item is already in your inventory list.");
+        else alert("Added " + added + " menu item" + (added === 1 ? "" : "s") + " to inventory - set each one's stock quantity below.");
+    }
+
+    function deleteInventoryItem(id) {
+        if (!confirm("Remove this inventory item? This won't affect past sales records.")) return;
+        inventoryList = inventoryList.filter(function(it) { return it.id !== id; });
+        saveInventory();
+        renderInventory();
+    }
+
+    function renderInventory() {
+        var list = document.getElementById('inventory-list');
+        var emptyMsg = document.getElementById('inventory-empty');
+        var searchInput = document.getElementById('inventory-search');
+        var searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        if (!list) return;
+        list.innerHTML = '';
+
+        var visibleList = searchTerm ? inventoryList.filter(function(it) { return it.itemName.toLowerCase().indexOf(searchTerm) !== -1; }) : inventoryList;
+
+        if (visibleList.length === 0) {
+            if (emptyMsg) {
+                emptyMsg.style.display = 'block';
+                emptyMsg.innerText = searchTerm ? 'No inventory items match "' + searchInput.value.trim() + '".' : 'No inventory items added yet.';
+            }
+            return;
+        }
+        if (emptyMsg) emptyMsg.style.display = 'none';
+
+        // Tally sold quantities per base item name from the current Daily Sales log.
+        var soldMap = {};
+        for (var s = 0; s < salesLog.length; s++) {
+            var rec = salesLog[s];
+            if (!rec.items) continue;
+            for (var it = 0; it < rec.items.length; it++) {
+                var nm = inventoryBaseName(rec.items[it].name);
+                soldMap[nm] = (soldMap[nm] || 0) + rec.items[it].qty;
+            }
+        }
+
+        for (var i = 0; i < visibleList.length; i++) {
+            (function(item) {
+                var sold = soldMap[item.itemName] || 0;
+                var remaining = item.stockQty - sold;
+                var tr = document.createElement('tr');
+                var tdName = document.createElement('td'); tdName.innerText = item.itemName;
+                var tdUnit = document.createElement('td'); tdUnit.innerText = item.unit || '-';
+                var tdStock = document.createElement('td'); tdStock.innerText = item.stockQty;
+                var tdSold = document.createElement('td'); tdSold.innerText = sold;
+                var tdRemaining = document.createElement('td');
+                tdRemaining.innerHTML = '<b style="color:' + (remaining < 0 ? 'var(--danger)' : 'var(--accent)') + ';">' + remaining + '</b>';
+                var tdDel = document.createElement('td'); tdDel.className = 'remove-idx'; 
